@@ -125,6 +125,24 @@ const B2BShop = () => {
     }
     setRestoringSession(false);
   }, []);
+// Push an initial history entry for the "subs" step so back button has
+// something to land on instead of leaving the page.
+useEffect(() => {
+  window.history.replaceState({ view: { step: "subs" } }, "");
+}, []);
+
+// Listen for browser back/forward and sync our internal view state to it.
+useEffect(() => {
+  const handlePopState = (e: PopStateEvent) => {
+    if (e.state?.view) {
+      setView(e.state.view);
+    } else {
+      setView({ step: "subs" });
+    }
+  };
+  window.addEventListener("popstate", handlePopState);
+  return () => window.removeEventListener("popstate", handlePopState);
+}, []);
 
   // Poll for mid-tab expiry (agent leaves tab open past the 1hr TTL without
   // refreshing) so they aren't silently trusted past the cutoff.
@@ -247,12 +265,16 @@ const B2BShop = () => {
 
   const openProduct = (id: string) => {
     resetSelections();
-    setView({
+    pushView({
       step: "detail",
       subSlug: (view as { subSlug: string }).subSlug,
       productId: id,
     });
   };
+  const pushView = (v: View) => {
+  setView(v);
+  window.history.pushState({ view: v }, "");
+};
 
   const buildMessage = () => {
     if (!product) return "";
@@ -537,7 +559,7 @@ const B2BShop = () => {
                   <button
                     key={s.slug}
                     onClick={() =>
-                      setView({ step: "products", subSlug: s.slug })
+                      pushView({ step: "products", subSlug: s.slug })
                     }
                     className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
                   >
@@ -569,7 +591,7 @@ const B2BShop = () => {
         {view.step === "products" && (
           <>
             <button
-              onClick={() => setView({ step: "subs" })}
+              onClick={() => window.history.back()}
               className="text-xs uppercase tracking-widest inline-flex items-center gap-1 mb-4 hover:text-primary"
             >
               <ChevronLeft className="h-3.5 w-3.5" /> All subcategories
@@ -616,8 +638,8 @@ const B2BShop = () => {
           <>
             <button
               onClick={() =>
-                setView({ step: "products", subSlug: view.subSlug })
-              }
+               window.history.back()}
+              
               className="text-xs uppercase tracking-widest inline-flex items-center gap-1 mb-4 hover:text-primary"
             >
               <ChevronLeft className="h-3.5 w-3.5" /> Back to {activeSub?.name}
