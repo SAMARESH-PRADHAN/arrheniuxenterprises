@@ -53,7 +53,7 @@ import { SuccessDialog } from "@/components/SuccessDialog";
 import { useCreateOrder, useProduct, useProducts } from "@/hooks/api";
 import { BrandLoader } from "@/components/BrandLoader";
 
-const SIZE_STEP = 2;
+const SIZE_STEP = 1;
 
 const PDP_DRAFT_KEY = "arr_pdp_draft";
 const BULK_REDIRECT_DRAFT_KEY = "arr_bulk_redirect_draft"; // ← add this, must match ProductDetail.tsx
@@ -184,6 +184,18 @@ const { data: apiProducts = [], isLoading: productsLoading } = useProducts({ sta
   const [printSel, setPrintSel] = useState<PrintSelection>(
     initial.print || emptyPrint(),
   );
+  // Keep catSlug/tier/subSlug in sync with the URL whenever the Bulk Order
+  // mega-menu (or any other link) changes the query string while this page
+  // is already mounted — otherwise the previously selected category sticks.
+  useEffect(() => {
+    const urlCat = params.get("cat");
+    if (!urlCat) return;
+    const urlTier = params.get("tier");
+    const urlSub = params.get("sub");
+    setCatSlug(urlCat);
+    setTier((urlTier as Tier) || "");
+    setSubSlug(urlSub || "");
+  }, [params]);
   const [artwork, setArtwork] = useState<ArtworkFile[]>([]);
   const [namedColor, setNamedColor] = useState<string>("");
   const [printColor, setPrintColor] = useState<string>("");

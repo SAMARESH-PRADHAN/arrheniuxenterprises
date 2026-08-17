@@ -265,11 +265,12 @@ export const catalog: CatalogCategory[] = [
       "Petrol Pump Collar Neck T-Shirts",
       "Conference Collar Neck T-Shirts",
       "Gym Collar Neck T-Shirts",
-      "Garage Collar Neck T-Shirts",
+      "Hotel Collar Neck T-Shirts",
       "NGO Collar Neck T-Shirts",
       "Dotnet White Collar Neck T-Shirt",
       "Festival Group Collar Neck T-Shirts",
       "Ranglan Collar Neck T-Shirt",
+      "220 GSM Spun Matty Reflective Collar Neck T-Shirt",
     ]),
     premium: makeSubs("corporate-wear", corporate, "premium", [
       "Cotton Collar Neck T-Shirts",
@@ -280,12 +281,13 @@ export const catalog: CatalogCategory[] = [
       "Petrol Pump Collar Neck T-Shirts",
       "Conference Collar Neck T-Shirts",
       "Gym Collar Neck T-Shirts",
-      "Garage Collar Neck T-Shirts",
+      "Hotel Collar Neck T-Shirts",
       "NGO Collar Neck T-Shirts",
       "SAP Matty White Collar Neck T-Shirt",
       "Cut & Sew Collar Neck T-Shirts",
       "Festival Group Collar Neck T-Shirts",
       "SAP Matty Ranglan Collar Neck T-Shirt",
+      "220 GSM Spun Matty Reflective Collar Neck T-Shirt",
     ]),
   },
   {
@@ -300,9 +302,9 @@ export const catalog: CatalogCategory[] = [
       // "Dotnet White Round Neck T-Shirt",
       // "Gym Round Neck T-Shirt",
 { name: "Spun Round Neck T-Shirt", image: spunRoundNeck },
-{ name: "Corporate Polyester Round Neck T-Shirt", image: corporatePolyesterRoundNeck },
-{ name: "Dotnet White Round Neck T-Shirt", image: dotnetWhiteRoundNeck },
-{ name: "Gym Round Neck T-Shirt", image: gymRoundNeck },
+{ name: "Corporate Polyester Round Neck T-Shirt(160 GSM)", image: corporatePolyesterRoundNeck },
+{ name: "Dotnet White Round Neck T-Shirt (120 GSM)", image: dotnetWhiteRoundNeck },
+{ name: "Corporate polyster Round Neck T-Shirt (120 GSM)", image: gymRoundNeck },
 
     ]),
     premium: makeSubs("custom-round-neck-t-shirts", tshirts, "premium", [
@@ -350,8 +352,12 @@ export const catalog: CatalogCategory[] = [
     items: makeSubs("customize-school-uniform", uniforms, undefined, [
       "Spun Matty 220 GSM",
       "PC Matty 220 GSM",
-      "Track Pant Spun Poly Polyester",
+      "Track Pant Super Poly Polyester",
       "Track Pant Cotton PC Loop Knit",
+      "House T-shirt Spun Matty 220 GSM",
+      "House T-shirt PC Matty 220 GSM",
+      "Hoodies Spun Fleece 300 GSM",
+      "Hoodies PC Fleece 300 GSM",
     ], 3),
   },
   {
@@ -476,7 +482,7 @@ export const isSchoolUniformCategory = (slug: string) => slug === "customize-sch
 
 // Size sets ---------------------------------------------------------
 export const APPAREL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
-export const SCHOOL_UNIFORM_SIZES = ["22", "24", "26", "28", "30", "32", "34"] as const;
+export const SCHOOL_UNIFORM_SIZES = ["22", "24", "26", "28", "30", "32", "34", "36", "38", "40", "42", "44", "46"] as const;
 export const getSizesFor = (catSlug: string): readonly string[] =>
   isSchoolUniformCategory(catSlug) ? SCHOOL_UNIFORM_SIZES : APPAREL_SIZES;
 export const emptySizes = (catSlug: string): Record<string, number> =>
@@ -607,14 +613,11 @@ const ACCESSORY_RULES: Record<string, AccessoryRule> = {
       { id: "umb-logo", label: "Company Logo", pricePerPc: 10 },
     ]}]},
   },
-  "event-lanyard": {
-    moq: 50, max: 80, gstPct: 5, discountEnabled: false, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "sublimation", label: "Sublimation Print", options: [
-      { id: "lan-logo", label: "Company Logo", pricePerPc: 20 },
-    ]}]},
-    // namedColors: ["Black", "White", "Red", "Royal Blue", "Multicolor"],
-    printColors: ["White", "Black"],
-  },
+  // AFTER
+"event-lanyard": {
+  moq: 50, max: 80, gstPct: 5, discountEnabled: false, courierPerPc: 0,
+  print: { kind: "free", label: "Company Logo Printing — Multicolor Available (FREE)" },
+},
 };
 
 // Print options shared by all Customize School Uniform subcategories.

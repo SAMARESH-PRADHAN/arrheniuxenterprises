@@ -23,6 +23,7 @@ import { BulkMegaMenu } from "./BulkMegaMenu";
 import { UserMenu } from "./UserMenu";
 import { catalog } from "@/data/catalog";
 import { getSession, clearSession } from "@/lib/session";
+import { B2BMegaMenu } from "./B2BMegaMenu";
 
 // Final order: Home, Categories, New Collection, Bulk Order, B2B Shop, About Us, Client Reactions, Contact
 export const Navbar = () => {
@@ -102,11 +103,7 @@ export const Navbar = () => {
             Collection
           </a>
           <BulkMegaMenu />
-          <NavLink to="/b2b-shop" className={navLinkClass}>
-            <span className="inline-flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5" aria-hidden="true" /> B2B Shop
-            </span>
-          </NavLink>
+          <B2BMegaMenu />
           <a
             href="#about-us"
             onClick={(e) => handleHashClick(e, "#about-us")}

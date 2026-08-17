@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Minus,
   Plus,
@@ -46,6 +46,7 @@ import {
   loadB2BAgentSession,
   clearB2BAgentSession,
 } from "@/lib/b2bAgentSession";
+import { ProductReviews } from "@/components/ProductReviews";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
 type Size = (typeof SIZES)[number];
@@ -94,6 +95,7 @@ const EMPTY_AGENT: AgentForm = {
 
 const B2BShop = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const createOrderMut = useCreateOrder();
   const registerAgentMut = useRegisterAgent();
   const { verify, isLoading: agentsLoading } = useVerifyAgentCode();
@@ -125,24 +127,24 @@ const B2BShop = () => {
     }
     setRestoringSession(false);
   }, []);
-// Push an initial history entry for the "subs" step so back button has
-// something to land on instead of leaving the page.
-useEffect(() => {
-  window.history.replaceState({ view: { step: "subs" } }, "");
-}, []);
+  // Push an initial history entry for the "subs" step so back button has
+  // something to land on instead of leaving the page.
+  useEffect(() => {
+    window.history.replaceState({ view: { step: "subs" } }, "");
+  }, []);
 
-// Listen for browser back/forward and sync our internal view state to it.
-useEffect(() => {
-  const handlePopState = (e: PopStateEvent) => {
-    if (e.state?.view) {
-      setView(e.state.view);
-    } else {
-      setView({ step: "subs" });
-    }
-  };
-  window.addEventListener("popstate", handlePopState);
-  return () => window.removeEventListener("popstate", handlePopState);
-}, []);
+  // Listen for browser back/forward and sync our internal view state to it.
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state?.view) {
+        setView(e.state.view);
+      } else {
+        setView({ step: "subs" });
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Poll for mid-tab expiry (agent leaves tab open past the 1hr TTL without
   // refreshing) so they aren't silently trusted past the cutoff.
@@ -222,6 +224,18 @@ useEffect(() => {
   };
 
   const verified = agent !== null;
+  useEffect(() => {
+    if (!verified) return;
+    const sub = searchParams.get("sub");
+    if (
+      sub &&
+      B2B_SUBCATEGORIES.find((s) => s.slug === sub) &&
+      view.step === "subs"
+    ) {
+      pushView({ step: "products", subSlug: sub });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verified]);
   useLockBodyScroll(!verified && !restoringSession); // ← add this line
   // locks scroll while the verification gate is shown
   const activeSub =
@@ -272,9 +286,9 @@ useEffect(() => {
     });
   };
   const pushView = (v: View) => {
-  setView(v);
-  window.history.pushState({ view: v }, "");
-};
+    setView(v);
+    window.history.pushState({ view: v }, "");
+  };
 
   const buildMessage = () => {
     if (!product) return "";
@@ -637,18 +651,20 @@ useEffect(() => {
         {view.step === "detail" && product && (
           <>
             <button
-              onClick={() =>
-               window.history.back()}
-              
+              onClick={() => window.history.back()}
               className="text-xs uppercase tracking-widest inline-flex items-center gap-1 mb-4 hover:text-primary"
             >
               <ChevronLeft className="h-3.5 w-3.5" /> Back to {activeSub?.name}
             </button>
             <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8">
               <div className="tilt-card">
-              <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-              </div>
+                <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
 
               <div>
@@ -754,9 +770,13 @@ useEffect(() => {
                     label="GST 5%"
                     value={`₹${gst.toLocaleString("en-IN")}`}
                   />
-                 <div className="shine-sweep flex justify-between px-4 py-3 bg-ink text-cream">
-                    <span className="text-xs uppercase tracking-widest font-bold">Total</span>
-                    <span className="font-display text-2xl">₹{grandTotal.toLocaleString("en-IN")}</span>
+                  <div className="shine-sweep flex justify-between px-4 py-3 bg-ink text-cream">
+                    <span className="text-xs uppercase tracking-widest font-bold">
+                      Total
+                    </span>
+                    <span className="font-display text-2xl">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 </div>
 
@@ -783,9 +803,21 @@ useEffect(() => {
                   </p>
                 )}
 
-                <button onClick={handlePay} disabled={total < B2B_MOQ || isPaying} className={`btn-bold btn-magnetic mt-5 w-full justify-center !py-3.5 ${(total < B2B_MOQ || isPaying) ? "opacity-40 cursor-not-allowed" : ""}`}>
-  {isPaying ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : <><CreditCard className="h-4 w-4" /> Pay Now (Razorpay)</>}
-</button>
+                <button
+                  onClick={handlePay}
+                  disabled={total < B2B_MOQ || isPaying}
+                  className={`btn-bold btn-magnetic mt-5 w-full justify-center !py-3.5 ${total < B2B_MOQ || isPaying ? "opacity-40 cursor-not-allowed" : ""}`}
+                >
+                  {isPaying ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="h-4 w-4" /> Pay Now (Razorpay)
+                    </>
+                  )}
+                </button>
                 <button
                   onClick={() => setSampleOpen(true)}
                   className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-ink py-3 text-xs uppercase tracking-widest font-semibold hover:bg-ink hover:text-cream transition"
@@ -798,6 +830,50 @@ useEffect(() => {
                 </p>
               </div>
             </div>
+            <ProductReviews productId={product.id} />
+
+            {products.filter((p) => p.id !== product.id).length > 0 && (
+              <section className="mt-16">
+                <h2 className="font-display text-4xl md:text-5xl mb-8">
+                  RELATED PRODUCTS
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {products
+                    .filter((p) => p.id !== product.id)
+                    .slice(0, 4)
+                    .map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => openProduct(p.id)}
+                        className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
+                      >
+                        <div className="aspect-square overflow-hidden bg-secondary">
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition"
+                          />
+                        </div>
+                        <div className="p-3">
+                          <div className="font-condensed text-sm tracking-wide leading-tight line-clamp-2">
+                            {p.name.toUpperCase()}
+                          </div>
+                          <div className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                            {productCode(p)}
+                          </div>
+                          <div className="font-display text-lg mt-1">
+                            {p.price}
+                            <span className="text-[10px] text-muted-foreground">
+                              /pc
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              </section>
+            )}
             {product && (
               <SampleDialog
                 product={product}
@@ -805,7 +881,6 @@ useEffect(() => {
                 onClose={() => setSampleOpen(false)}
                 isGarment={true}
               />
-              
             )}
           </>
         )}
