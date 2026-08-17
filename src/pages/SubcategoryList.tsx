@@ -6,28 +6,51 @@ const SubcategoryList = () => {
   const { cat: catSlug, tier } = useParams();
   const cat = findCategory(catSlug);
   if (!cat) return <Navigate to="/" replace />;
-  // Non-tiered cats: the second URL segment is actually a subcategory slug
-  // (or "_") — bounce back to the category landing.
   if (!cat.hasTiers) return <Navigate to={`/category/${cat.slug}`} replace />;
   if (tier !== "regular" && tier !== "premium")
     return <Navigate to={`/category/${cat.slug}`} replace />;
 
   const subs = getSubsForTier(cat, tier);
+  const bannerSrc = cat.banner || cat.image;
 
   return (
     <Layout>
-      <section className="bg-secondary">
-        <div className="container-x py-12 md:py-16">
-          <div className="text-xs uppercase text-muted-foreground tracking-wide mb-3">
-            <Link to="/" className="hover:text-ink">Home</Link> /{" "}
-            <Link to={`/category/${cat.slug}`} className="hover:text-ink">{cat.name}</Link>
-            {tier && <> / <span className="text-ink">{tier}</span></>}
+      <section className="relative overflow-hidden bg-secondary min-h-[220px] md:min-h-[280px]">
+        {bannerSrc && (
+          <img
+            src={bannerSrc}
+            alt=""
+            width={1600}
+            height={600}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+        )}
+        <div className="absolute inset-0 bg-ink/55" />
+
+        <div className="container-x relative z-10 py-12 md:py-16 text-cream">
+          <div className="text-xs uppercase tracking-wide mb-3 text-cream/70">
+            <Link to="/" className="hover:text-cream">
+              Home
+            </Link>{" "}
+            /{" "}
+            <Link to={`/category/${cat.slug}`} className="hover:text-cream">
+              {cat.name}
+            </Link>
+            {tier && (
+              <>
+                {" "}
+                / <span className="text-cream">{tier}</span>
+              </>
+            )}
           </div>
           <h1 className="font-display text-5xl md:text-7xl leading-none">
             {cat.name.toUpperCase()}{" "}
-            {tier && <span className="text-primary">— {tier.toUpperCase()}</span>}
+            {tier && (
+              <span className="text-accent">— {tier.toUpperCase()}</span>
+            )}
           </h1>
-          <p className="mt-4 text-muted-foreground max-w-xl">{cat.blurb}</p>
+          <p className="mt-4 text-cream/80 max-w-xl">{cat.blurb}</p>
         </div>
       </section>
 

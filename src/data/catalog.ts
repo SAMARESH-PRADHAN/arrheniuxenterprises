@@ -78,6 +78,7 @@ export type Subcategory = {
   name: string;
   tier?: Tier;
   image: string;
+   banner?: string; 
   products: CatalogProduct[];
 };
 
@@ -85,6 +86,7 @@ export type CatalogCategory = {
   slug: string;
   name: string;
   image: string;
+  banner?: string; // one banner for ALL subs in this category
   hasTiers: boolean;
   blurb: string;
   regular?: Subcategory[];
@@ -177,6 +179,7 @@ export const catalog: CatalogCategory[] = [
     slug: "oversized-t-shirts",
     name: "Oversized T-Shirts",
     image: tshirts,
+    // banner: "/banners/reg10.png",
     hasTiers: true,
     blurb: "Drop-shoulder fits in heavy and lightweight builds.",
     regular: makeSubs("oversized-t-shirts", polytshirts, "regular", [
