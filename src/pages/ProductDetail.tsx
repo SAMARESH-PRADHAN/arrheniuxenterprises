@@ -34,6 +34,7 @@ import {
   isArrheniuxCategory,
   priceValue,
   getDiscountPct,
+  resolveDiscountPct,
   resolveMOQ,
   getMaxQty,
   getAccessoryRules,
@@ -68,6 +69,7 @@ import { SuccessDialog } from "@/components/SuccessDialog";
 import {
   useCreateOrder,
   useMoqSettings,
+  useDiscountTiers,
   useProduct,
   useProductReviews,
   useProducts,
@@ -159,6 +161,7 @@ const ProductDetailView = ({
   const createOrderMut = useCreateOrder();
   const { data: moqOverrides } = useMoqSettings();
   // console.log("MOQ overrides:", moqOverrides);
+  const { data: discountOverrides } = useDiscountTiers();
   const SIZES = getSizesFor(product.categorySlug) as readonly string[];
   type Size = string;
 
@@ -272,7 +275,7 @@ const ProductDetailView = ({
       ? printLabel(printSel, restrictedMethods)
       : "N/A";
   const subtotal = unitPrice * total + printCharge;
-  const discountPct = isKit || isArr ? 0 : getDiscountPct(total, product);
+const discountPct = isKit || isArr ? 0 : resolveDiscountPct(total, product, discountOverrides);
   const discountAmt = Math.round((subtotal * discountPct) / 100);
   const afterDiscount = Math.max(0, subtotal - discountAmt);
   const courier = total * courierPerPc;

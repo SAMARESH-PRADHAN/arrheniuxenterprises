@@ -147,6 +147,19 @@ export type ApiMoqOverride = {
 export function fetchMoqSettings() {
   return request<ApiMoqOverride[]>("moq-settings");
 }
+export type ApiDiscountTier = {
+  id: string;
+  category: string;
+  subCategory: string | null;
+  minQty: number;
+  maxQty: number | null;
+  discountPct: number;
+  isBulk: boolean;
+};
+
+export function fetchDiscountTiers() {
+  return request<ApiDiscountTier[]>("discount-tiers");
+}
 export type ApiOrderStatus = "Placed" | "Confirmed" | "In Production" | "Shipped" | "Delivered";
 export type ApiOrderType = "Normal" | "Bulk" | "B2B" | "New Collection";
 export type ApiPaymentStatus = "Paid" | "Pending" | "Partial" | "Failed" | "Refunded";

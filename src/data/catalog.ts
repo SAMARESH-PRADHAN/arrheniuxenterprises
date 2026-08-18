@@ -555,6 +555,66 @@ export const getDiscountPct = (qty: number, p?: Pick<CatalogProduct, "subSlug">)
   if (qty >= 10) return 10;
   return 0;
 };
+export type DiscountOverrideTier = {
+  category: string;
+  subCategory: string | null;
+  minQty: number;
+  maxQty: number | null;
+  discountPct: number;
+  isBulk: boolean;
+};
+
+const normalizeName = (s: string) => s.trim().toLowerCase();
+
+export const resolveDiscountPct = (
+  qty: number,
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+  overrides?: DiscountOverrideTier[] | null,
+): number => {
+  const catName = findCategory(p.categorySlug)?.name;
+  if (!catName) return getDiscountPct(qty, p); // fallback, unchanged
+
+  const rule = getAccessoryRules(p.subSlug);
+  if (rule && !rule.discountEnabled) return 0;
+
+  if (overrides?.length) {
+    const subName = subCategoryNameFor(p);
+    const bucket = overrides.filter((o) => {
+      const catMatches = normalizeName(o.category) === normalizeName(catName);
+      if (!catMatches) return false;
+      // exact sub-category tiers take priority over category-wide tiers
+      const hasSubTiers = overrides.some(
+        (x) => normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+      );
+      if (hasSubTiers && subName) {
+        return o.subCategory && normalizeName(o.subCategory) === normalizeName(subName);
+      }
+      return !o.subCategory;
+    });
+
+    if (bucket.length) {
+      const match = bucket.find(
+        (t) => qty >= t.minQty && (t.maxQty == null || qty <= t.maxQty),
+      );
+      if (match) return match.discountPct;
+    }
+  }
+
+  return getDiscountPct(qty, p); // no admin tiers set for this category — hardcoded fallback
+};
+
+// Bulk-tier discount % for a category (used by BulkOrder.tsx instead of the flat BULK_DISCOUNT_PCT).
+export const resolveBulkDiscountPct = (
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+  overrides?: DiscountOverrideTier[] | null,
+): number => {
+  const catName = findCategory(p.categorySlug)?.name;
+  if (!catName || !overrides?.length) return BULK_DISCOUNT_PCT;
+  const bulkTier = overrides.find(
+    (o) => normalizeName(o.category) === normalizeName(catName) && o.isBulk,
+  );
+  return bulkTier ? bulkTier.discountPct : BULK_DISCOUNT_PCT;
+};
 
 // Human-friendly product code
 export const productCode = (p: Pick<CatalogProduct, "id" | "code" | "categorySlug">) => {
