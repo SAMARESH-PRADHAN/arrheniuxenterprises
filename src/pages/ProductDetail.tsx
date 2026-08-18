@@ -34,7 +34,7 @@ import {
   isArrheniuxCategory,
   priceValue,
   getDiscountPct,
-  getMOQ,
+  resolveMOQ,
   getMaxQty,
   getAccessoryRules,
   getGstPct,
@@ -67,6 +67,7 @@ import { toast } from "@/hooks/use-toast";
 import { SuccessDialog } from "@/components/SuccessDialog";
 import {
   useCreateOrder,
+  useMoqSettings,
   useProduct,
   useProductReviews,
   useProducts,
@@ -156,7 +157,8 @@ const ProductDetailView = ({
   const location = useLocation();
   const { data: reviews = [] } = useProductReviews(product.id);
   const createOrderMut = useCreateOrder();
-
+  const { data: moqOverrides } = useMoqSettings();
+  // console.log("MOQ overrides:", moqOverrides);
   const SIZES = getSizesFor(product.categorySlug) as readonly string[];
   type Size = string;
 
@@ -212,7 +214,7 @@ const ProductDetailView = ({
   const isArr = isArrheniuxCategory(product.categorySlug);
   
   const rule = getAccessoryRules(product.subSlug);
-  const moq = isKit ? WELCOME_KIT_MIN : getMOQ(product);
+ const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
   const maxQty = isKit ? 80 : getMaxQty(product);
   const bulkThreshold = maxQty + 1;
   const code = productCode(product);
