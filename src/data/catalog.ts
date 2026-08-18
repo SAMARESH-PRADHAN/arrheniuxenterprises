@@ -514,6 +514,29 @@ export const getMOQ = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => {
   return 5;
 };
 
+export type MoqOverride = { category: string; subCategory: string | null; minQty: number };
+
+const subCategoryNameFor = (p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">) => {
+  const cat = findCategory(p.categorySlug);
+  if (!cat) return undefined;
+  return findSubcategory(cat, p.tier, p.subSlug)?.name;
+};
+
+export const resolveMOQ = (
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+  overrides?: MoqOverride[] | null,
+): number => {
+  const catName = findCategory(p.categorySlug)?.name;
+  if (overrides?.length && catName) {
+    const subName = subCategoryNameFor(p);
+    const exact = overrides.find((o) => o.category === catName && o.subCategory && o.subCategory === subName);
+    if (exact) return exact.minQty;
+
+    const categoryDefault = overrides.find((o) => o.category === catName && !o.subCategory);
+    if (categoryDefault) return categoryDefault.minQty;
+  }
+  return getMOQ(p); // unchanged hardcoded fallback
+};
 export const getMaxQty = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => {
   if (isArrheniuxCategory(p.categorySlug)) return ARR_SIZE_MAX;
   const rule = getAccessoryRules(p.subSlug);

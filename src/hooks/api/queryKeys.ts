@@ -12,4 +12,5 @@ export const queryKeys = {
   customers: ["customers"] as const,
   customer: (id: string) => ["customer", id] as const,
   agents: ["agents"] as const,
+  moqSettings: ["moq-settings"] as const,
 };
