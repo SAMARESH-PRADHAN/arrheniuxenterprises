@@ -25,6 +25,7 @@ import {
   productCode,
   COURIER_PER_PC,
   BULK_DISCOUNT_PCT,
+  resolveBulkDiscountPct,
   BULK_THRESHOLD,
   getSizesFor,
   emptySizes,
@@ -52,6 +53,7 @@ import { toast } from "@/hooks/use-toast";
 import { SuccessDialog } from "@/components/SuccessDialog";
 import { useCreateOrder, useProduct, useProducts } from "@/hooks/api";
 import { BrandLoader } from "@/components/BrandLoader";
+import { useDiscountTiers } from "@/hooks/api";
 
 const SIZE_STEP = 1;
 
@@ -133,6 +135,7 @@ const BulkOrder = () => {
   const navigate = useNavigate();
   const createOrderMut = useCreateOrder();
 const { data: apiProducts = [], isLoading: productsLoading } = useProducts({ status: "Active" });
+const { data: discountOverrides } = useDiscountTiers();
   const urlPid = params.get("product");
   const { data: urlProduct } = useProduct(urlPid ?? undefined);
 
@@ -371,7 +374,9 @@ useEffect(() => {
     ? 0
     : rule && !rule.discountEnabled
       ? 0
-      : BULK_DISCOUNT_PCT;
+      : product
+        ? resolveBulkDiscountPct(product, discountOverrides)
+        : BULK_DISCOUNT_PCT;
   const discountAmt = Math.round((subtotal * bulkPct) / 100);
   const afterDiscount = Math.max(0, subtotal - discountAmt);
   const courierPc = product ? getCourierPerPc(product) : COURIER_PER_PC;

@@ -7,3 +7,4 @@ export { useReviews, useProductReviews, useCreateReview } from "./useReviews";
 export { useAgents, useVerifyAgentCode, useRegisterAgent } from "./useAgents";
 export type { AgentRegistrationResult } from "./useAgents";
 export { useMoqSettings } from "./useMoqSettings";
+export { useDiscountTiers } from "./useDiscountTiers";
