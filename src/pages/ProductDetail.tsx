@@ -36,6 +36,7 @@ import {
   getDiscountPct,
   resolveDiscountPct,
   resolveMOQ,
+  resolvePrintConfig,   // ADD
   getMaxQty,
   getAccessoryRules,
   getGstPct,
@@ -70,6 +71,7 @@ import {
   useCreateOrder,
   useMoqSettings,
   useDiscountTiers,
+  usePrintSettings,
   useProduct,
   useProductReviews,
   useProducts,
@@ -162,6 +164,7 @@ const ProductDetailView = ({
   const { data: moqOverrides } = useMoqSettings();
   // console.log("MOQ overrides:", moqOverrides);
   const { data: discountOverrides } = useDiscountTiers();
+  const { data: printOverrides } = usePrintSettings();
   const SIZES = getSizesFor(product.categorySlug) as readonly string[];
   type Size = string;
 
@@ -207,17 +210,57 @@ const ProductDetailView = ({
   const isGarment = !isNonGarmentCategory(product.categorySlug);
   const isKit = isWelcomeKitCategory(product.categorySlug);
   const kitDefs = useMemo(() => getKitItemDefs(product), [product]); // ADD THIS 
-  const isNewCollection = product.categorySlug === "new-collection";  // ← add this 
-  const ruleForPrint = getAccessoryRules(product.subSlug);
-  const canPrint =
-  !isNewCollection &&
-    supportsPrint(product.categorySlug) ||
-    ruleForPrint?.print.kind === "custom" ||
-    ruleForPrint?.print.kind === "free";
-  const isArr = isArrheniuxCategory(product.categorySlug);
+  // const isNewCollection = product.categorySlug === "new-collection";  // ← add this 
+//   const ruleForPrint = getAccessoryRules(product.subSlug);
+//   const canPrint =
+//   !isNewCollection &&
+//     supportsPrint(product.categorySlug) ||
+//     ruleForPrint?.print.kind === "custom" ||
+//     ruleForPrint?.print.kind === "free";
+//   const isArr = isArrheniuxCategory(product.categorySlug);
   
+//   const rule = getAccessoryRules(product.subSlug);
+//  const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
+//   const maxQty = isKit ? 80 : getMaxQty(product);
+//   const bulkThreshold = maxQty + 1;
+//   const code = productCode(product);
+//   const gstRate = getGstPct(product);
+//   const gstPctLabel = Math.round(gstRate * 100);
+//   const courierPerPc = getCourierPerPc(product);
+
+//   // Reviews aggregate (approved reviews from API)
+//   const reviewCount = reviews.length;
+//   const avgRating = reviewCount
+//     ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount
+//     : 0;
+
+//   // Print methods restricted per accessory rule (if any)
+//   const restrictedMethods: PrintMethod[] | undefined =
+//     rule?.print.kind === "custom"
+//       ? rule.print.methods.map((m) => ({
+//           id: m.id,
+//           label:
+//             m.label ??
+//             (m.id === "dtf"
+//               ? "DTF Print"
+//               : m.id === "sublimation"
+//                 ? "Sublimation Print"
+//                 : m.id === "laser"
+//                   ? "Laser Print"
+//                   : m.id === "digital"
+//                     ? "Digital Print"
+//                     : "Embroidery Print"),
+//           options: m.options,
+//         }))
+//       : undefined;
+//   const printDisabled = rule?.print.kind === "none";
+//   const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+   const isNewCollection = product.categorySlug === "new-collection";
+
+  // Keep these — still used for MOQ, GST, colors, reviews, ARRHENIUX rules, etc.
+  const isArr = isArrheniuxCategory(product.categorySlug);
   const rule = getAccessoryRules(product.subSlug);
- const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
+  const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
   const maxQty = isKit ? 80 : getMaxQty(product);
   const bulkThreshold = maxQty + 1;
   const code = productCode(product);
@@ -225,33 +268,29 @@ const ProductDetailView = ({
   const gstPctLabel = Math.round(gstRate * 100);
   const courierPerPc = getCourierPerPc(product);
 
-  // Reviews aggregate (approved reviews from API)
+  // Reviews aggregate
   const reviewCount = reviews.length;
   const avgRating = reviewCount
     ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount
     : 0;
 
-  // Print methods restricted per accessory rule (if any)
+  // Print config from admin API (with hardcoded fallback inside resolvePrintConfig)
+  const resolvedPrint = useMemo(
+    () => resolvePrintConfig(product, printOverrides),
+    [product, printOverrides],
+  );
+
+  const canPrint =
+    !isNewCollection &&
+    !isKit &&
+    resolvedPrint.kind !== "none";
+
   const restrictedMethods: PrintMethod[] | undefined =
-    rule?.print.kind === "custom"
-      ? rule.print.methods.map((m) => ({
-          id: m.id,
-          label:
-            m.label ??
-            (m.id === "dtf"
-              ? "DTF Print"
-              : m.id === "sublimation"
-                ? "Sublimation Print"
-                : m.id === "laser"
-                  ? "Laser Print"
-                  : m.id === "digital"
-                    ? "Digital Print"
-                    : "Embroidery Print"),
-          options: m.options,
-        }))
-      : undefined;
-  const printDisabled = rule?.print.kind === "none";
-  const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+    resolvedPrint.kind === "custom" ? resolvedPrint.methods : undefined;
+  const printDisabled = resolvedPrint.kind === "none";
+  const printFreeLabel =
+    resolvedPrint.kind === "free" ? resolvedPrint.label : null;
+
 
   const kitIncludesTshirt = kitItems.includes("tshirt");
   const kitSizeTotal = Object.values(sizeQty).reduce((a, b) => a + b, 0);

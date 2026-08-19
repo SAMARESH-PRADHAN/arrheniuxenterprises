@@ -19,6 +19,7 @@ import {
   getCourierPerPc,
   priceValue,
   supportsPrint,
+  resolvePrintConfig,
   isArrheniuxCategory,
   isNonGarmentCategory,
   productCode,
@@ -42,7 +43,7 @@ import { getSession } from "@/lib/session";
 import { waLink } from "@/data/site";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useCreateOrder } from "@/hooks/api";
+import { useCreateOrder, usePrintSettings } from "@/hooks/api";
 import { getKitItemDefs, kitUnitPrice } from "@/data/welcomeKit";
 
 const SAMPLE_QTY = 1;
@@ -55,8 +56,9 @@ type Props = {
 };
 
 export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
-  const navigate = useNavigate();
+   const navigate = useNavigate();
   const createOrderMut = useCreateOrder();
+  const { data: printOverrides } = usePrintSettings();
   const rule = getAccessoryRules(product.subSlug);
   const isArr = isArrheniuxCategory(product.categorySlug);
   const isNonGarment = isNonGarmentCategory(product.categorySlug);
@@ -64,11 +66,62 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
   const kitDefs = useMemo(() => getKitItemDefs(product), [product]);
   const [kitItems, setKitItems] = useState<string[]>(["tshirt"]);
   const kitEnoughItems = kitItems.length >= WELCOME_KIT_MIN_ITEMS;
-  const kitUnit = isKit ? kitUnitPrice(kitItems, kitDefs) : 0;
-  const canPrint =
-  supportsPrint(product.categorySlug) ||
-  rule?.print.kind === "custom" ||
-  rule?.print.kind === "free";
+  // const kitUnit = isKit ? kitUnitPrice(kitItems, kitDefs) : 0;
+  // const canPrint =
+  // supportsPrint(product.categorySlug) ||
+  // rule?.print.kind === "custom" ||
+  // rule?.print.kind === "free";
+  // const cat = findCategory(product.categorySlug);
+  // const subcat = cat
+  //   ? findSubcategory(cat, product.tier, product.subSlug)
+  //   : undefined;
+  // const SIZES = getSizesFor(product.categorySlug);
+
+  // const defaultSize = SIZES[Math.floor(SIZES.length / 2)] || SIZES[0] || "";
+  // const [size, setSize] = useState<string>(defaultSize);
+  // useEffect(() => {
+  //   setSize(defaultSize);
+  // }, [defaultSize]);
+  // const [printSel, setPrintSel] = useState<PrintSelection>(emptyPrint());
+  // const [artwork, setArtwork] = useState<ArtworkFile[]>([]);
+  // const [namedColor, setNamedColor] = useState<string>(
+  //   rule?.namedColors?.[0] || "",
+  // );
+  // const [printColor, setPrintColor] = useState<string>(
+  //   rule?.printColors?.[0] || "",
+  // );
+  // const [swatchColor, setSwatchColor] = useState<string>(
+  //   product.colors[0] || "",
+  // );
+  // const [successOrder, setSuccessOrder] = useState<{
+  //   id: string;
+  //   amount: number;
+  // } | null>(null);
+  // const [isPaying, setIsPaying] = useState(false);
+  // // near other state
+  // const [savingOrder, setSavingOrder] = useState(false);
+  // useLockBodyScroll(open || !!successOrder);
+  // const restrictedMethods: PrintMethod[] | undefined =
+  //   rule?.print.kind === "custom"
+  //     ? rule.print.methods.map((m) => ({
+  //         id: m.id,
+  //         label:
+  //           m.label ??
+  //           (m.id === "dtf"
+  //             ? "DTF Print"
+  //             : m.id === "sublimation"
+  //               ? "Sublimation Print"
+  //               : m.id === "laser"
+  //                 ? "Laser Print"
+  //                 : m.id === "digital"
+  //                   ? "Digital Print"
+  //                   : "Embroidery Print"),
+  //         options: m.options,
+  //       }))
+  //     : undefined;
+  // const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+    const kitUnit = isKit ? kitUnitPrice(kitItems, kitDefs) : 0;
+
   const cat = findCategory(product.categorySlug);
   const subcat = cat
     ? findSubcategory(cat, product.tier, product.subSlug)
@@ -80,6 +133,7 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
   useEffect(() => {
     setSize(defaultSize);
   }, [defaultSize]);
+
   const [printSel, setPrintSel] = useState<PrintSelection>(emptyPrint());
   const [artwork, setArtwork] = useState<ArtworkFile[]>([]);
   const [namedColor, setNamedColor] = useState<string>(
@@ -96,28 +150,28 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
     amount: number;
   } | null>(null);
   const [isPaying, setIsPaying] = useState(false);
-  // near other state
   const [savingOrder, setSavingOrder] = useState(false);
+
   useLockBodyScroll(open || !!successOrder);
+
+  // Admin print settings (same as ProductDetail / BulkOrder)
+  const resolvedPrint = useMemo(
+    () => resolvePrintConfig(product, printOverrides),
+    [product, printOverrides],
+  );
+
+  const canPrint =
+    !isKit &&
+    !isArr &&
+    resolvedPrint.kind !== "none";
+
   const restrictedMethods: PrintMethod[] | undefined =
-    rule?.print.kind === "custom"
-      ? rule.print.methods.map((m) => ({
-          id: m.id,
-          label:
-            m.label ??
-            (m.id === "dtf"
-              ? "DTF Print"
-              : m.id === "sublimation"
-                ? "Sublimation Print"
-                : m.id === "laser"
-                  ? "Laser Print"
-                  : m.id === "digital"
-                    ? "Digital Print"
-                    : "Embroidery Print"),
-          options: m.options,
-        }))
-      : undefined;
-  const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+    resolvedPrint.kind === "custom" ? resolvedPrint.methods : undefined;
+
+  const printFreeLabel =
+    resolvedPrint.kind === "free" ? resolvedPrint.label : null;
+
+  const printDisabled = resolvedPrint.kind === "none";
 
   const qty = SAMPLE_QTY;
   const unitPrice = isKit ? kitUnit : product.samplePrice;
@@ -394,13 +448,14 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
   </div>
 )}
 
-              {canPrint && (
+                            {canPrint && (
                 <PrintPicker
                   value={printSel}
                   onChange={setPrintSel}
                   qty={qty}
                   methods={restrictedMethods}
                   freeLabel={printFreeLabel}
+                  disabled={printDisabled}
                 />
               )}
 

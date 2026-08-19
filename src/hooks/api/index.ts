@@ -8,3 +8,4 @@ export { useAgents, useVerifyAgentCode, useRegisterAgent } from "./useAgents";
 export type { AgentRegistrationResult } from "./useAgents";
 export { useMoqSettings } from "./useMoqSettings";
 export { useDiscountTiers } from "./useDiscountTiers";
+export { usePrintSettings } from "./usePrintSettings";
