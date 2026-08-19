@@ -160,6 +160,31 @@ export type ApiDiscountTier = {
 export function fetchDiscountTiers() {
   return request<ApiDiscountTier[]>("discount-tiers");
 }
+
+export type ApiPrintOption = { id: string; label: string; pricePerPc: number };
+export type ApiPrintMethod = {
+  id: string;
+  label: string;
+  note?: string;
+  options: ApiPrintOption[];
+};
+export type ApiPrintConfig =
+  | { kind: "none" }
+  | { kind: "free"; label: string }
+  | { kind: "custom"; methods: ApiPrintMethod[] };
+
+export type ApiPrintSetting = {
+  id: string;
+  category: string;
+  productType: string | null;
+  subCategory: string | null;
+  config: ApiPrintConfig;
+};
+
+export function fetchPrintSettings() {
+  return request<ApiPrintSetting[]>("print-settings");
+}
+
 export type ApiOrderStatus = "Placed" | "Confirmed" | "In Production" | "Shipped" | "Delivered";
 export type ApiOrderType = "Normal" | "Bulk" | "B2B" | "New Collection";
 export type ApiPaymentStatus = "Paid" | "Pending" | "Partial" | "Failed" | "Refunded";

@@ -26,6 +26,7 @@ import {
   COURIER_PER_PC,
   BULK_DISCOUNT_PCT,
   resolveBulkDiscountPct,
+  resolvePrintConfig,
   BULK_THRESHOLD,
   getSizesFor,
   emptySizes,
@@ -51,7 +52,7 @@ import { filterProductsForSubcategory } from "@/lib/productMappers";
 import { openRazorpay } from "@/lib/razorpay";
 import { toast } from "@/hooks/use-toast";
 import { SuccessDialog } from "@/components/SuccessDialog";
-import { useCreateOrder, useProduct, useProducts } from "@/hooks/api";
+import { useCreateOrder, useProduct, useProducts, usePrintSettings } from "@/hooks/api";
 import { BrandLoader } from "@/components/BrandLoader";
 import { useDiscountTiers } from "@/hooks/api";
 
@@ -136,6 +137,7 @@ const BulkOrder = () => {
   const createOrderMut = useCreateOrder();
 const { data: apiProducts = [], isLoading: productsLoading } = useProducts({ status: "Active" });
 const { data: discountOverrides } = useDiscountTiers();
+  const { data: printOverrides } = usePrintSettings();
   const urlPid = params.get("product");
   const { data: urlProduct } = useProduct(urlPid ?? undefined);
 
@@ -285,37 +287,63 @@ useEffect(() => {
   const isGarment = product
     ? !isNonGarmentCategory(product.categorySlug)
     : !isNonGarmentCategory(catSlug);
-  const rule = product ? getAccessoryRules(product.subSlug) : null;
+  // const rule = product ? getAccessoryRules(product.subSlug) : null;
+  // const canPrint =
+  //   !isKit &&
+  //   !isArrheniuxCategory(catSlug) &&
+  //   rule?.print.kind !== "none" &&
+  //   (supportsPrint(catSlug) ||
+  //     rule?.print.kind === "custom" ||
+  //     rule?.print.kind === "free");
+  // const gstRate = product ? getGstPct(product) : 0.05;
+  // const gstPctLabel = Math.round(gstRate * 100);
+
+  // const restrictedMethods: PrintMethod[] | undefined =
+  //   rule?.print.kind === "custom"
+  //     ? rule.print.methods.map((m) => ({
+  //         id: m.id,
+  //         label:
+  //           m.label ??
+  //           (m.id === "dtf"
+  //             ? "DTF Print"
+  //             : m.id === "sublimation"
+  //               ? "Sublimation Print"
+  //               : m.id === "laser"
+  //                 ? "Laser Print"
+  //                 : m.id === "digital"
+  //                   ? "Digital Print"
+  //                   : "Embroidery Print"),
+  //         options: m.options,
+  //       }))
+  //     : undefined;
+  // const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+  // const printDisabled = rule?.print.kind === "none";
+
+    const rule = product ? getAccessoryRules(product.subSlug) : null;
+
+  // Admin print settings (category / type / subcategory) + hardcoded fallback
+  const resolvedPrint = useMemo(
+    () =>
+      product
+        ? resolvePrintConfig(product, printOverrides)
+        : { kind: "none" as const },
+    [product, printOverrides],
+  );
+
   const canPrint =
+    !!product &&
     !isKit &&
     !isArrheniuxCategory(catSlug) &&
-    rule?.print.kind !== "none" &&
-    (supportsPrint(catSlug) ||
-      rule?.print.kind === "custom" ||
-      rule?.print.kind === "free");
-  const gstRate = product ? getGstPct(product) : 0.05;
-  const gstPctLabel = Math.round(gstRate * 100);
+    resolvedPrint.kind !== "none";
 
   const restrictedMethods: PrintMethod[] | undefined =
-    rule?.print.kind === "custom"
-      ? rule.print.methods.map((m) => ({
-          id: m.id,
-          label:
-            m.label ??
-            (m.id === "dtf"
-              ? "DTF Print"
-              : m.id === "sublimation"
-                ? "Sublimation Print"
-                : m.id === "laser"
-                  ? "Laser Print"
-                  : m.id === "digital"
-                    ? "Digital Print"
-                    : "Embroidery Print"),
-          options: m.options,
-        }))
-      : undefined;
-  const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
-  const printDisabled = rule?.print.kind === "none";
+    resolvedPrint.kind === "custom" ? resolvedPrint.methods : undefined;
+  const printFreeLabel =
+    resolvedPrint.kind === "free" ? resolvedPrint.label : null;
+  const printDisabled = resolvedPrint.kind === "none";
+
+  const gstRate = product ? getGstPct(product) : 0.05;
+  const gstPctLabel = Math.round(gstRate * 100);
 
   useEffect(() => {
     if (!cat.hasTiers) setTier("");

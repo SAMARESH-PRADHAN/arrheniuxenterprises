@@ -22,6 +22,7 @@ const MyAddresses = lazy(() => import("./pages/MyAddresses.tsx"));
 const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AdminApp = lazy(() => import("./admin/AdminApp"));
+const ArreheniuxTopWear = lazy(() => import("./pages/ArreheniuxTopWear.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ const App = () => (
             {/* /category/:cat/:tier/:sub → product listing */}
             <Route path="/category/:cat/:tier/:sub" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/arreheniux-top-wear" element={<ArreheniuxTopWear />} />
             <Route path="/bulk-order" element={<BulkOrder />} />
             <Route path="/b2b-shop" element={<B2BShop />} />
             <Route path="/my-orders" element={<MyOrders />} />

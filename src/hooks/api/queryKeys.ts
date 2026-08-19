@@ -14,4 +14,5 @@ export const queryKeys = {
   agents: ["agents"] as const,
   moqSettings: ["moq-settings"] as const,
   discountTiers: ["discount-tiers"] as const,
+  printSettings: ["print-settings"] as const,
 };

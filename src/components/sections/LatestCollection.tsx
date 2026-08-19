@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ProductCard } from "../ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNewCollectionProducts } from "@/hooks/api";
 import { useReveal } from "@/hooks/useReveal";
 
-/** Defer /api/new-collection until the section is near the viewport. */
 function useNearViewport<T extends HTMLElement>(rootMargin = "300px") {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(false);
@@ -38,7 +38,7 @@ function useNearViewport<T extends HTMLElement>(rootMargin = "300px") {
 export const LatestCollection = () => {
   const { ref: sectionRef, near } = useNearViewport<HTMLElement>("300px");
   const { products: items, isLoading, isError, isFetching } =
-    useNewCollectionProducts(9, { enabled: near });
+    useNewCollectionProducts(4, { enabled: near });
   const headerRef = useReveal<HTMLDivElement>();
 
   const showSkeleton = !near || ((isLoading || isFetching) && items.length === 0);
@@ -52,17 +52,17 @@ export const LatestCollection = () => {
         >
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cream bg-gradient-to-r from-primary to-accent px-3 py-1.5 rounded-full shadow-sm">
-              02 — New Collection
+              02 — Arreheniux Top Wear
             </span>
-            <h2 className="font-display text-5xl md:text-6xl mt-2">NEW COLLECTION</h2>
+            <h2 className="font-display text-5xl md:text-6xl mt-2">ARREHENIUX TOP WEAR</h2>
           </div>
           <p className="max-w-sm text-muted-foreground text-sm">
-            The latest 9 styles added to our catalog — engineered for bulk and ready to customize.
+            Our latest top wear styles — engineered for bulk and ready to customize.
           </p>
         </div>
         {showSkeleton ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {Array.from({ length: 9 }).map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex flex-col bg-card border border-border">
                 <Skeleton className="w-full aspect-square" />
                 <div className="p-4 space-y-2">
@@ -73,15 +73,22 @@ export const LatestCollection = () => {
             ))}
           </div>
         ) : isError ? (
-          <p className="text-muted-foreground text-sm">Could not load new collection items.</p>
+          <p className="text-muted-foreground text-sm">Could not load Arreheniux Top Wear items.</p>
         ) : items.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No new collection items yet.</p>
+          <p className="text-muted-foreground text-sm">No Arreheniux Top Wear items yet.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {items.map((p) => (
-              <ProductCard key={p.id} p={p as any} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {items.map((p) => (
+                <ProductCard key={p.id} p={p as any} />
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <Link to="/arreheniux-top-wear" className="btn-bold">
+                See All
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>

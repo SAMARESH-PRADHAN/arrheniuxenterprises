@@ -135,7 +135,7 @@ const [selected, setSelected] = useState<
 
   {/* Facebook */}
   <a
-    href="https://www.facebook.com/your_page"
+    href="https://www.facebook.com/profile.php?id=100082126132609"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Facebook"
@@ -146,7 +146,7 @@ const [selected, setSelected] = useState<
 
   {/* YouTube */}
   <a
-    href="https://www.youtube.com/@your_channel"
+    href="https://www.youtube.com/@Arrheniuxofficials"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="YouTube"

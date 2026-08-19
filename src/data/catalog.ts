@@ -1,7 +1,7 @@
 import tshirts from "@/assets/over-shirt-arr .avif";
 import hoodies from "@/assets/hoodiearr.avif";
-import roundneck from "@/assets/round-nake-2.avif"
-import jersy from "@/assets/jersy.avif"
+import roundneck from "@/assets/round-nake-2.avif";
+import jersy from "@/assets/jersy.avif";
 import polos from "@/assets/polo.avif";
 import Aprons from "@/assets/approns (1).avif";
 import sweatshirts from "@/assets/cat-sweatshirts.jpg";
@@ -18,7 +18,7 @@ import canvasTote from "@/assets/canvasTote.avif";
 import mug from "@/assets/mugs.avif";
 import safetyGoggle from "@/assets/safetyGoggle.avif";
 import cap from "@/assets/caps (1).avif";
-import premiumBackpack from  "@/assets/premiumBackpack.avif";
+import premiumBackpack from "@/assets/premiumBackpack.avif";
 import umbrella from "@/assets/umbrella (1).avif";
 import pen from "@/assets/pen (1).avif";
 import badge from "@/assets/badge (1).avif";
@@ -29,7 +29,7 @@ import premiumover from "@/assets/premiumover (1).avif";
 import americanFleeceHoodie from "@/assets/americanFleeceHoodie (1).avif";
 import cottonHoodie from "@/assets/cotton-50kb.avif";
 import Loopnet from "@/assets/Loopnet (1).avif";
-import jerseyAllOverRegular  from "@/assets/jerseyAllOverRegular.avif";
+import jerseyAllOverRegular from "@/assets/jerseyAllOverRegular.avif";
 import jerseyFrontRegular from "@/assets/jerseyFrontRegular.avif";
 import jerseyFrontBackRegular from "@/assets/jerseyFrontBackRegular.avif";
 import spunRoundNeck from "@/assets/spunRoundNeck.avif";
@@ -40,6 +40,8 @@ import universityApron from "@/assets/university-apron.avif";
 import nurseApron from "@/assets/nurse-apron.avif";
 import medicalApron from "@/assets/medical-apron.avif";
 import classicWelcomeKit from "@/assets/classic-welcome-kit.avif";
+import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
+import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
 // import dryFitCollar from "@/assets/dry-fit-collar.avif";
 // import solidCollar from "@/assets/solid-collar.avif";
@@ -49,7 +51,7 @@ export type Tier = "regular" | "premium";
 
 export type CatalogProduct = {
   id: string;
-   code: string;   // ← added  this
+  code: string; // ← added  this
   name: string;
   categorySlug: string;
   subSlug: string;
@@ -70,7 +72,7 @@ export type CatalogProduct = {
   specifications?: string[];
   designGuidelines?: string[];
   washCare?: string[];
-   kitItems?: { name: string; price: number }[]; // ADD THIS
+  kitItems?: { name: string; price: number }[]; // ADD THIS
 };
 
 export type Subcategory = {
@@ -78,7 +80,7 @@ export type Subcategory = {
   name: string;
   tier?: Tier;
   image: string;
-   banner?: string; 
+  banner?: string;
   products: CatalogProduct[];
 };
 
@@ -112,7 +114,7 @@ const makeProducts = (
   subSlug: string,
   image: string,
   tier: Tier | undefined,
-  count = 3
+  count = 3,
 ): CatalogProduct[] => {
   const out: CatalogProduct[] = [];
   for (let i = 1; i <= count; i++) {
@@ -157,7 +159,7 @@ const makeSubs = (
   defaultImage: string,
   tier: Tier | undefined,
   names: SubInput[],
-  perSub = 3
+  perSub = 3,
 ): Subcategory[] =>
   names.map((item) => {
     const name = typeof item === "string" ? item : item.name;
@@ -188,7 +190,6 @@ export const catalog: CatalogCategory[] = [
     premium: makeSubs("oversized-t-shirts", premiumover, "premium", [
       "Cotton Oversized T-Shirts",
       { name: "Terry / Loopnet Oversized T-Shirts", image: Loopnet },
-      
     ]),
   },
   {
@@ -200,7 +201,7 @@ export const catalog: CatalogCategory[] = [
     regular: makeSubs("hoodies", hoodies, "regular", ["Spun Fleece Hoodies"]),
     premium: makeSubs("hoodies", hoodies, "premium", [
       "Polycotton Hoodies",
-       { name: "American Fleece Hoodies", image: americanFleeceHoodie },
+      { name: "American Fleece Hoodies", image: americanFleeceHoodie },
       { name: "Cotton Hoodies", image: cottonHoodie },
     ]),
   },
@@ -213,7 +214,7 @@ export const catalog: CatalogCategory[] = [
     regular: makeSubs("jersey", sweatshirts, "regular", [
       { name: "All Over Printed Jersey", image: jerseyAllOverRegular },
       { name: "Front Printed Jersey", image: jerseyFrontRegular },
-      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular }
+      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular },
     ]),
     premium: makeSubs("jersey", sweatshirts, "premium", [
       // "All Over Printed Jersey",
@@ -221,7 +222,7 @@ export const catalog: CatalogCategory[] = [
       // "Front & Back Printed Jersey",
       { name: "All Over Printed Jersey", image: jerseyAllOverRegular },
       { name: "Front Printed Jersey", image: jerseyFrontRegular },
-      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular }
+      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular },
     ]),
   },
   {
@@ -301,11 +302,19 @@ export const catalog: CatalogCategory[] = [
       // "Corporate Polyester Round Neck T-Shirt",
       // "Dotnet White Round Neck T-Shirt",
       // "Gym Round Neck T-Shirt",
-{ name: "Spun Round Neck T-Shirt", image: spunRoundNeck },
-{ name: "Corporate Polyester Round Neck T-Shirt(160 GSM)", image: corporatePolyesterRoundNeck },
-{ name: "Dotnet White Round Neck T-Shirt (120 GSM)", image: dotnetWhiteRoundNeck },
-{ name: "Corporate polyster Round Neck T-Shirt (120 GSM)", image: gymRoundNeck },
-
+      { name: "Spun Round Neck T-Shirt", image: spunRoundNeck },
+      {
+        name: "Corporate Polyester Round Neck T-Shirt(160 GSM)",
+        image: corporatePolyesterRoundNeck,
+      },
+      {
+        name: "Dotnet White Round Neck T-Shirt (120 GSM)",
+        image: dotnetWhiteRoundNeck,
+      },
+      {
+        name: "Corporate polyster Round Neck T-Shirt (120 GSM)",
+        image: gymRoundNeck,
+      },
     ]),
     premium: makeSubs("custom-round-neck-t-shirts", tshirts, "premium", [
       // "Cotton Round Neck T-Shirt",
@@ -313,11 +322,17 @@ export const catalog: CatalogCategory[] = [
       // "Corporate SAP Matty Round Neck T-Shirt",
       // "SAP Matty White Round Neck T-Shirt",
       // "Cotton Gym Round Neck T-Shirt",
-      { name: "Cotton Round Neck T-Shirt", image: spunRoundNeck  },
-{ name: "Polycotton Round Neck T-Shirt", image: tshirts },
-{ name: "Corporate SAP Matty Round Neck T-Shirt", image: corporatePolyesterRoundNeck },
-{ name: "SAP Matty White Round Neck T-Shirt", image: dotnetWhiteRoundNeck },
-{ name: "Cotton Gym Round Neck T-Shirt", image: gymRoundNeck },
+      { name: "Cotton Round Neck T-Shirt", image: spunRoundNeck },
+      { name: "Polycotton Round Neck T-Shirt", image: tshirts },
+      {
+        name: "Corporate SAP Matty Round Neck T-Shirt",
+        image: corporatePolyesterRoundNeck,
+      },
+      {
+        name: "SAP Matty White Round Neck T-Shirt",
+        image: dotnetWhiteRoundNeck,
+      },
+      { name: "Cotton Gym Round Neck T-Shirt", image: gymRoundNeck },
     ]),
   },
   {
@@ -331,16 +346,16 @@ export const catalog: CatalogCategory[] = [
       // "Nurse Apron",
       // "Medical Apron",
       { name: "University Apron", image: universityApron },
-{ name: "Nurse Apron", image: nurseApron },
-{ name: "Medical Apron", image: medicalApron },
+      { name: "Nurse Apron", image: nurseApron },
+      { name: "Medical Apron", image: medicalApron },
     ]),
     premium: makeSubs("aprons", uniforms, "premium", [
       // "University Apron",
       // "Nurse Apron",
       // "Medical Apron",
-        { name: "University Apron", image: universityApron },
-{ name: "Nurse Apron", image: nurseApron },
-{ name: "Medical Apron", image: medicalApron },
+      { name: "University Apron", image: universityApron },
+      { name: "Nurse Apron", image: nurseApron },
+      { name: "Medical Apron", image: medicalApron },
     ]),
   },
   {
@@ -349,16 +364,22 @@ export const catalog: CatalogCategory[] = [
     image: uniforms,
     hasTiers: false,
     blurb: "School uniform T-shirts and track pants — built per your specs.",
-    items: makeSubs("customize-school-uniform", uniforms, undefined, [
-      "Spun Matty 220 GSM",
-      "PC Matty 220 GSM",
-      "Track Pant Super Poly Polyester",
-      "Track Pant Cotton PC Loop Knit",
-      "House T-shirt Spun Matty 220 GSM",
-      "House T-shirt PC Matty 220 GSM",
-      "Hoodies Spun Fleece 300 GSM",
-      "Hoodies PC Fleece 300 GSM",
-    ], 3),
+    items: makeSubs(
+      "customize-school-uniform",
+      uniforms,
+      undefined,
+      [
+        "Spun Matty 220 GSM",
+        "PC Matty 220 GSM",
+        "Track Pant Super Poly Polyester",
+        "Track Pant Cotton PC Loop Knit",
+        "House T-shirt Spun Matty 220 GSM",
+        "House T-shirt PC Matty 220 GSM",
+        "Hoodies Spun Fleece 300 GSM",
+        "Hoodies PC Fleece 300 GSM",
+      ],
+      3,
+    ),
   },
   {
     slug: "custom-accessories",
@@ -366,32 +387,47 @@ export const catalog: CatalogCategory[] = [
     image: totes,
     hasTiers: false,
     blurb: "Branded merch and add-ons to round out your kit.",
-    items: makeSubs("custom-accessories", undefined, undefined, [
-  { name: "Canvas Tote", image: canvasTote },
-  { name: "Mug", image: mug },
-  { name: "Safety Goggle", image: safetyGoggle },
-  { name: "Cap", image: cap },
-  { name: "Premium Backpack", image: premiumBackpack },
-  { name: "Umbrella", image: umbrella },
-  { name: "Pen", image: pen },
-  { name: "Badge", image: badge },
-  { name: "Event Lanyard", image: eventLanyard },
-  { name: "Bottle", image: bottle },
-], 2),
-    
+    items: makeSubs(
+      "custom-accessories",
+      undefined,
+      undefined,
+      [
+        { name: "Canvas Tote", image: canvasTote },
+        { name: "Mug", image: mug },
+        { name: "Safety Goggle", image: safetyGoggle },
+        { name: "Cap", image: cap },
+        { name: "Premium Backpack", image: premiumBackpack },
+        { name: "Umbrella", image: umbrella },
+        { name: "Pen", image: pen },
+        { name: "Badge", image: badge },
+        { name: "Event Lanyard", image: eventLanyard },
+        { name: "Bottle", image: bottle },
+      ],
+      2,
+    ),
   },
   {
     slug: "corporate-welcome-kit",
     name: "Corporate Welcome Kit",
     image: corporatewelcoome,
     hasTiers: false,
-    blurb: "Ready-to-ship welcome kits for new hires, events, colleges and teams.",
+    blurb:
+      "Ready-to-ship welcome kits for new hires, events, colleges and teams.",
     items: [
       // Only Classic Welcome Kit remains — themed variants.
-      ...makeSubs("corporate-welcome-kit", corporate, undefined, [
-        { name: "Classic Welcome Kit", image: classicWelcomeKit },
-      ], 1).map((s) => {
-        const themed = ["Employee Welcome Kit", "Conference Welcome Kit", "College Welcome Kit", "Team Welcome Kit"];
+      ...makeSubs(
+        "corporate-welcome-kit",
+        corporate,
+        undefined,
+        [{ name: "Classic Welcome Kit", image: classicWelcomeKit }],
+        1,
+      ).map((s) => {
+        const themed = [
+          "Employee Welcome Kit",
+          "Conference Welcome Kit",
+          "College Welcome Kit",
+          "Team Welcome Kit",
+        ];
         s.products = themed.map((n) => {
           __id++;
           __ts += 1000;
@@ -418,37 +454,44 @@ export const catalog: CatalogCategory[] = [
       }),
     ],
   },
-  {
-    slug: "arrheniux-t-shirts",
-    name: "ARRHENIUX T-Shirts",
-    image: tshirts,
-    hasTiers: false,
-    blurb: "Our in-house premium line — branded, finished, fully ready.",
-    items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
-      "ARRHENIUX Cotton Round Neck T-Shirt",
-      "ARRHENIUX Cotton Collar Neck T-Shirt",
-      "ARRHENIUX Blend Collar Neck T-Shirt",
-      "ARRHENIUX Dryfit Collar Neck T-Shirt",
-      "ARRHENIUX Oversized T-Shirt",
-      "ARRHENIUX Hoodie",
-      "ARRHENIUX Polo T-Shirt",
-    ], 2),
-  },
+  // {
+  //   slug: "arrheniux-t-shirts",
+  //   name: "ARRHENIUX T-Shirts",
+  //   image: tshirts,
+  //   hasTiers: false,
+  //   blurb: "Our in-house premium line — branded, finished, fully ready.",
+  //   items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
+  //     "ARRHENIUX Cotton Round Neck T-Shirt",
+  //     "ARRHENIUX Cotton Collar Neck T-Shirt",
+  //     "ARRHENIUX Blend Collar Neck T-Shirt",
+  //     "ARRHENIUX Dryfit Collar Neck T-Shirt",
+  //     "ARRHENIUX Oversized T-Shirt",
+  //     "ARRHENIUX Hoodie",
+  //     "ARRHENIUX Polo T-Shirt",
+  //   ], 2),
+  // },
 ];
 
 // ---------- Helpers ----------
 export const findCategory = (slug?: string) =>
   catalog.find((c) => c.slug === slug);
 
-export const getSubsForTier = (cat: CatalogCategory, tier?: string): Subcategory[] => {
+export const getSubsForTier = (
+  cat: CatalogCategory,
+  tier?: string,
+): Subcategory[] => {
   if (!cat.hasTiers) return cat.items ?? [];
   if (tier === "regular") return cat.regular ?? [];
   if (tier === "premium") return cat.premium ?? [];
   return [];
 };
 
-export const findSubcategory = (cat: CatalogCategory, tier: string | undefined, subSlug?: string) => {
-  const subs = cat.hasTiers ? getSubsForTier(cat, tier) : cat.items ?? [];
+export const findSubcategory = (
+  cat: CatalogCategory,
+  tier: string | undefined,
+  subSlug?: string,
+) => {
+  const subs = cat.hasTiers ? getSubsForTier(cat, tier) : (cat.items ?? []);
   return subs.find((s) => s.slug === subSlug);
 };
 
@@ -456,7 +499,7 @@ export const allProducts = (): CatalogProduct[] =>
   catalog.flatMap((c) =>
     c.hasTiers
       ? [...(c.regular ?? []), ...(c.premium ?? [])].flatMap((s) => s.products)
-      : (c.items ?? []).flatMap((s) => s.products)
+      : (c.items ?? []).flatMap((s) => s.products),
   );
 
 export const findProduct = (id?: string): CatalogProduct | undefined =>
@@ -470,19 +513,39 @@ export const latestProducts = (n = 9): CatalogProduct[] =>
 
 export const productHref = (p: CatalogProduct) => `/product/${p.id}`;
 
-export const listingHref = (catSlug: string, tier: string | undefined, subSlug: string) =>
-  `/category/${catSlug}/${tier ?? "_"}/${subSlug}`;
+export const listingHref = (
+  catSlug: string,
+  tier: string | undefined,
+  subSlug: string,
+) => `/category/${catSlug}/${tier ?? "_"}/${subSlug}`;
 
 // ---------- Garment vs non-garment ----------
 const NON_GARMENT = new Set(["custom-accessories", "corporate-welcome-kit"]);
 export const isNonGarmentCategory = (slug: string) => NON_GARMENT.has(slug);
-export const isArrheniuxCategory = (slug: string) => slug === "arrheniux-t-shirts";
-export const isWelcomeKitCategory = (slug: string) => slug === "corporate-welcome-kit";
-export const isSchoolUniformCategory = (slug: string) => slug === "customize-school-uniform";
+export const isArrheniuxCategory = (slug: string) =>
+  slug === "arrheniux-t-shirts";
+export const isWelcomeKitCategory = (slug: string) =>
+  slug === "corporate-welcome-kit";
+export const isSchoolUniformCategory = (slug: string) =>
+  slug === "customize-school-uniform";
 
 // Size sets ---------------------------------------------------------
 export const APPAREL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
-export const SCHOOL_UNIFORM_SIZES = ["22", "24", "26", "28", "30", "32", "34", "36", "38", "40", "42", "44", "46"] as const;
+export const SCHOOL_UNIFORM_SIZES = [
+  "22",
+  "24",
+  "26",
+  "28",
+  "30",
+  "32",
+  "34",
+  "36",
+  "38",
+  "40",
+  "42",
+  "44",
+  "46",
+] as const;
 export const getSizesFor = (catSlug: string): readonly string[] =>
   isSchoolUniformCategory(catSlug) ? SCHOOL_UNIFORM_SIZES : APPAREL_SIZES;
 export const emptySizes = (catSlug: string): Record<string, number> =>
@@ -498,7 +561,7 @@ export const priceValue = (p: Pick<CatalogProduct, "price">) =>
 
 // Per-piece courier
 export const COURIER_PER_PC = 30;
-export const GST_RATE = 0.05; // default 5% 
+export const GST_RATE = 0.05; // default 5%
 export const BULK_DISCOUNT_PCT = 40;
 export const BULK_THRESHOLD = 80;
 export const B2B_MOQ = 14;
@@ -514,9 +577,15 @@ export const getMOQ = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => {
   return 5;
 };
 
-export type MoqOverride = { category: string; subCategory: string | null; minQty: number };
+export type MoqOverride = {
+  category: string;
+  subCategory: string | null;
+  minQty: number;
+};
 
-const subCategoryNameFor = (p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">) => {
+const subCategoryNameFor = (
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+) => {
   const cat = findCategory(p.categorySlug);
   if (!cat) return undefined;
   return findSubcategory(cat, p.tier, p.subSlug)?.name;
@@ -529,15 +598,22 @@ export const resolveMOQ = (
   const catName = findCategory(p.categorySlug)?.name;
   if (overrides?.length && catName) {
     const subName = subCategoryNameFor(p);
-    const exact = overrides.find((o) => o.category === catName && o.subCategory && o.subCategory === subName);
+    const exact = overrides.find(
+      (o) =>
+        o.category === catName && o.subCategory && o.subCategory === subName,
+    );
     if (exact) return exact.minQty;
 
-    const categoryDefault = overrides.find((o) => o.category === catName && !o.subCategory);
+    const categoryDefault = overrides.find(
+      (o) => o.category === catName && !o.subCategory,
+    );
     if (categoryDefault) return categoryDefault.minQty;
   }
   return getMOQ(p); // unchanged hardcoded fallback
 };
-export const getMaxQty = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => {
+export const getMaxQty = (
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug">,
+) => {
   if (isArrheniuxCategory(p.categorySlug)) return ARR_SIZE_MAX;
   const rule = getAccessoryRules(p.subSlug);
   if (rule) return rule.max;
@@ -545,7 +621,10 @@ export const getMaxQty = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) =
 };
 
 // Retail-tier % discount (below bulk threshold)
-export const getDiscountPct = (qty: number, p?: Pick<CatalogProduct, "subSlug">) => {
+export const getDiscountPct = (
+  qty: number,
+  p?: Pick<CatalogProduct, "subSlug">,
+) => {
   if (p) {
     const rule = getAccessoryRules(p.subSlug);
     if (rule && !rule.discountEnabled) return 0;
@@ -584,10 +663,14 @@ export const resolveDiscountPct = (
       if (!catMatches) return false;
       // exact sub-category tiers take priority over category-wide tiers
       const hasSubTiers = overrides.some(
-        (x) => normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+        (x) =>
+          normalizeName(x.category) === normalizeName(catName) && x.subCategory,
       );
       if (hasSubTiers && subName) {
-        return o.subCategory && normalizeName(o.subCategory) === normalizeName(subName);
+        return (
+          o.subCategory &&
+          normalizeName(o.subCategory) === normalizeName(subName)
+        );
       }
       return !o.subCategory;
     });
@@ -617,9 +700,15 @@ export const resolveBulkDiscountPct = (
 };
 
 // Human-friendly product code
-export const productCode = (p: Pick<CatalogProduct, "id" | "code" | "categorySlug">) => {
+export const productCode = (
+  p: Pick<CatalogProduct, "id" | "code" | "categorySlug">,
+) => {
   if (p.code) return p.code;
-  const catInitials = p.categorySlug.split("-").map((w) => w[0]?.toUpperCase() || "").join("").slice(0, 3);
+  const catInitials = p.categorySlug
+    .split("-")
+    .map((w) => w[0]?.toUpperCase() || "")
+    .join("")
+    .slice(0, 3);
   return `ARR-${catInitials}-${p.id.toUpperCase()}`;
 };
 
@@ -635,7 +724,14 @@ export type AccessoryRule = {
   print:
     | { kind: "none" }
     | { kind: "free"; label: string }
-    | { kind: "custom"; methods: Array<{ id: "embroidery" | "dtf" | "sublimation" | "laser" | "digital"; label?: string; options: { id: string; label: string; pricePerPc: number }[] }> };
+    | {
+        kind: "custom";
+        methods: Array<{
+          id: "embroidery" | "dtf" | "sublimation" | "laser" | "digital";
+          label?: string;
+          options: { id: string; label: string; pricePerPc: number }[];
+        }>;
+      };
   note?: string;
   // Named colour choices displayed as a select (Cap, Umbrella, Lanyard)
   namedColors?: string[];
@@ -645,81 +741,218 @@ export type AccessoryRule = {
 
 const ACCESSORY_RULES: Record<string, AccessoryRule> = {
   "canvas-tote": {
-    moq: 5, max: 80, gstPct: 5, discountEnabled: false, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "dtf", label: "DTF Print", options: [
-      { id: "tote-logo", label: "Company Logo (3×2 inch)", pricePerPc: 20 },
-      { id: "tote-a4", label: "A4 Print", pricePerPc: 40 },
-      { id: "tote-company-name", label: "Company Name Design (8×2 inch)", pricePerPc: 30 },
-    ]}]},
+    moq: 5,
+    max: 80,
+    gstPct: 5,
+    discountEnabled: false,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "dtf",
+          label: "DTF Print",
+          options: [
+            {
+              id: "tote-logo",
+              label: "Company Logo (3×2 inch)",
+              pricePerPc: 20,
+            },
+            { id: "tote-a4", label: "A4 Print", pricePerPc: 40 },
+            {
+              id: "tote-company-name",
+              label: "Company Name Design (8×2 inch)",
+              pricePerPc: 30,
+            },
+          ],
+        },
+      ],
+    },
   },
   "safety-goggle": {
-    moq: 50, max: 80, gstPct: 18, discountEnabled: false, oem: true, courierPerPc: 0,
+    moq: 50,
+    max: 80,
+    gstPct: 18,
+    discountEnabled: false,
+    oem: true,
+    courierPerPc: 0,
     print: { kind: "none" },
   },
   "premium-backpack": {
-    moq: 50, max: 80, gstPct: 18, discountEnabled: false, oem: true, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "dtf", label: "DTF Print", options: [
-      { id: "bp-logo", label: "Company Logo (3×2 inch)", pricePerPc: 20 },
-    ]}]},
+    moq: 50,
+    max: 80,
+    gstPct: 18,
+    discountEnabled: false,
+    oem: true,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "dtf",
+          label: "DTF Print",
+          options: [
+            { id: "bp-logo", label: "Company Logo (3×2 inch)", pricePerPc: 20 },
+          ],
+        },
+      ],
+    },
   },
-  "pen": {
-  moq: 50, max: 80, gstPct: 18, discountEnabled: false, oem: true, courierPerPc: 0,
-  print: { kind: "custom", methods: [
-    { id: "laser", label: "Laser Print", options: [{ id: "pen-laser-logo", label: "Company Logo", pricePerPc: 20 }] },
-    { id: "sublimation", label: "Sublimation Print", options: [{ id: "pen-sub-logo", label: "Company Logo", pricePerPc: 20 }] },
-  ]},
-},
-  "badge": {
-    moq: 50, max: 80, gstPct: 18, discountEnabled: false, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "digital", label: "Digital Print", options: [
-      { id: "badge-logo", label: "Company Logo", pricePerPc: 80 },
-    ]}]},
+  pen: {
+    moq: 50,
+    max: 80,
+    gstPct: 18,
+    discountEnabled: false,
+    oem: true,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "laser",
+          label: "Laser Print",
+          options: [
+            { id: "pen-laser-logo", label: "Company Logo", pricePerPc: 20 },
+          ],
+        },
+        {
+          id: "sublimation",
+          label: "Sublimation Print",
+          options: [
+            { id: "pen-sub-logo", label: "Company Logo", pricePerPc: 20 },
+          ],
+        },
+      ],
+    },
+  },
+  badge: {
+    moq: 50,
+    max: 80,
+    gstPct: 18,
+    discountEnabled: false,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "digital",
+          label: "Digital Print",
+          options: [
+            { id: "badge-logo", label: "Company Logo", pricePerPc: 80 },
+          ],
+        },
+      ],
+    },
     note: "Fastener Type: Pin",
   },
-  "mug": {
-    moq: 50, max: 80, gstPct: 18, discountEnabled: false, oem: true, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "sublimation", label: "Sublimation Print", options: [
-      { id: "mug-logo", label: "Company Logo", pricePerPc: 20 },
-      { id: "mug-team", label: "Team Photo", pricePerPc: 50 },
-    ]}]},
+  mug: {
+    moq: 50,
+    max: 80,
+    gstPct: 18,
+    discountEnabled: false,
+    oem: true,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "sublimation",
+          label: "Sublimation Print",
+          options: [
+            { id: "mug-logo", label: "Company Logo", pricePerPc: 20 },
+            { id: "mug-team", label: "Team Photo", pricePerPc: 50 },
+          ],
+        },
+      ],
+    },
     note: "Available Color: White only.",
   },
-  "cap": {
-    moq: 50, max: 80, gstPct: 5, discountEnabled: false, oem: true, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "dtf", label: "DTF Print", options: [
-      { id: "cap-logo", label: "Company Logo", pricePerPc: 20 },
-    ]}]},
+  cap: {
+    moq: 50,
+    max: 80,
+    gstPct: 5,
+    discountEnabled: false,
+    oem: true,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "dtf",
+          label: "DTF Print",
+          options: [{ id: "cap-logo", label: "Company Logo", pricePerPc: 20 }],
+        },
+      ],
+    },
   },
-  "umbrella": {
-    moq: 50, max: 80, gstPct: 5, discountEnabled: false, courierPerPc: 0,
-    print: { kind: "custom", methods: [{ id: "dtf", label: "DTF Print", options: [
-      { id: "umb-logo", label: "Company Logo", pricePerPc: 10 },
-    ]}]},
+  umbrella: {
+    moq: 50,
+    max: 80,
+    gstPct: 5,
+    discountEnabled: false,
+    courierPerPc: 0,
+    print: {
+      kind: "custom",
+      methods: [
+        {
+          id: "dtf",
+          label: "DTF Print",
+          options: [{ id: "umb-logo", label: "Company Logo", pricePerPc: 10 }],
+        },
+      ],
+    },
   },
   // AFTER
-"event-lanyard": {
-  moq: 50, max: 80, gstPct: 5, discountEnabled: false, courierPerPc: 0,
-  print: { kind: "free", label: "Company Logo Printing — Multicolor Available (FREE)" },
-},
+  "event-lanyard": {
+    moq: 50,
+    max: 80,
+    gstPct: 5,
+    discountEnabled: false,
+    courierPerPc: 0,
+    print: {
+      kind: "free",
+      label: "Company Logo Printing — Multicolor Available (FREE)",
+    },
+  },
 };
 
 // Print options shared by all Customize School Uniform subcategories.
 const SCHOOL_UNIFORM_PRINT_METHODS = [
-  { id: "dtf" as const, label: "DTF Print", options: [
-    { id: "su-dtf-chest", label: "DTF Chest Logo", pricePerPc: 15 },
-    { id: "su-dtf-back", label: "Back Name Print", pricePerPc: 20 },
-  ]},
-  { id: "sublimation" as const, label: "Sublimation Print", options: [
-    { id: "su-sub-woven", label: "Woven Chest Logo", pricePerPc: 20 },
-    { id: "su-sub-back", label: "Back Name Print", pricePerPc: 20 },
-  ]},
-  { id: "embroidery" as const, label: "Embroidery Print", options: [
-    { id: "su-emb-chest", label: "Embroidery Chest Logo", pricePerPc: 20 },
-  ]},
+  {
+    id: "dtf" as const,
+    label: "DTF Print",
+    options: [
+      { id: "su-dtf-chest", label: "DTF Chest Logo", pricePerPc: 15 },
+      { id: "su-dtf-back", label: "Back Name Print", pricePerPc: 20 },
+    ],
+  },
+  {
+    id: "sublimation" as const,
+    label: "Sublimation Print",
+    options: [
+      { id: "su-sub-woven", label: "Woven Chest Logo", pricePerPc: 20 },
+      { id: "su-sub-back", label: "Back Name Print", pricePerPc: 20 },
+    ],
+  },
+  {
+    id: "embroidery" as const,
+    label: "Embroidery Print",
+    options: [
+      { id: "su-emb-chest", label: "Embroidery Chest Logo", pricePerPc: 20 },
+    ],
+  },
 ];
-["spun-matty-220-gsm", "pc-matty-220-gsm", "track-pant-spun-poly-polyester", "track-pant-cotton-pc-loop-knit"].forEach((slug) => {
+[
+  "spun-matty-220-gsm",
+  "pc-matty-220-gsm",
+  "track-pant-spun-poly-polyester",
+  "track-pant-cotton-pc-loop-knit",
+].forEach((slug) => {
   ACCESSORY_RULES[slug] = {
-    moq: 50, max: 80, gstPct: 5, discountEnabled: true,
+    moq: 50,
+    max: 80,
+    gstPct: 5,
+    discountEnabled: true,
     print: { kind: "custom", methods: SCHOOL_UNIFORM_PRINT_METHODS },
   };
 });
@@ -729,6 +962,128 @@ export const getAccessoryRules = (subSlug?: string): AccessoryRule | null => {
   return ACCESSORY_RULES[subSlug] ?? null;
 };
 
+// const normalizeName = (s: string) => s.trim().toLowerCase();
+
+export type ResolvedPrint =
+  | { kind: "none" }
+  | { kind: "free"; label: string }
+  | { kind: "custom"; methods: PrintMethod[] };
+
+/** Map admin config → storefront PrintPicker shape. */
+export function configToResolved(cfg: ApiPrintConfig): ResolvedPrint {
+  if (cfg.kind === "none") return { kind: "none" };
+  if (cfg.kind === "free") return { kind: "free", label: cfg.label };
+  return {
+    kind: "custom",
+    methods: cfg.methods.map((m) => ({
+      id: m.id as PrintMethod["id"],
+      label: m.label,
+      note: m.note,
+      options: m.options.map((o) => ({
+        id: o.id,
+        label: o.label,
+        pricePerPc: o.pricePerPc,
+      })),
+    })),
+  };
+}
+
+/**
+ * Priority:
+ * 1. Admin override exact category + subcategory
+ * 2. Admin override category-wide (subCategory null)
+ * 3. Hardcoded ACCESSORY_RULES.print
+ * 4. Global PRINT_METHODS for garments that support print
+ * 5. none
+ */
+export function resolvePrintConfig(
+  p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+  overrides?: ApiPrintSetting[] | null,
+): ResolvedPrint {
+  const catName = findCategory(p.categorySlug)?.name;
+  const subName = (() => {
+    const cat = findCategory(p.categorySlug);
+    if (!cat) return undefined;
+    return findSubcategory(cat, p.tier, p.subSlug)?.name;
+  })();
+
+  // catalog tier "regular"/"premium" → admin "Regular"/"Premium"
+  const productType =
+    p.tier === "premium" ? "Premium" : p.tier === "regular" ? "Regular" : null;
+
+  const norm = (s: string) => s.trim().toLowerCase();
+
+  if (overrides?.length && catName) {
+    const list = overrides.filter((o) => norm(o.category) === norm(catName));
+
+    // 1) exact: category + type + sub
+    if (productType && subName) {
+      const exact = list.find(
+        (o) =>
+          o.productType &&
+          norm(o.productType) === norm(productType) &&
+          o.subCategory &&
+          norm(o.subCategory) === norm(subName),
+      );
+      if (exact) return configToResolved(exact.config);
+    }
+
+    // 2) type-wide: category + type, no sub
+    if (productType) {
+      const typeDefault = list.find(
+        (o) =>
+          o.productType &&
+          norm(o.productType) === norm(productType) &&
+          !o.subCategory,
+      );
+      if (typeDefault) return configToResolved(typeDefault.config);
+    }
+
+    // 3) sub only (no type) — for non-tier categories
+    if (subName) {
+      const subOnly = list.find(
+        (o) => !o.productType && o.subCategory && norm(o.subCategory) === norm(subName),
+      );
+      if (subOnly) return configToResolved(subOnly.config);
+    }
+
+    // 4) category default
+    const catDefault = list.find((o) => !o.productType && !o.subCategory);
+    if (catDefault) return configToResolved(catDefault.config);
+  }
+
+  // Hardcoded fallbacks (unchanged)
+  const rule = getAccessoryRules(p.subSlug);
+  if (rule?.print) {
+    if (rule.print.kind === "none") return { kind: "none" };
+    if (rule.print.kind === "free") return { kind: "free", label: rule.print.label };
+    return {
+      kind: "custom",
+      methods: rule.print.methods.map((m) => ({
+        id: m.id,
+        label:
+          m.label ??
+          (m.id === "dtf"
+            ? "DTF Print"
+            : m.id === "sublimation"
+              ? "Sublimation Print"
+              : m.id === "laser"
+                ? "Laser Print"
+                : m.id === "digital"
+                  ? "Digital Print"
+                  : "Embroidery Print"),
+        options: m.options,
+      })),
+    };
+  }
+
+  if (supportsPrint(p.categorySlug)) {
+    return { kind: "custom", methods: PRINT_METHODS };
+  }
+
+  return { kind: "none" };
+}
+
 // GST% for a product (5% default, some accessories 18%)
 export const getGstPct = (p: Pick<CatalogProduct, "subSlug">) => {
   const rule = getAccessoryRules(p.subSlug);
@@ -736,7 +1091,9 @@ export const getGstPct = (p: Pick<CatalogProduct, "subSlug">) => {
 };
 
 // Courier per piece — FREE across the site.
-export const getCourierPerPc = (_p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => 0;
+export const getCourierPerPc = (
+  _p: Pick<CatalogProduct, "categorySlug" | "subSlug">,
+) => 0;
 
 // Sample price = 1 pc at unit price + courier + GST (a small stand-alone charge)
 export const samplePrice = (p: CatalogProduct) => {
@@ -759,7 +1116,10 @@ export const WELCOME_KIT_ITEMS = [
 // Mandatory T-Shirt + at least 2 more selections (spec: at least 2 additional).
 export const WELCOME_KIT_MIN_ITEMS = 3;
 export const welcomeKitUnitPrice = (selectedIds: string[]): number =>
-  selectedIds.reduce((sum, id) => sum + (WELCOME_KIT_ITEMS.find((k) => k.id === id)?.price ?? 0), 0);
+  selectedIds.reduce(
+    (sum, id) => sum + (WELCOME_KIT_ITEMS.find((k) => k.id === id)?.price ?? 0),
+    0,
+  );
 
 // ---------- B2B curated subcategories ----------
 export type B2BSub = {
@@ -769,12 +1129,42 @@ export type B2BSub = {
   tier?: Tier;
 };
 export const B2B_SUBCATEGORIES: B2BSub[] = [
-  { slug: "oversized-tshirt", name: "Oversized T-Shirt", catSlug: "oversized-t-shirts", tier: "premium" },
-  { slug: "dryfit-collar", name: "Dry Fit Collar Neck T-Shirt", catSlug: "corporate-wear", tier: "premium" },
-  { slug: "american-fleece", name: "American Fleece Hoodies", catSlug: "hoodies", tier: "premium" },
-  { slug: "solid-collar", name: "Solid Collar Neck T-Shirt", catSlug: "corporate-wear", tier: "regular" },
-  { slug: "dryfit-solid-collar", name: "Dry Fit Solid Collar Neck T-Shirt", catSlug: "corporate-wear", tier: "premium" },
-  { slug: "round-neck", name: "Round Neck T-Shirt", catSlug: "custom-round-neck-t-shirts", tier: "regular" },
+  {
+    slug: "oversized-tshirt",
+    name: "Oversized T-Shirt",
+    catSlug: "oversized-t-shirts",
+    tier: "premium",
+  },
+  {
+    slug: "dryfit-collar",
+    name: "Dry Fit Collar Neck T-Shirt",
+    catSlug: "corporate-wear",
+    tier: "premium",
+  },
+  {
+    slug: "american-fleece",
+    name: "American Fleece Hoodies",
+    catSlug: "hoodies",
+    tier: "premium",
+  },
+  {
+    slug: "solid-collar",
+    name: "Solid Collar Neck T-Shirt",
+    catSlug: "corporate-wear",
+    tier: "regular",
+  },
+  {
+    slug: "dryfit-solid-collar",
+    name: "Dry Fit Solid Collar Neck T-Shirt",
+    catSlug: "corporate-wear",
+    tier: "premium",
+  },
+  {
+    slug: "round-neck",
+    name: "Round Neck T-Shirt",
+    catSlug: "custom-round-neck-t-shirts",
+    tier: "regular",
+  },
 ];
 
 export const getB2BProducts = (b2bSlug: string): CatalogProduct[] => {
@@ -782,7 +1172,9 @@ export const getB2BProducts = (b2bSlug: string): CatalogProduct[] => {
   if (!b) return [];
   const cat = findCategory(b.catSlug);
   if (!cat) return [];
-  const subs = cat.hasTiers ? (b.tier === "regular" ? cat.regular : cat.premium) ?? [] : cat.items ?? [];
+  const subs = cat.hasTiers
+    ? ((b.tier === "regular" ? cat.regular : cat.premium) ?? [])
+    : (cat.items ?? []);
   const sub = subs.find((s) => s.name === b.name) || subs[0];
   return sub?.products ?? [];
 };
@@ -792,5 +1184,7 @@ export const B2B_AGENT_CODES = ["AGENT2024", "ARR-B2B", "DEALER100"];
 
 // Legacy print type placeholder
 export type PrintType = { id: string; label: string; pricePerPc: number };
-export const PRINT_TYPES: PrintType[] = [{ id: "none", label: "No Print", pricePerPc: 0 }];
+export const PRINT_TYPES: PrintType[] = [
+  { id: "none", label: "No Print", pricePerPc: 0 },
+];
 export const findPrintType = (_id: string): PrintType => PRINT_TYPES[0];
