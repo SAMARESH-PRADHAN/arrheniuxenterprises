@@ -55,6 +55,7 @@ import { SuccessDialog } from "@/components/SuccessDialog";
 import { useCreateOrder, useProduct, useProducts, usePrintSettings } from "@/hooks/api";
 import { BrandLoader } from "@/components/BrandLoader";
 import { useDiscountTiers } from "@/hooks/api";
+import { getDefaultAddress, formatAddress } from "@/lib/authStore";
 
 const SIZE_STEP = 1;
 
@@ -95,28 +96,14 @@ const parseSizesParam = (
 };
 
 type DraftCustomer = {
-  fullName: string;
   company: string;
   gst: string;
-  phone: string;
-  email: string;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
   notes: string;
 };
 
 const EMPTY_CUSTOMER: DraftCustomer = {
-  fullName: "",
   company: "",
   gst: "",
-  phone: "",
-  email: "",
-  address: "",
-  city: "",
-  state: "",
-  pincode: "",
   notes: "",
 };
 const DRAFT_KEY = "arr_bulk_draft";
@@ -421,22 +408,23 @@ useEffect(() => {
         return `Welcome Kit minimum is ${WELCOME_KIT_MIN} kits. Current: ${total}.`;
     } else if (total < BULK_THRESHOLD)
       return `Bulk orders require ${BULK_THRESHOLD}+ pcs. Current total: ${total}.`;
-    const c = customer;
-    if (
-      !c.fullName ||
-      !c.company ||
-      !c.phone ||
-      !c.email ||
-      !c.address ||
-      !c.city ||
-      !c.state ||
-      !c.pincode
-    )
-      return "Please complete all required customer fields.";
+    // const c = customer;
+    // if (
+    //   !c.fullName ||
+    //   !c.company ||
+    //   !c.phone ||
+    //   !c.email ||
+    //   !c.address ||
+    //   !c.city ||
+    //   !c.state ||
+    //   !c.pincode
+    // )
+    //   return "Please complete all required customer fields.";
     return null;
   };
 
   const buildMessage = (mode: "full" | "advance-50", paid: number) => {
+    const user = getSession();
     const lines: string[] = [];
     lines.push(
       `Hi Arrheniux, my payment (${mode === "full" ? "100% full" : "50% advance"}) is complete for a *BULK ORDER*:`,
@@ -500,18 +488,13 @@ useEffect(() => {
       lines.push(`• Balance Due: ₹${grandTotal - paid}`);
     lines.push("");
     lines.push("*Customer Details*");
-    lines.push(`• Name: ${customer.fullName}`);
-    lines.push(`• Company: ${customer.company}`);
-    if (customer.gst) lines.push(`• GST: ${customer.gst}`);
-    lines.push(`• Phone: ${customer.phone}`);
-    lines.push(`• Email: ${customer.email}`);
-    lines.push(
-      `• Address: ${customer.address}, ${customer.city}, ${customer.state} - ${customer.pincode}`,
-    );
-    if (customer.notes) {
-      lines.push("");
-      lines.push(`*Notes*: ${customer.notes}`);
-    }
+    lines.push(`• Name: ${user?.name || "—"}`);  // or keep from session
+if (customer.company) lines.push(`• Company: ${customer.company}`);
+if (customer.gst)     lines.push(`• GST: ${customer.gst}`);
+if (customer.notes) {
+  lines.push("");
+  lines.push(`*Notes*: ${customer.notes}`);
+}
     lines.push("");
     lines.push(
       "Sharing logo / artwork / printing design / reference images in the next messages.",
@@ -522,13 +505,17 @@ useEffect(() => {
   const persistOrder = async (mode: "full" | "advance-50", paid: number) => {
     const user = getSession();
     if (!user || !product) return null;
+    const defaultAddr = getDefaultAddress(user.id);
     return createOrderMut.mutateAsync({
       kind: "bulk",
       customerId: user.id,
-      customerName: customer.fullName || user.name,
-      phone: customer.phone || user.phone || "",
-      email: customer.email || user.email,
-      address: `${customer.address}, ${customer.city}, ${customer.state} - ${customer.pincode}`,
+      customerName: user.name || "Customer",
+      phone: defaultAddr?.mobile || user.phone || "",
+      email: user.email || "",
+      address: defaultAddr ? formatAddress(defaultAddr) : "",
+      companyName: customer.company || undefined,
+      gstNumber: customer.gst || undefined,
+      notes: customer.notes || undefined,
       productId: product.id,
       productCode: productCode(product),
       productName: product.name,
@@ -589,6 +576,27 @@ useEffect(() => {
       navigate(`/auth?next=${encodeURIComponent("/bulk-order")}`);
       return;
     }
+    // Same as normal category: require a saved default address
+    const defaultAddr = getDefaultAddress(user.id);
+    if (!defaultAddr) {
+      saveDraft({
+        catSlug,
+        tier,
+        subSlug,
+        productId,
+        color,
+        unitQty,
+        sizeQty,
+        customer,
+        print: printSel,
+      });
+      toast({
+        title: "Add a delivery address",
+        description: "Please save an address before placing your order.",
+      });
+      navigate(`/my-addresses?next=${encodeURIComponent("/bulk-order")}`);
+      return;
+    }
     setPayingMode(mode);
     const amount = mode === "full" ? grandTotal : Math.round(grandTotal / 2);
     openRazorpay({
@@ -597,10 +605,10 @@ useEffect(() => {
       description: product
         ? `${product.name} × ${total} pcs (${mode === "full" ? "Full" : "50% Advance"})`
         : "Bulk",
-      prefill: {
-        name: customer.fullName || user.name,
-        email: customer.email || user.email,
-        contact: customer.phone,
+            prefill: {
+        name: user.name || "",
+        email: user.email || "",
+        contact: defaultAddr.mobile || user.phone || "",
       },
       onSuccess: async () => {
         setSavingOrder(true);
@@ -1187,73 +1195,36 @@ useEffect(() => {
           )}
 
           <div className="border border-border p-5 bg-card">
-            <h2 className="font-condensed text-2xl tracking-wide mb-4">
-              CUSTOMER INFORMATION
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Input
-                label="Full Name *"
-                value={customer.fullName}
-                onChange={(v) => setCustomer({ ...customer, fullName: v })}
-              />
-              <Input
-                label="Company Name *"
-                value={customer.company}
-                onChange={(v) => setCustomer({ ...customer, company: v })}
-              />
-              <Input
-                label="GST Number"
-                value={customer.gst}
-                onChange={(v) => setCustomer({ ...customer, gst: v })}
-              />
-              <Input
-                label="Mobile Number *"
-                value={customer.phone}
-                onChange={(v) => setCustomer({ ...customer, phone: v })}
-              />
-              <Input
-                label="Email Address *"
-                type="email"
-                value={customer.email}
-                onChange={(v) => setCustomer({ ...customer, email: v })}
-              />
-              <Input
-                label="Pincode *"
-                value={customer.pincode}
-                onChange={(v) => setCustomer({ ...customer, pincode: v })}
-              />
-              <div className="sm:col-span-2">
-                <Input
-                  label="Complete Address *"
-                  value={customer.address}
-                  onChange={(v) => setCustomer({ ...customer, address: v })}
-                />
-              </div>
-              <Input
-                label="City *"
-                value={customer.city}
-                onChange={(v) => setCustomer({ ...customer, city: v })}
-              />
-              <Input
-                label="State *"
-                value={customer.state}
-                onChange={(v) => setCustomer({ ...customer, state: v })}
-              />
-              <div className="sm:col-span-2">
-                <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-                  Additional Notes
-                </label>
-                <textarea
-                  value={customer.notes}
-                  onChange={(e) =>
-                    setCustomer({ ...customer, notes: e.target.value })
-                  }
-                  rows={3}
-                  className="mt-1 w-full border border-border rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-ink"
-                />
-              </div>
-            </div>
-          </div>
+  <h2 className="font-condensed text-2xl tracking-wide mb-4">
+    CUSTOMER INFORMATION
+  </h2>
+  <p className="text-xs text-muted-foreground mb-3">
+    Optional – fill only if you want these details on the order / invoice.
+  </p>
+  <div className="grid sm:grid-cols-2 gap-3">
+    <Input
+      label="Company Name"
+      value={customer.company}
+      onChange={(v) => setCustomer({ ...customer, company: v })}
+    />
+    <Input
+      label="GST Number"
+      value={customer.gst}
+      onChange={(v) => setCustomer({ ...customer, gst: v })}
+    />
+    <div className="sm:col-span-2">
+      <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+        Additional Notes
+      </label>
+      <textarea
+        value={customer.notes}
+        onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
+        rows={3}
+        className="mt-1 w-full border border-border rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-ink"
+      />
+    </div>
+  </div>
+</div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 

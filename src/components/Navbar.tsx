@@ -99,8 +99,7 @@ export const Navbar = () => {
             onClick={(e) => handleHashClick(e, "#collection")}
             className="nav-link-underline text-sm font-medium uppercase tracking-wide transition hover:text-primary text-ink inline-flex items-center gap-1.5"
           >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> New
-            Collection
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />ARREHENIUX TOP WEAR
           </a>
           <BulkMegaMenu />
           <B2BMegaMenu />
@@ -248,8 +247,7 @@ export const Navbar = () => {
               onClick={(e) => handleHashClick(e, "#collection")}
               className="py-2 uppercase text-sm tracking-wide font-medium inline-flex items-center gap-1.5"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> New
-              Collection
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> ARREHENIUX TOP WEAR
             </a>
             <button
               onClick={() => setMobileBulkOpen((v) => !v)}

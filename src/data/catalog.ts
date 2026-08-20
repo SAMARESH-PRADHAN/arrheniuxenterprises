@@ -454,22 +454,22 @@ export const catalog: CatalogCategory[] = [
       }),
     ],
   },
-  // {
-  //   slug: "arrheniux-t-shirts",
-  //   name: "ARRHENIUX T-Shirts",
-  //   image: tshirts,
-  //   hasTiers: false,
-  //   blurb: "Our in-house premium line — branded, finished, fully ready.",
-  //   items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
-  //     "ARRHENIUX Cotton Round Neck T-Shirt",
-  //     "ARRHENIUX Cotton Collar Neck T-Shirt",
-  //     "ARRHENIUX Blend Collar Neck T-Shirt",
-  //     "ARRHENIUX Dryfit Collar Neck T-Shirt",
-  //     "ARRHENIUX Oversized T-Shirt",
-  //     "ARRHENIUX Hoodie",
-  //     "ARRHENIUX Polo T-Shirt",
-  //   ], 2),
-  // },
+  {
+    slug: "arrheniux-t-shirts",
+    name: "ARRHENIUX T-Shirts",
+    image: tshirts,
+    hasTiers: false,
+    blurb: "Our in-house premium line — branded, finished, fully ready.",
+    items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
+      "ARRHENIUX Cotton Round Neck T-Shirt",
+      "ARRHENIUX Cotton Collar Neck T-Shirt",
+      "ARRHENIUX Blend Collar Neck T-Shirt",
+      "ARRHENIUX Dryfit Collar Neck T-Shirt",
+      "ARRHENIUX Oversized T-Shirt",
+      "ARRHENIUX Hoodie",
+      "ARRHENIUX Polo T-Shirt",
+    ], 2),
+  },
 ];
 
 // ---------- Helpers ----------
