@@ -278,9 +278,38 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
   doc.line(M, y, W - M, y);
   y += 8;
 
-  // ---- Bill From / Bill To ---------------------------------------------
+    // ---- Bill From / Bill To ---------------------------------------------
   const colW = (contentW - 6) / 2;
-  const boxH = 34;
+
+  const fromLines = [
+    COMPANY.legal,
+    COMPANY.address,
+    `Email: ${COMPANY.email}`,
+    `Phone: ${COMPANY.phone}`,
+  ];
+
+  const billToLines = [
+    cust.fullName || order.customerName || "Customer",
+    order.companyName || cust.company
+      ? `Company: ${order.companyName || cust.company}`
+      : "",
+    order.gstNumber || cust.gst
+      ? `GST: ${order.gstNumber || cust.gst}`
+      : "",
+    cust.phone || order.phone
+      ? `Phone: ${cust.phone || order.phone}`
+      : "",
+    cust.email || order.email
+      ? `Email: ${cust.email || order.email}`
+      : "",
+    cust.address
+      ? [cust.address, cust.city, cust.state, cust.pincode].filter(Boolean).join(", ")
+      : order.address || "",
+    order.notes ? `Notes: ${order.notes}` : "",
+  ].filter(Boolean) as string[];
+
+  const maxLines = Math.max(fromLines.length, billToLines.length);
+  const boxH = Math.max(34, 10 + maxLines * 5.5);
 
   const drawInfoBox = (
     x: number,
@@ -307,25 +336,10 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
     });
   };
 
-  drawInfoBox(M, "BILLED FROM", [
-    COMPANY.legal,
-    COMPANY.address,
-    `Email: ${COMPANY.email}`,
-    `Phone: ${COMPANY.phone}`,
-  ]);
-
-  const billToLines = [
-    cust.fullName || order.customerName || "Customer",
-    cust.company || "",
-    (cust.phone || order.phone) ? `Phone: ${cust.phone || order.phone}` : "",
-    (cust.email || order.email) ? `Email: ${cust.email || order.email}` : "",
-    cust.address
-      ? [cust.address, cust.city, cust.state, cust.pincode].filter(Boolean).join(", ")
-      : order.address || "",
-  ].filter(Boolean);
-
+  drawInfoBox(M, "BILLED FROM", fromLines);
   drawInfoBox(M + colW + 6, "BILLED TO", billToLines);
   y += boxH + 8;
+
 
   // ---- Order meta strip ---------------------------------------------------
   const isDelivered = order.status === "Delivered";

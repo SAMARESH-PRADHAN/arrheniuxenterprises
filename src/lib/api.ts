@@ -297,6 +297,9 @@ export type CreateOrderInput = {
   phone: string;
   email: string;
   address?: string;
+  companyName?: string;
+gstNumber?: string;
+notes?: string;
   productId?: string | null;
   productCode?: string;
   productName: string;

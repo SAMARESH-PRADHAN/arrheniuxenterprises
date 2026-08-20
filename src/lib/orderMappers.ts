@@ -10,6 +10,9 @@ export type PlaceOrderPayload = {
   phone: string;
   email: string;
   address?: string;
+  companyName?: string;
+gstNumber?: string;
+notes?: string;
   productId?: string;
   productCode?: string;
   productName: string;
@@ -59,6 +62,9 @@ export function toCreateOrderInput(payload: PlaceOrderPayload): CreateOrderInput
     phone: payload.phone,
     email: payload.email,
     address: payload.address ?? "",
+    companyName: payload.companyName ?? "",
+gstNumber:   payload.gstNumber ?? "",
+notes:       payload.notes ?? "",
     productId: payload.productId ?? null,
     productCode: payload.productCode ?? "",
     productName: payload.productName,
@@ -119,7 +125,10 @@ export type StorefrontOrder = {
   customerName?: string;        // ← NEW
   phone?: string;                // ← NEW
   email?: string;                // ← NEW
-  address?: string;              // ← NEW
+  address?: string;             // ← NEW
+    companyName?: string;
+  gstNumber?: string;
+  notes?: string;
   category?: string;             // ← NEW
   subCategory?: string;          // ← NEW
   material?: string;    
@@ -178,6 +187,9 @@ export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrd
     phone: o.phone,               // ← NEW
     email: o.email,               // ← NEW
     address: o.address,           // ← NEW
+        companyName: (o as any).companyName || "",
+    gstNumber: (o as any).gstNumber || "",
+    notes: (o as any).notes || "",
     category: o.category,         // ← NEW
     subCategory: o.subCategory,   // ← NEW
     material: o.material,  
