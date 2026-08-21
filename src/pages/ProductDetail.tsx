@@ -9,6 +9,9 @@ import {
   CreditCard,
   Star,
   Package,
+  Sparkles, // ADD
+  PartyPopper, // ADD
+  Tag, // ADD
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
@@ -36,7 +39,7 @@ import {
   getDiscountPct,
   resolveDiscountPct,
   resolveMOQ,
-  resolvePrintConfig,   // ADD
+  resolvePrintConfig, // ADD
   getMaxQty,
   getAccessoryRules,
   getGstPct,
@@ -164,6 +167,62 @@ const ProductDetailView = ({
   const { data: moqOverrides } = useMoqSettings();
   // console.log("MOQ overrides:", moqOverrides);
   const { data: discountOverrides } = useDiscountTiers();
+  const displayTiers = useMemo(() => {
+    const rule = getAccessoryRules(product.subSlug);
+    if (rule && !rule.discountEnabled) return null;
+
+    const catName = findCategory(product.categorySlug)?.name;
+    const fallback = [
+      { minQty: 5, maxQty: 9, discountPct: 0, isBulk: false },
+      { minQty: 10, maxQty: 24, discountPct: 10, isBulk: false },
+      { minQty: 25, maxQty: 49, discountPct: 20, isBulk: false },
+      { minQty: 50, maxQty: 80, discountPct: 30, isBulk: false },
+      {
+        minQty: 81,
+        maxQty: null as number | null,
+        discountPct: 40,
+        isBulk: true,
+      },
+    ];
+
+    if (!catName || !discountOverrides?.length) return fallback;
+
+    const normalizeName = (s: string) => s.trim().toLowerCase();
+    const subName = (() => {
+      const cat = findCategory(product.categorySlug);
+      return cat
+        ? findSubcategory(cat, product.tier, product.subSlug)?.name
+        : undefined;
+    })();
+
+    const hasSubTiers = discountOverrides.some(
+      (x) =>
+        normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+    );
+
+    const bucket = discountOverrides.filter((o) => {
+      if (normalizeName(o.category) !== normalizeName(catName)) return false;
+      if (hasSubTiers && subName) {
+        return (
+          o.subCategory &&
+          normalizeName(o.subCategory) === normalizeName(subName)
+        );
+      }
+      return !o.subCategory;
+    });
+
+    if (!bucket.length) return fallback;
+
+    const sorted = [...bucket]
+      .filter((t) => !t.isBulk)
+      .sort((a, b) => a.minQty - b.minQty);
+
+    const bulk = bucket.find((t) => t.isBulk);
+    if (bulk) sorted.push(bulk);
+
+    return sorted.length ? sorted : fallback;
+  }, [product, discountOverrides]);
+
   const { data: printOverrides } = usePrintSettings();
   const SIZES = getSizesFor(product.categorySlug) as readonly string[];
   type Size = string;
@@ -209,53 +268,53 @@ const ProductDetailView = ({
     : undefined;
   const isGarment = !isNonGarmentCategory(product.categorySlug);
   const isKit = isWelcomeKitCategory(product.categorySlug);
-  const kitDefs = useMemo(() => getKitItemDefs(product), [product]); // ADD THIS 
-  // const isNewCollection = product.categorySlug === "new-collection";  // ← add this 
-//   const ruleForPrint = getAccessoryRules(product.subSlug);
-//   const canPrint =
-//   !isNewCollection &&
-//     supportsPrint(product.categorySlug) ||
-//     ruleForPrint?.print.kind === "custom" ||
-//     ruleForPrint?.print.kind === "free";
-//   const isArr = isArrheniuxCategory(product.categorySlug);
-  
-//   const rule = getAccessoryRules(product.subSlug);
-//  const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
-//   const maxQty = isKit ? 80 : getMaxQty(product);
-//   const bulkThreshold = maxQty + 1;
-//   const code = productCode(product);
-//   const gstRate = getGstPct(product);
-//   const gstPctLabel = Math.round(gstRate * 100);
-//   const courierPerPc = getCourierPerPc(product);
+  const kitDefs = useMemo(() => getKitItemDefs(product), [product]); // ADD THIS
+  // const isNewCollection = product.categorySlug === "new-collection";  // ← add this
+  //   const ruleForPrint = getAccessoryRules(product.subSlug);
+  //   const canPrint =
+  //   !isNewCollection &&
+  //     supportsPrint(product.categorySlug) ||
+  //     ruleForPrint?.print.kind === "custom" ||
+  //     ruleForPrint?.print.kind === "free";
+  //   const isArr = isArrheniuxCategory(product.categorySlug);
 
-//   // Reviews aggregate (approved reviews from API)
-//   const reviewCount = reviews.length;
-//   const avgRating = reviewCount
-//     ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount
-//     : 0;
+  //   const rule = getAccessoryRules(product.subSlug);
+  //  const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
+  //   const maxQty = isKit ? 80 : getMaxQty(product);
+  //   const bulkThreshold = maxQty + 1;
+  //   const code = productCode(product);
+  //   const gstRate = getGstPct(product);
+  //   const gstPctLabel = Math.round(gstRate * 100);
+  //   const courierPerPc = getCourierPerPc(product);
 
-//   // Print methods restricted per accessory rule (if any)
-//   const restrictedMethods: PrintMethod[] | undefined =
-//     rule?.print.kind === "custom"
-//       ? rule.print.methods.map((m) => ({
-//           id: m.id,
-//           label:
-//             m.label ??
-//             (m.id === "dtf"
-//               ? "DTF Print"
-//               : m.id === "sublimation"
-//                 ? "Sublimation Print"
-//                 : m.id === "laser"
-//                   ? "Laser Print"
-//                   : m.id === "digital"
-//                     ? "Digital Print"
-//                     : "Embroidery Print"),
-//           options: m.options,
-//         }))
-//       : undefined;
-//   const printDisabled = rule?.print.kind === "none";
-//   const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
-   const isNewCollection = product.categorySlug === "new-collection";
+  //   // Reviews aggregate (approved reviews from API)
+  //   const reviewCount = reviews.length;
+  //   const avgRating = reviewCount
+  //     ? reviews.reduce((s, r) => s + r.rating, 0) / reviewCount
+  //     : 0;
+
+  //   // Print methods restricted per accessory rule (if any)
+  //   const restrictedMethods: PrintMethod[] | undefined =
+  //     rule?.print.kind === "custom"
+  //       ? rule.print.methods.map((m) => ({
+  //           id: m.id,
+  //           label:
+  //             m.label ??
+  //             (m.id === "dtf"
+  //               ? "DTF Print"
+  //               : m.id === "sublimation"
+  //                 ? "Sublimation Print"
+  //                 : m.id === "laser"
+  //                   ? "Laser Print"
+  //                   : m.id === "digital"
+  //                     ? "Digital Print"
+  //                     : "Embroidery Print"),
+  //           options: m.options,
+  //         }))
+  //       : undefined;
+  //   const printDisabled = rule?.print.kind === "none";
+  //   const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
+  const isNewCollection = product.categorySlug === "new-collection";
 
   // Keep these — still used for MOQ, GST, colors, reviews, ARRHENIUX rules, etc.
   const isArr = isArrheniuxCategory(product.categorySlug);
@@ -280,17 +339,13 @@ const ProductDetailView = ({
     [product, printOverrides],
   );
 
-  const canPrint =
-    !isNewCollection &&
-    !isKit &&
-    resolvedPrint.kind !== "none";
+  const canPrint = !isNewCollection && !isKit && resolvedPrint.kind !== "none";
 
   const restrictedMethods: PrintMethod[] | undefined =
     resolvedPrint.kind === "custom" ? resolvedPrint.methods : undefined;
   const printDisabled = resolvedPrint.kind === "none";
   const printFreeLabel =
     resolvedPrint.kind === "free" ? resolvedPrint.label : null;
-
 
   const kitIncludesTshirt = kitItems.includes("tshirt");
   const kitSizeTotal = Object.values(sizeQty).reduce((a, b) => a + b, 0);
@@ -314,7 +369,8 @@ const ProductDetailView = ({
       ? printLabel(printSel, restrictedMethods)
       : "N/A";
   const subtotal = unitPrice * total + printCharge;
-const discountPct = isKit || isArr ? 0 : resolveDiscountPct(total, product, discountOverrides);
+  const discountPct =
+    isKit || isArr ? 0 : resolveDiscountPct(total, product, discountOverrides);
   const discountAmt = Math.round((subtotal * discountPct) / 100);
   const afterDiscount = Math.max(0, subtotal - discountAmt);
   const courier = total * courierPerPc;
@@ -428,47 +484,47 @@ const discountPct = isKit || isArr ? 0 : resolveDiscountPct(total, product, disc
 
   // Build ?...=... payload for Bulk Order with full state preserved
   const bulkRedirectHref = () => {
-  const p = new URLSearchParams();
-  p.set("product", product.id);
-  p.set("cat", product.categorySlug);
-  if (product.tier) p.set("tier", product.tier);
-  p.set("sub", product.subSlug);
-  p.set("qty", String(total));
-  if (selectedColor) p.set("color", selectedColor);
-  if (isGarment) {
-    const sz = SIZES.filter((s) => sizeQty[s] > 0)
-      .map((s) => `${s}:${sizeQty[s]}`)
-      .join(",");
-    if (sz) p.set("sizes", sz);
-  }
-  const pr = encodePrint(printSel);
-  if (pr) p.set("print", pr);
-  return `/bulk-order?${p.toString()}`;
-};
+    const p = new URLSearchParams();
+    p.set("product", product.id);
+    p.set("cat", product.categorySlug);
+    if (product.tier) p.set("tier", product.tier);
+    p.set("sub", product.subSlug);
+    p.set("qty", String(total));
+    if (selectedColor) p.set("color", selectedColor);
+    if (isGarment) {
+      const sz = SIZES.filter((s) => sizeQty[s] > 0)
+        .map((s) => `${s}:${sizeQty[s]}`)
+        .join(",");
+      if (sz) p.set("sizes", sz);
+    }
+    const pr = encodePrint(printSel);
+    if (pr) p.set("print", pr);
+    return `/bulk-order?${p.toString()}`;
+  };
 
   const handlePay = useCallback(() => {
-   if (isBulk) {
-    try {
-      localStorage.setItem(
-        BULK_REDIRECT_DRAFT_KEY,
-        JSON.stringify({
-          productId: product.id,
-          sizeQty,
-          unitQty,
-          printSel,
-          artwork,
-          kitItems,
-          kitQtyManual,
-          namedColor,
-          printColor,
-        }),
-      );
-    } catch {
-      // storage full/unavailable — URL params still cover the basics
+    if (isBulk) {
+      try {
+        localStorage.setItem(
+          BULK_REDIRECT_DRAFT_KEY,
+          JSON.stringify({
+            productId: product.id,
+            sizeQty,
+            unitQty,
+            printSel,
+            artwork,
+            kitItems,
+            kitQtyManual,
+            namedColor,
+            printColor,
+          }),
+        );
+      } catch {
+        // storage full/unavailable — URL params still cover the basics
+      }
+      navigate(bulkRedirectHref());
+      return;
     }
-    navigate(bulkRedirectHref());
-    return;
-  }
     if (!canOrder || isPaying) return;
     setIsPaying(true); // ← add
     const user = getSession();
@@ -548,15 +604,17 @@ const discountPct = isKit || isArr ? 0 : resolveDiscountPct(total, product, disc
             subCategory: subcat?.name ?? "",
             material: product.material,
             description: isKit
-  ? `Kit Items: ${kitItems
-      .map((id) => {
-        const it = kitDefs.find((d) => d.id === id);
-        return it ? `${it.label} (₹${it.price})` : id;
-      })
-      .join(", ")}`
-  : product.description,
+              ? `Kit Items: ${kitItems
+                  .map((id) => {
+                    const it = kitDefs.find((d) => d.id === id);
+                    return it ? `${it.label} (₹${it.price})` : id;
+                  })
+                  .join(", ")}`
+              : product.description,
             printType: printTypeText,
-sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,            qty: total,
+            sizes:
+              isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
+            qty: total,
             unitPrice,
             printingPrice: printCharge,
             gstPct: gstPctLabel,
@@ -670,51 +728,191 @@ sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,       
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10">
-          {/* Gallery */}
-          <div className="flex gap-3">
-            <div className="hidden md:flex flex-col gap-2 w-20">
-              {product.gallery.slice(0, 6).map((src, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(i)}
-                  className={`bg-secondary aspect-square overflow-hidden border-2 transition ${activeImg === i ? "border-ink" : "border-transparent hover:border-border"}`}
-                >
-                  <img
-                    src={src}
-                    alt={`${product.name} ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-            <div className="flex-1">
-              <div className="tilt-card">
-                <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
-                  <img
-                    src={product.gallery[activeImg] || product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div className="md:hidden flex gap-2 mt-2 overflow-x-auto">
+          <div className="space-y-5">
+            {/* Gallery */}
+            <div className="flex gap-3">
+              <div className="hidden md:flex flex-col gap-2 w-20">
                 {product.gallery.slice(0, 6).map((src, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImg(i)}
-                    className={`bg-secondary w-16 h-16 shrink-0 overflow-hidden border-2 ${activeImg === i ? "border-ink" : "border-transparent"}`}
+                    className={`bg-secondary aspect-square overflow-hidden border-2 transition ${activeImg === i ? "border-ink" : "border-transparent hover:border-border"}`}
                   >
                     <img
                       src={src}
-                      alt=""
+                      alt={`${product.name} ${i + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </button>
                 ))}
               </div>
+              <div className="flex-1">
+                <div className="tilt-card">
+                  <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
+                    <img
+                      src={product.gallery[activeImg] || product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="md:hidden flex gap-2 mt-2 overflow-x-auto">
+                  {product.gallery.slice(0, 6).map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      className={`bg-secondary w-16 h-16 shrink-0 overflow-hidden border-2 ${activeImg === i ? "border-ink" : "border-transparent"}`}
+                    >
+                      <img
+                        src={src}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+            {/* ===== CELEBRATION DISCOUNT / OFFER BOX (UNDER PHOTO) ===== */}
+            {!isKit && !isArr && (
+              <div className="relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-primary/10 dark:via-background dark:to-accent/10 shadow-[0_12px_40px_-12px_rgba(234,88,12,0.35)]">
+                {/* Decorative confetti-style dots */}
+                <div className="pointer-events-none absolute -top-2 -right-2 h-24 w-24 rounded-full bg-gradient-to-br from-amber-300/40 to-rose-300/30 blur-2xl" />
+                <div className="pointer-events-none absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-gradient-to-tr from-primary/30 to-amber-200/40 blur-xl" />
 
+                {/* Header ribbon */}
+                <div className="relative flex items-center justify-between gap-3 bg-gradient-to-r from-primary via-orange-500 to-rose-500 px-4 py-3 text-cream">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm ring-2 ring-white/30">
+                      <PartyPopper className="h-5 w-5 animate-pulse" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-[0.18em]">
+                        Special Volume Offer
+                      </div>
+                      <div className="text-[10px] opacity-90">
+                        Order more · Save more · Celebrate!
+                      </div>
+                    </div>
+                  </div>
+                  <Sparkles className="h-5 w-5 opacity-80" />
+                </div>
+
+                {/* Tiers */}
+                <div className="relative p-4">
+                  {displayTiers === null ? (
+                    <p className="py-3 text-center text-sm text-muted-foreground">
+                      No quantity discount on this product.
+                    </p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {displayTiers.map((tier, idx) => {
+                        const rangeText =
+                          tier.maxQty == null
+                            ? `${tier.minQty}+ pcs`
+                            : `${tier.minQty}–${tier.maxQty} pcs`;
+                        const pct = tier.discountPct;
+                        const isBulk =
+                          !!(tier as any).isBulk || tier.maxQty == null;
+                        const isBest = pct >= 30;
+
+                        return (
+                          <div
+                            key={idx}
+                            className={`group relative flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 transition-all duration-200 ${
+                              isBest
+                                ? "bg-gradient-to-r from-primary/15 via-orange-100/80 to-rose-100/70 border-2 border-primary/40 shadow-sm scale-[1.01]"
+                                : pct > 0
+                                  ? "bg-white/70 dark:bg-secondary/40 border border-primary/20 hover:border-primary/40 hover:shadow-sm"
+                                  : "bg-white/50 dark:bg-secondary/30 border border-border/60"
+                            }`}
+                          >
+                            {isBest && (
+                              <span className="absolute -top-2 right-3 rounded-full bg-gradient-to-r from-primary to-rose-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cream shadow">
+                                Best Deal
+                              </span>
+                            )}
+
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-full text-center ${
+                                  pct > 0
+                                    ? "bg-gradient-to-br from-primary to-orange-500 text-cream shadow-md"
+                                    : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {pct > 0 ? (
+                                  <>
+                                    <span className="text-sm font-bold leading-none">
+                                      {pct}%
+                                    </span>
+                                    <span className="text-[8px] leading-none opacity-90">
+                                      OFF
+                                    </span>
+                                  </>
+                                ) : (
+                                  <Tag className="h-4 w-4" />
+                                )}
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-ink">
+                                  {rangeText}
+                                </div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {isBulk
+                                    ? "Via Bulk Order page"
+                                    : pct > 0
+                                      ? "Auto applied at checkout"
+                                      : "Starter range"}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              className={`text-right text-sm font-bold ${
+                                pct > 0
+                                  ? "text-primary"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
+                              {pct > 0 ? (
+                                <span className="inline-flex items-center gap-1">
+                                  <Sparkles className="h-3.5 w-3.5" />
+                                  {pct}% OFF
+                                </span>
+                              ) : isBulk ? (
+                                "Bulk"
+                              ) : (
+                                "—"
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="mt-4 flex items-start gap-2 rounded-lg bg-white/60 dark:bg-secondary/40 px-3 py-2.5 text-[11px] text-muted-foreground border border-border/50">
+                    <Package className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <div>
+                      <span className="font-semibold text-ink">MOQ {moq}</span>{" "}
+                      · Max{" "}
+                      <span className="font-semibold text-ink">
+                        {maxQty} pcs
+                      </span>
+                      <br />
+                      Need more than {maxQty}? Use the{" "}
+                      <span className="font-semibold text-primary">
+                        Bulk Order
+                      </span>{" "}
+                      section.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           {/* Info */}
           <div>
             <span className="inline-block bg-ink text-cream text-[10px] uppercase tracking-widest px-2 py-1">
@@ -786,9 +984,8 @@ sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,       
               )}
             </div>
 
-            {/* Discount notice / Free tote banner for Welcome Kits */}
-            {isKit ? (
-              <div className="mt-5 border-2 border-primary bg-primary/10 p-4">
+            {isKit && (
+              <div className="mt-5 border-2 border-primary bg-primary/10 p-4 rounded-xl">
                 <div className="text-[11px] uppercase tracking-widest font-bold text-primary mb-1">
                   Complimentary
                 </div>
@@ -800,33 +997,7 @@ sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,       
                   kits, order through Bulk Order.
                 </p>
               </div>
-            ) : !isArr ? (
-              <div className="mt-5 border border-border bg-secondary/60 p-4">
-                <div className="text-[11px] uppercase tracking-widest font-bold text-primary mb-2">
-                  Quantity Discount Policy
-                </div>
-                {rule && !rule.discountEnabled ? (
-                  <p className="text-sm text-muted-foreground">
-                    No quantity discount on this product.
-                  </p>
-                ) : (
-                  <ul className="text-xs space-y-1 text-ink/80">
-                    <li>• 5–9 pieces → No Discount</li>
-                    <li>• 10–24 pieces → 10% Discount</li>
-                    <li>• 25–49 pieces → 20% Discount</li>
-                    <li>• 50–80 pieces → 30% Discount</li>
-                    <li>• 80+ pieces → 40% Discount (Bulk Order only)</li>
-                  </ul>
-                )}
-                <div className="mt-2 pt-2 border-t border-border text-[11px] text-muted-foreground">
-                  Minimum Order Quantity: {moq} pcs · Maximum Order Quantity:{" "}
-                  {maxQty} pcs
-                  <br />
-                  If you need more than {maxQty} pieces, please place your order
-                  through the Bulk Order section.
-                </div>
-              </div>
-            ) : null }
+            )}
 
             {/* Named color choice (Cap / Umbrella / Event Lanyard) */}
             {rule?.namedColors && (
@@ -902,7 +1073,9 @@ sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,       
             )}
 
             {/* Upload artwork — hidden for ARRHENIUX */}
-            {!isArr && !isNewCollection && <ArtworkUpload value={artwork} onChange={setArtwork} />}
+            {!isArr && !isNewCollection && (
+              <ArtworkUpload value={artwork} onChange={setArtwork} />
+            )}
 
             {/* Quantity / Kit builder */}
             {isKit ? (
@@ -919,7 +1092,7 @@ sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,       
                     {WELCOME_KIT_MIN_ITEMS} products.
                   </p>
                   <div className="grid grid-cols-2 gap-3">
-                    {kitDefs.map((it)  => {
+                    {kitDefs.map((it) => {
                       const checked = kitItems.includes(it.id);
                       const isTshirt = it.id === "tshirt";
                       return (
