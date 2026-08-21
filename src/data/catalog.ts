@@ -40,6 +40,15 @@ import universityApron from "@/assets/university-apron.avif";
 import nurseApron from "@/assets/nurse-apron.avif";
 import medicalApron from "@/assets/medical-apron.avif";
 import classicWelcomeKit from "@/assets/classic-welcome-kit.avif";
+import newoversizetshirt from "@/assets/newoversizetshirt.avif";
+import newhoodies from "@/assets/newhoodies.avif";
+import newjersey from "@/assets/newjersey.avif";
+import newpolotshirt from "@/assets/newpolotshirt.avif";
+import newcorporatewear from "@/assets/newcorporatewear.avif";
+import roundnecktshirt from "@/assets/newroundnecktshirt.avif";
+import newaprons from "@/assets/newapron.avif";
+import newschooluniform from "@/assets/newschooluniform.avif";
+import newcustomeaccessories from "@/assets/newaccessories.avif"
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -180,7 +189,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "oversized-t-shirts",
     name: "Oversized T-Shirts",
-    image: tshirts,
+    image: newoversizetshirt,
     // banner: "/banners/reg10.png",
     hasTiers: true,
     blurb: "Drop-shoulder fits in heavy and lightweight builds.",
@@ -195,7 +204,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "hoodies",
     name: "Hoodies",
-    image: hoodies,
+    image: newhoodies,
     hasTiers: true,
     blurb: "Fleece-lined, structured hoods, double-stitched seams.",
     regular: makeSubs("hoodies", hoodies, "regular", ["Spun Fleece Hoodies"]),
@@ -208,7 +217,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "jersey",
     name: "Jersey",
-    image: jersy,
+    image: newjersey,
     hasTiers: true,
     blurb: "Sublimation-ready jerseys for sports, events and teams.",
     regular: makeSubs("jersey", sweatshirts, "regular", [
@@ -228,7 +237,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "custom-fabric-t-shirts",
     name: "Custom Premium Polo T-Shirt",
-    image: polos,
+    image: newpolotshirt,
     hasTiers: true,
     blurb: "Pick your exact fabric and GSM — built to spec. Minimum 50 pcs.",
     regular: makeSubs("custom-fabric-t-shirts", polos, "regular", [
@@ -254,7 +263,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "corporate-wear",
     name: "Corporate Wear",
-    image: corporate,
+    image: newcorporatewear,
     hasTiers: true,
     blurb: "Collar-neck programs for offices, events and field teams.",
     regular: makeSubs("corporate-wear", corporate, "regular", [
@@ -294,7 +303,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "custom-round-neck-t-shirts",
     name: "Custom Round Neck T-Shirts",
-    image: roundneck,
+    image: roundnecktshirt,
     hasTiers: true,
     blurb: "Classic crew tees across every common fabric build.",
     regular: makeSubs("custom-round-neck-t-shirts", tshirts, "regular", [
@@ -338,7 +347,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "aprons",
     name: "Aprons",
-    image: Aprons,
+    image: newaprons,
     hasTiers: true,
     blurb: "Functional aprons for hospitals, kitchens and universities.",
     regular: makeSubs("aprons", uniforms, "regular", [
@@ -361,7 +370,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "customize-school-uniform",
     name: "Customize School Uniform",
-    image: uniforms,
+    image: newschooluniform,
     hasTiers: false,
     blurb: "School uniform T-shirts and track pants — built per your specs.",
     items: makeSubs(
@@ -384,7 +393,7 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "custom-accessories",
     name: "Custom Accessories",
-    image: totes,
+    image: newcustomeaccessories,
     hasTiers: false,
     blurb: "Branded merch and add-ons to round out your kit.",
     items: makeSubs(
