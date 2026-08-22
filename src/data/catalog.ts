@@ -48,7 +48,21 @@ import newcorporatewear from "@/assets/newcorporatewear.avif";
 import roundnecktshirt from "@/assets/newroundnecktshirt.avif";
 import newaprons from "@/assets/newapron.avif";
 import newschooluniform from "@/assets/newschooluniform.avif";
-import newcustomeaccessories from "@/assets/newaccessories.avif"
+import newcustomeaccessories from "@/assets/newaccessories.avif";
+import newpolycottonoversizetshirt from "@/assets/newpolycottonoversizetshirt.avif";
+import newcottonoversizetshirt from "@/assets/newcottonoversizetshirt.avif";
+import newterryloopnettshirt from "@/assets/newterryloopnettshirt.avif";
+import banneroversizetshirt from "@/assets/banneroversizetshirt.avif";
+import newspunfleecehoodies from "@/assets/newspunfleecehoodies.avif";
+import newpolycottonhoodies from "@/assets/newpolycottonhoodies.avif";
+import newamericanfleecehoodies from "@/assets/newamericanfleecehoodies.avif";
+import newcottonhoodies from "@/assets/newcottonhoodies.avif";
+import bannerhoodies from "@/assets/bannerhoodies.avif";
+import newalloverjersey from "@/assets/newalloverjersey.avif";
+import newfrontprintjersey from "@/assets/newfrontprintedjersey.avif"
+import newfrontandbackprintjersey from "@/assets/newfrontandbackprint jersey.avif";
+import bannerjersey from "@/assets/bannerjersey.avif";
+
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -190,48 +204,50 @@ export const catalog: CatalogCategory[] = [
     slug: "oversized-t-shirts",
     name: "Oversized T-Shirts",
     image: newoversizetshirt,
-    // banner: "/banners/reg10.png",
+    banner: banneroversizetshirt,
     hasTiers: true,
     blurb: "Drop-shoulder fits in heavy and lightweight builds.",
     regular: makeSubs("oversized-t-shirts", polytshirts, "regular", [
-      "Polycotton Oversized T-Shirts",
+      { name: "Polycotton Oversized T-Shirts", image: newpolycottonoversizetshirt}
     ]),
     premium: makeSubs("oversized-t-shirts", premiumover, "premium", [
-      "Cotton Oversized T-Shirts",
-      { name: "Terry / Loopnet Oversized T-Shirts", image: Loopnet },
+      {name: "Cotton Oversized T-Shirts", image: newcottonoversizetshirt},
+      { name: "Terry / Loopnet Oversized T-Shirts", image: newterryloopnettshirt },
     ]),
   },
   {
     slug: "hoodies",
     name: "Hoodies",
     image: newhoodies,
+    banner: bannerhoodies,
     hasTiers: true,
     blurb: "Fleece-lined, structured hoods, double-stitched seams.",
-    regular: makeSubs("hoodies", hoodies, "regular", ["Spun Fleece Hoodies"]),
+    regular: makeSubs("hoodies", hoodies, "regular", [{ name: "Spun Fleece Hoodies", image: newspunfleecehoodies}]),
     premium: makeSubs("hoodies", hoodies, "premium", [
-      "Polycotton Hoodies",
-      { name: "American Fleece Hoodies", image: americanFleeceHoodie },
-      { name: "Cotton Hoodies", image: cottonHoodie },
+      { name: "Polycotton Hoodies", image: newpolycottonhoodies},
+      { name: "American Fleece Hoodies", image: newamericanfleecehoodies },
+      { name: "Cotton Hoodies", image: newcottonhoodies },
     ]),
   },
   {
     slug: "jersey",
     name: "Jersey",
     image: newjersey,
+    banner: bannerjersey,
     hasTiers: true,
     blurb: "Sublimation-ready jerseys for sports, events and teams.",
     regular: makeSubs("jersey", sweatshirts, "regular", [
-      { name: "All Over Printed Jersey", image: jerseyAllOverRegular },
-      { name: "Front Printed Jersey", image: jerseyFrontRegular },
-      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular },
+      { name: "All Over Printed Jersey", image: newalloverjersey },
+      { name: "Front Printed Jersey", image: newfrontprintjersey },
+      { name: "Front & Back Printed Jersey", image: newfrontandbackprintjersey },
     ]),
     premium: makeSubs("jersey", sweatshirts, "premium", [
       // "All Over Printed Jersey",
       // "Front Printed Jersey",
       // "Front & Back Printed Jersey",
-      { name: "All Over Printed Jersey", image: jerseyAllOverRegular },
-      { name: "Front Printed Jersey", image: jerseyFrontRegular },
-      { name: "Front & Back Printed Jersey", image: jerseyFrontBackRegular },
+      { name: "All Over Printed Jersey", image: newalloverjersey },
+      { name: "Front Printed Jersey", image: newfrontprintjersey },
+      { name: "Front & Back Printed Jersey", image: newfrontandbackprintjersey },
     ]),
   },
   {
