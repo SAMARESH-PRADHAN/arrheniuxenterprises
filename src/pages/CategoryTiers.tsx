@@ -19,7 +19,7 @@ const CategoryTiers = () => {
               <h1 className="font-display text-6xl md:text-8xl leading-none mt-3">{cat.name.toUpperCase()}</h1>
               <p className="mt-4 text-muted-foreground max-w-md">{cat.blurb}</p>
             </div>
-            <img src={cat.image} alt={cat.name} loading="lazy" className="w-full max-h-[260px] object-cover" />
+            <img src={cat.banner || cat.image} alt={cat.name} loading="lazy" className="w-full max-h-[260px] object-cover" />
           </div>
         </section>
         <section className="container-x py-12">
