@@ -1,10 +1,23 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
 User-agent: *
 Allow: /
 
-# Block admin & private areas
+# Private / account pages — do not index
 Disallow: /admin
+Disallow: /admin/
 Disallow: /auth
 Disallow: /my-orders
 Disallow: /my-addresses
 
-Sitemap: https://arrheniuxenterprises.vercel.app/sitemap.xml
+Sitemap: https://www.arrheniux.com/sitemap.xml

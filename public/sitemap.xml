@@ -1,73 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/</loc>
+    <loc>https://www.arrheniux.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/bulk-order</loc>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.arrheniux.com/bulk-order</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/b2b-shop</loc>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.arrheniux.com/b2b-shop</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/contact</loc>
+    <loc>https://www.arrheniux.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/arreheniux-top-wear</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/t-shirts</loc>
+    <loc>https://www.arrheniux.com/arreheniux-top-wear</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/hoodies</loc>
+    <loc>https://www.arrheniux.com/category/t-shirts</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/polos</loc>
+    <loc>https://www.arrheniux.com/category/hoodies</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/sweatshirts</loc>
+    <loc>https://www.arrheniux.com/category/polos</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/uniforms</loc>
+    <loc>https://www.arrheniux.com/category/uniforms</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/corporate</loc>
+    <loc>https://www.arrheniux.com/category/jerseys</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/caps</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/jackets</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://arrheniuxenterprises.vercel.app/category/totes</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
   </url>
 </urlset>

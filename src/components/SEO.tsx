@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const SITE_URL = "https://arrheniuxenterprises.vercel.app";
+const SITE_URL = "https://www.arrheniux.com";
 const DEFAULT_IMAGE = `${SITE_URL}/hero-model.avif`;
 const SITE_NAME = "Arrheniux Enterprises";
 
