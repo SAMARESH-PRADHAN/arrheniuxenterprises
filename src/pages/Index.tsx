@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { Hero } from "@/components/sections/Hero";
 import { CategoriesGrid } from "@/components/sections/CategoriesGrid";
 import { LatestCollection } from "@/components/sections/LatestCollection";
@@ -22,6 +23,11 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Custom T-Shirts, Hoodies & Uniforms Manufacturer"
+        description="Factory-direct custom apparel from Bhubaneswar. Premium t-shirts, hoodies, polos, corporate uniforms, school uniforms, jerseys & merch. Bulk & B2B. Pan-India delivery."
+        path="/"
+      />
       <section id="home"><Hero /></section>
       <section id="categories"><CategoriesGrid /></section>
       <section id="collection"><LatestCollection /></section>

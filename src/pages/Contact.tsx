@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, MapPin, Phone, Mail } from "lucide-react";
 import { Layout } from "@/components/Layout";
+import { SEO } from "@/components/SEO";
 import { ADDRESS, EMAIL, MAPS_URL, WHATSAPP_DISPLAY, waLink } from "@/data/site";
 
 const ContactPage = () => {
@@ -19,6 +20,11 @@ Note: ${form.note}`;
 
   return (
     <Layout>
+      <SEO
+        title="Contact Us"
+        description="Get in touch with Arrheniux Enterprises, Bhubaneswar. Custom apparel quotes, bulk orders & B2B enquiries. WhatsApp, phone or visit our factory."
+        path="/contact"
+      />
       <section className="bg-primary text-cream">
         <div className="container-x py-16">
           <span className="text-xs font-bold uppercase tracking-widest text-cream/60">Get in touch</span>
@@ -57,8 +63,7 @@ Note: ${form.note}`;
           <div className="mt-8 aspect-video w-full overflow-hidden border border-border">
             <iframe
               title="Arrheniux Location"
-              src=  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.8244653511492!2d85.8488986!3d20.348869!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19098ecb4cc93d%3A0xb656dd877d295f01!2sArrheniux%20Enterprises!5e0!3m2!1sen!2sin!4v1784302802853!5m2!1sen!2sin"
-
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.8244653511492!2d85.8488986!3d20.348869!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19098ecb4cc93d%3A0xb656dd877d295f01!2sArrheniux%20Enterprises!5e0!3m2!1sen!2sin!4v1784302802853!5m2!1sen!2sin"
               className="w-full h-full"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
