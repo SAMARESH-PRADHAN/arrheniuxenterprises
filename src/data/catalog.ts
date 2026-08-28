@@ -72,6 +72,63 @@ import bannerfrontprintedjersey1 from "@/assets/bannerfrontprintedjersey1.avif";
 import bannerfrontprintedjersey2 from "@/assets/bannerfrontprintedjersey2.avif";
 import bannerfrontandbackprintjersey1 from "@/assets/bannerfrontandbackjersey1.avif";
 import bannerfrontandbackprintjersey2 from "@/assets/bannerfrontandbackjersey2.avif";
+import bannerdotnetpolyster120gsm from "@/assets/bannerdotnetpolyster120gsm.avif";
+import newdotnetpolyster120gsm from "@/assets/newdotnetpolyster120gsm.avif";
+import bannerspunmatty240gsm from "@/assets/bannerspunmatty240gsm.avif";
+import newspunmatty240gsm from "@/assets/newspunmatty240gsm.avif";
+import bannerspunmatty220gsm from "@/assets/bannerspunmatty220gsm.avif";
+import newspunmatty220gsm from "@/assets/newspunmatty220gsm.avif";
+import bannerdotnetpolyster180gsm from "@/assets/bannerdotnetpolyster180gsm.avif";
+import newdotnetpolyster180gsm from "@/assets/newdotnetpolyster180gsm.avif";
+import bannerdotnetpolsyter160gsm from "@/assets/bannerdotnetpolyster160gsm.avif";
+import newdotnetpolyster160gsm from "@/assets/newdotnetpolyster160gsm.avif";
+import bannernirmalnetpolyster120gsm from "@/assets/bannernirmalnetpolyster120gsm.avif";
+import newnirmalnetpolyster120gsm from "@/assets/newnirmalnetpolyster120gsm.avif";
+import bannerkohilnetpolyster120gsm from "@/assets/bannerkohilinetpolyster120gsm.avif";
+import newkohilinetpolyster120gsm from "@/assets/newkohilinetpolyster120gsm.avif";
+import banner240gsmcottonpolotshirt from "@/assets/banner240gsmcottonpolotshirt.avif";
+import new240gsmcottonpolotshirt from "@/assets/new240gsmcottonpolotshirt.avif";
+import banner240gsmpolycottonpolotshirt from "@/assets/banner240gsmpolycottonpolotshirt.avif";
+import new240gsmpolycottonpolotshirt from "@/assets/new240gsmpolycottonpolotshirt.avif";
+import banner240gsmcppolotshirt from "@/assets/banner240gsmcppolotshirt.avif";
+import new240gsmcppolotshirt from "@/assets/new240gsmcppolotshirt.avif";
+import banner240gsmspunpolotshirt from "@/assets/banner240gsmspunpolotshirt.avif";
+import new240gsmspunpolotshirt from "@/assets/new240gsmspunpolotshirt.avif";
+import banner180gsmsapmattypolotshirt from "@/assets/banner180gsmsapmattypolotshirt.avif";
+import new180gsmsapmattypolotshirt from "@/assets/new180gsmsapmattypolotshirt.avif";
+import banner180gsmdotnetpolotshirt from "@/assets/banner180gsmdotnetpolotshirt.avif";
+import new180gsmdotnetpolotshirt from "@/assets/new180gsmdotnetpolotshirt.avif";
+import banner170gsmnirmalnetpolotshirt from "@/assets/banner170gsmnirmalnetpolotshirt.avif";
+import new170gsmnirmalnetpolotshirt from "@/assets/new170gsmnirmalnetpolotshirt.avif";
+import bannerspuncollarnecktshirt from "@/assets/bannerspuncollarnecktshirt.avif";
+import newspuncollarnecktshirt from "@/assets/newspuncollarnecktshirt.avif";
+import bannercorporateeconomycollarnecktshirt from "@/assets/bannercorporateeconomycollarnecktshirt.avif";
+import newcorporateeconomycollarnecktshirt from "@/assets/newcorporateeconomycollarnecktshirt.avif";
+import bannermarketingcollarnecktshirt from "@/assets/bannermarketingcollarnecktshirt.avif";
+import newmarketingcollarnecktshirt from "@/assets/newmarketingcorrarnecktshirt.avif";
+import bannerconferancecollarnecktshirt from "@/assets/bannerconferencecollarnecktshirt.avif";
+import newconferancecollarnecktshirt from "@/assets/newconferencecollarnecktshirt.avif";
+import bannerhotelcollarnecktshirt from "@/assets/bannerhotelcollarnecktshirt.avif";
+import newhotelcollarnecktshirt from "@/assets/newhotelcollarnecktshirt.avif";
+import bannerdotnetwhitecollarnecktshirt from "@/assets/bannerdotnetwhitecollarnecktshirt.avif";
+import newdotnetwhitecollarnecktshirt from "@/assets/newdotnetwhitecollarnecktshirt.avif";
+import bannerranglancollarnecktshirt from "@/assets/bannerranglancollarnecktshirt.avif";
+import newranglancollarnecktshirt from "@/assets/newranglancollarnecktshirt.avif";
+import bannercutandsewcollarnecktshirt from "@/assets/bannercut&sewcollarnecktshirt.avif";
+import newcutandsewcollarnecktshirt from "@/assets/newcut&sewcollarnecktshirt.avif";
+import bannerreunionscollarnecktshirt from "@/assets/bannerreunioncollarnecktshirt.avif";
+import newreunionscollarnecktshirts from "@/assets/newreunioncollarnecktshirt.avif";
+import bannerpetrolpumpcollarnecktshirt from "@/assets/bannerpetrolpumpcollarnecktshirt.avif";
+import newpetrolpumpcollarnecktshirt from "@/assets/newpetrolpumpcollarnecktshirt.avif";
+import bannergymcollarnecktshirt from "@/assets/bannergymcollarnecktshirt.avif";
+import newgymcollarnecktshirt from "@/assets/newgymcollarnecktshirt.avif";
+import bannerngocollarnecktshirts from "@/assets/bannerngocollarnecktshirt.avif";
+import newngocollarnecktshirt from "@/assets/newngocollarnecktshirt.avif";
+import bannerfestivalgroupcollarnecktshirt from "@/assets/bannerfestivalgroupcollarnecktshirt.avif";
+import newfestivalgroupcollarnecktshirt from "@/assets/newfestivalgroupcollarnecktshirt.avif";
+import banner220gsmspunmattyreflectivecollarnecktshirt from "@/assets/banner220gsmspunmattyreflectivecollarnecktshirt.avif";
+import new220gsmspunmattyreflectivecollarnecktshirt from "@/assets/new220gsmspunmattyreflectivecollarnecktshirt.avif"
+
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -268,23 +325,23 @@ export const catalog: CatalogCategory[] = [
     hasTiers: true,
     blurb: "Pick your exact fabric and GSM — built to spec. Minimum 50 pcs.",
     regular: makeSubs("custom-fabric-t-shirts", polos, "regular", [
-      "Spun Matty 240 GSM",
-      "Spun Matty 220 GSM",
-      "Dotnet Polyester 180 GSM",
-      "Dotnet Polyester 160 GSM",
-      "Dotnet Polyester 120 GSM",
-      "Nirmal Net Polyester 120 GSM",
-      "Kohili Net Polyester 120 GSM",
+      { name: "Spun Matty 240 GSM", image: newspunmatty240gsm, banner: bannerspunmatty240gsm },
+      { name: "Spun Matty 220 GSM", image: newspunmatty220gsm, banner: bannerspunmatty220gsm},
+      { name: "Dotnet Polyester 180 GSM", image: newdotnetpolyster180gsm, banner: bannerdotnetpolyster180gsm},
+      { name: "Dotnet Polyester 160 GSM", image: newdotnetpolyster160gsm, banner: bannerdotnetpolsyter160gsm},
+      { name: "Dotnet Polyester 120 GSM", image: newdotnetpolyster120gsm, banner: bannerdotnetpolyster120gsm},
+      { name: "Nirmal Net Polyester 120 GSM", image: newnirmalnetpolyster120gsm, banner: bannernirmalnetpolyster120gsm},
+      { name: "Kohili Net Polyester 120 GSM", image: newkohilinetpolyster120gsm, banner: bannerkohilnetpolyster120gsm},
     ]),
     premium: makeSubs("custom-fabric-t-shirts", polos, "premium", [
-      "240 GSM Cotton Polo T-Shirt",
-      "240 GSM Polycotton Polo T-Shirt",
-      "240 GSM CP Polo T-Shirt",
-      "240 GSM Spun Polo T-Shirt (Polyester)",
-      "240 GSM Honeycomb Polo T-Shirt (Polyester)",
-      "180 GSM SAP Matty Polo T-Shirt (Premium Polyester)",
-      "180 GSM Dotnet Polo T-Shirt (Polyester)",
-      "170 GSM Nirmal Net Polo T-Shirt (Polyester)",
+      { name: "240 GSM Cotton Polo T-Shirt", image: new240gsmcottonpolotshirt, banner: banner240gsmcottonpolotshirt},
+      { name: "240 GSM Polycotton Polo T-Shirt", image: new240gsmpolycottonpolotshirt, banner: banner240gsmpolycottonpolotshirt},
+      { name: "240 GSM CP Polo T-Shirt", image: new240gsmcppolotshirt, banner: banner240gsmcppolotshirt},
+      { name: "240 GSM Spun Polo T-Shirt (Polyester)", image: new240gsmspunpolotshirt, banner: banner240gsmspunpolotshirt},
+      { name: "240 GSM Honeycomb Polo T-Shirt (Polyester)", image: new240gsmcottonpolotshirt},
+      { name: "180 GSM SAP Matty Polo T-Shirt (Premium Polyester)", image: new180gsmsapmattypolotshirt, banner: banner180gsmsapmattypolotshirt},
+      { name: "180 GSM Dotnet Polo T-Shirt (Polyester)", image: new180gsmdotnetpolotshirt, banner: banner180gsmdotnetpolotshirt},
+      { name: "170 GSM Nirmal Net Polo T-Shirt (Polyester)", image: new170gsmnirmalnetpolotshirt, banner: banner170gsmnirmalnetpolotshirt},
     ]),
   },
   {
@@ -294,20 +351,20 @@ export const catalog: CatalogCategory[] = [
     hasTiers: true,
     blurb: "Collar-neck programs for offices, events and field teams.",
     regular: makeSubs("corporate-wear", corporate, "regular", [
-      "Spun Collar Neck T-Shirt",
-      "Cut & Sew Collar Neck T-Shirts",
-      "Corporate Economy Collar Neck T-Shirt",
-      "Reunions Collar Neck T-Shirts",
-      "Marketing Collar Neck T-Shirts",
-      "Petrol Pump Collar Neck T-Shirts",
-      "Conference Collar Neck T-Shirts",
-      "Gym Collar Neck T-Shirts",
-      "Hotel Collar Neck T-Shirts",
-      "NGO Collar Neck T-Shirts",
-      "Dotnet White Collar Neck T-Shirt",
-      "Festival Group Collar Neck T-Shirts",
-      "Ranglan Collar Neck T-Shirt",
-      "220 GSM Spun Matty Reflective Collar Neck T-Shirt",
+      { name: "Spun Collar Neck T-Shirt", image: newspuncollarnecktshirt, banner: bannerspuncollarnecktshirt},
+      { name: "Cut & Sew Collar Neck T-Shirts", image: newcutandsewcollarnecktshirt, banner: bannercutandsewcollarnecktshirt},
+      { name: "Corporate Economy Collar Neck T-Shirt", image: newcorporateeconomycollarnecktshirt, banner: bannercorporateeconomycollarnecktshirt},
+      { name: "Reunions Collar Neck T-Shirts", image: newreunionscollarnecktshirts, banner: bannerreunionscollarnecktshirt},
+      { name: "Marketing Collar Neck T-Shirts", image: newmarketingcollarnecktshirt, banner: bannermarketingcollarnecktshirt},
+     { name: "Petrol Pump Collar Neck T-Shirts", image: newpetrolpumpcollarnecktshirt, banner: bannerpetrolpumpcollarnecktshirt},
+      { name: "Conference Collar Neck T-Shirts", image: newconferancecollarnecktshirt, banner: bannerconferancecollarnecktshirt},
+      { name: "Gym Collar Neck T-Shirts", image: newgymcollarnecktshirt, banner: bannergymcollarnecktshirt},
+      { name: "Hotel Collar Neck T-Shirts", image: newhotelcollarnecktshirt, banner: bannerhotelcollarnecktshirt},
+      { name: "NGO Collar Neck T-Shirts", image: newngocollarnecktshirt, banner: bannerngocollarnecktshirts},
+      { name: "Dotnet White Collar Neck T-Shirt", image: newdotnetwhitecollarnecktshirt, banner: bannerdotnetwhitecollarnecktshirt},
+      { name: "Festival Group Collar Neck T-Shirts", image: newfestivalgroupcollarnecktshirt, banner: bannerfestivalgroupcollarnecktshirt},
+      { name: "Ranglan Collar Neck T-Shirt", image: newranglancollarnecktshirt, banner: bannerranglancollarnecktshirt},
+      { name: "220 GSM Spun Matty Reflective Collar Neck T-Shirt", image: new220gsmspunmattyreflectivecollarnecktshirt, banner: banner220gsmspunmattyreflectivecollarnecktshirt},
     ]),
     premium: makeSubs("corporate-wear", corporate, "premium", [
       "Cotton Collar Neck T-Shirts",
