@@ -126,9 +126,20 @@ import bannerngocollarnecktshirts from "@/assets/bannerngocollarnecktshirt.avif"
 import newngocollarnecktshirt from "@/assets/newngocollarnecktshirt.avif";
 import bannerfestivalgroupcollarnecktshirt from "@/assets/bannerfestivalgroupcollarnecktshirt.avif";
 import newfestivalgroupcollarnecktshirt from "@/assets/newfestivalgroupcollarnecktshirt.avif";
+import new240gsmhoneycombopolotshirt from "@/assets/new240gsmhoneycombopolotshirt.avif";
+import banner240gsmhoneycombopolotshirt from "@/assets/banner240gsmhoneycombopolotshirt.avif";
 import banner220gsmspunmattyreflectivecollarnecktshirt from "@/assets/banner220gsmspunmattyreflectivecollarnecktshirt.avif";
 import new220gsmspunmattyreflectivecollarnecktshirt from "@/assets/new220gsmspunmattyreflectivecollarnecktshirt.avif"
-
+import newunivarsityapronR from "@/assets/newuniversityapronR.avif";
+import newunivarsityapronP from "@/assets/newuniversityapronP.avif";
+import banneruniversityapron from "@/assets/banneruniversityapron.avif";
+import newdoctorapronP from "@/assets/newdoctorapronP.avif";
+import newdoctorapronR from "@/assets/newdoctorapronR.avif";
+import bannerdoctorapronP from "@/assets/bannerdoctorapronP.avif";
+import bannerdoctorapronR from "@/assets/bannerdoctorapronR.avif";
+import newnurseapronR from "@/assets/newnurseapronR.avif";
+import newnurseapronP from "@/assets/newnurseapronP.avif";
+import bannernurseapron from "@/assets/bannernurseapron.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -338,7 +349,7 @@ export const catalog: CatalogCategory[] = [
       { name: "240 GSM Polycotton Polo T-Shirt", image: new240gsmpolycottonpolotshirt, banner: banner240gsmpolycottonpolotshirt},
       { name: "240 GSM CP Polo T-Shirt", image: new240gsmcppolotshirt, banner: banner240gsmcppolotshirt},
       { name: "240 GSM Spun Polo T-Shirt (Polyester)", image: new240gsmspunpolotshirt, banner: banner240gsmspunpolotshirt},
-      { name: "240 GSM Honeycomb Polo T-Shirt (Polyester)", image: new240gsmcottonpolotshirt},
+      { name: "240 GSM Honeycomb Polo T-Shirt (Polyester)", image: new240gsmhoneycombopolotshirt, banner: banner240gsmhoneycombopolotshirt},
       { name: "180 GSM SAP Matty Polo T-Shirt (Premium Polyester)", image: new180gsmsapmattypolotshirt, banner: banner180gsmsapmattypolotshirt},
       { name: "180 GSM Dotnet Polo T-Shirt (Polyester)", image: new180gsmdotnetpolotshirt, banner: banner180gsmdotnetpolotshirt},
       { name: "170 GSM Nirmal Net Polo T-Shirt (Polyester)", image: new170gsmnirmalnetpolotshirt, banner: banner170gsmnirmalnetpolotshirt},
@@ -438,17 +449,17 @@ export const catalog: CatalogCategory[] = [
       // "University Apron",
       // "Nurse Apron",
       // "Medical Apron",
-      { name: "University Apron", image: universityApron },
-      { name: "Nurse Apron", image: nurseApron },
-      { name: "Medical Apron", image: medicalApron },
+      { name: "University Apron", image: newunivarsityapronR, banner: banneruniversityapron },
+      { name: "Nurse Apron", image: newnurseapronR, banner: bannernurseapron },
+      { name: "Medical Apron", image: newdoctorapronR, banner: bannerdoctorapronR },
     ]),
     premium: makeSubs("aprons", uniforms, "premium", [
       // "University Apron",
       // "Nurse Apron",
       // "Medical Apron",
-      { name: "University Apron", image: universityApron },
-      { name: "Nurse Apron", image: nurseApron },
-      { name: "Medical Apron", image: medicalApron },
+      { name: "University Apron", image: newunivarsityapronP, banner: banneruniversityapron  },
+      { name: "Nurse Apron", image: newnurseapronP, banner: bannernurseapron },
+      { name: "Medical Apron", image: newdoctorapronP, banner: bannerdoctorapronP },
     ]),
   },
   {
