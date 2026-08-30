@@ -599,48 +599,175 @@ if (customer.notes) {
     }
     setPayingMode(mode);
     const amount = mode === "full" ? grandTotal : Math.round(grandTotal / 2);
-    openRazorpay({
-      amountInr: amount,
-      name: "Arrheniux — Bulk Order",
-      description: product
-        ? `${product.name} × ${total} pcs (${mode === "full" ? "Full" : "50% Advance"})`
-        : "Bulk",
-            prefill: {
-        name: user.name || "",
-        email: user.email || "",
-        contact: defaultAddr.mobile || user.phone || "",
-      },
-      onSuccess: async () => {
-        setSavingOrder(true);
+    // openRazorpay({
+    //   amountInr: amount,
+    //   name: "Arrheniux — Bulk Order",
+    //   description: product
+    //     ? `${product.name} × ${total} pcs (${mode === "full" ? "Full" : "50% Advance"})`
+    //     : "Bulk",
+    //         prefill: {
+    //     name: user.name || "",
+    //     email: user.email || "",
+    //     contact: defaultAddr.mobile || user.phone || "",
+    //   },
+    //   onSuccess: async () => {
+    //     setSavingOrder(true);
 
-        try {
-          const o = await persistOrder(mode, amount);
-          if (o) {
-            toast({
-              title: "Payment received",
-              description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
-            });
-            window.open(
-              waLink(buildMessage(mode, amount)),
-              "_blank",
-              "noreferrer",
-            );
-            setSuccessOrder({ id: o.id, amount });
-          }
-          setSuccessOrder({ id: o.id, amount: grandTotal });
-        } catch {
-          toast({
-            title: "Order failed",
-            description: "Payment received but order could not be saved.",
-            variant: "destructive",
-          });
-        } finally {
-          setPayingMode(null);
-          setSavingOrder(false);
-        }
-      },
-      onDismiss: () => setPayingMode(null),
+    //     try {
+    //       const o = await persistOrder(mode, amount);
+    //       if (o) {
+    //         toast({
+    //           title: "Payment received",
+    //           description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
+    //         });
+    //         window.open(
+    //           waLink(buildMessage(mode, amount)),
+    //           "_blank",
+    //           "noreferrer",
+    //         );
+    //         setSuccessOrder({ id: o.id, amount });
+    //       }
+    //       setSuccessOrder({ id: o.id, amount: grandTotal });
+    //     } catch {
+    //       toast({
+    //         title: "Order failed",
+    //         description: "Payment received but order could not be saved.",
+    //         variant: "destructive",
+    //       });
+    //     } finally {
+    //       setPayingMode(null);
+    //       setSavingOrder(false);
+    //     }
+    //   },
+    //   onDismiss: () => setPayingMode(null),
+    // });
+
+    openRazorpay({
+  amountInr: amount,
+
+  name: "Arrheniux — Bulk Order",
+
+  description: product
+    ? `${product.name} × ${total} pcs (${
+        mode === "full" ? "Full" : "50% Advance"
+      })`
+    : "Bulk",
+
+  prefill: {
+    name: user.name || "",
+    email: user.email || "",
+    contact: defaultAddr.mobile || user.phone || "",
+  },
+
+  // Send complete order information to backend
+  orderPayload: {
+    kind: "bulk",
+
+    customerId: user.id,
+
+    customerName: user.name || "Customer",
+
+    phone: defaultAddr.mobile || user.phone || "",
+
+    email: user.email || "",
+
+    address: defaultAddr
+      ? formatAddress(defaultAddr)
+      : "",
+
+    companyName: customer.company || undefined,
+
+    gstNumber: customer.gst || undefined,
+
+    notes: customer.notes || undefined,
+
+    productId: product!.id,
+
+    productCode: productCode(product!),
+
+    productName: product!.name,
+
+    category: cat.name,
+
+    productType:
+      product!.tier === "premium"
+        ? "Premium"
+        : product!.tier === "regular"
+          ? "Regular"
+          : "",
+
+    subCategory: subcat?.name ?? "",
+
+    material: product!.material,
+
+    description: isKit
+      ? `Kit Items: ${kitItems
+          .map((id) => {
+            const item = kitDefs.find((d) => d.id === id);
+            return item
+              ? `${item.label} (₹${item.price})`
+              : id;
+          })
+          .join(", ")}`
+      : product!.description,
+
+    printType: printText,
+
+    sizes:
+      isGarment || (isKit && kitIncludesTshirt)
+        ? sizeQty
+        : undefined,
+
+    qty: total,
+
+    unitPrice,
+
+    printingPrice: printCharge,
+
+    gstPct: gstPctLabel,
+
+    shipping: courier,
+
+    total: grandTotal,
+
+    uploadedLogo: artwork[0]?.dataUrl ?? "",
+
+    discountPct: bulkPct,
+
+    discountAmt,
+
+    paymentMode: mode,
+  },
+
+  // Backend verifies payment and creates the order
+  onSuccess: (order) => {
+    toast({
+      title: "Payment successful",
+      description: `Order #${order.id
+        .slice(0, 8)
+        .toUpperCase()} placed.`,
     });
+
+    window.open(
+      waLink(buildMessage(mode, amount)),
+      "_blank",
+      "noreferrer",
+    );
+
+    setSuccessOrder({
+      id: order.id,
+      amount: order.totalAmount ?? amount,
+    });
+
+    setPayingMode(null);
+    setSavingOrder(false);
+  },
+
+  onDismiss: () => {
+    setPayingMode(null);
+    setSavingOrder(false);
+  },
+});
   };
 
   const bumpSize = (s: string, d: number) =>

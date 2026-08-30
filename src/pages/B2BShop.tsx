@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   Package,
   LogOut,
+  CheckCircle2,
+  Home,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { PrintPicker } from "@/components/PrintPicker";
@@ -47,6 +49,10 @@ import {
   clearB2BAgentSession,
 } from "@/lib/b2bAgentSession";
 import { ProductReviews } from "@/components/ProductReviews";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
 type Size = (typeof SIZES)[number];
@@ -116,6 +122,11 @@ const B2BShop = () => {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
+
+  const [successOrder, setSuccessOrder] = useState<{
+  id: string;
+  amount: number;
+} | null>(null);
   // Restore verified agent session on mount (survives refresh, expires after 1hr,
   // and clears automatically when the tab/browser is closed).
   useEffect(() => {
@@ -322,67 +333,182 @@ const B2BShop = () => {
     return lines.join("\n");
   };
 
-  const handlePay = () => {
-    if (!product || !agent || isPaying) return;
-    if (total < B2B_MOQ) return;
-    setIsPaying(true);
-    openRazorpay({
-      amountInr: grandTotal,
-      name: "Arrheniux — B2B",
-      description: `${product.name} × ${total} pcs`,
-      prefill: {
-        name: agent.contactPerson,
-        email: agent.email,
-        contact: agent.mobile,
-      },
-      onSuccess: async () => {
-        setSavingOrder(true);
+  // const handlePay = () => {
+  //   if (!product || !agent || isPaying) return;
+  //   if (total < B2B_MOQ) return;
+  //   setIsPaying(true);
+  //   openRazorpay({
+  //     amountInr: grandTotal,
+  //     name: "Arrheniux — B2B",
+  //     description: `${product.name} × ${total} pcs`,
+  //     prefill: {
+  //       name: agent.contactPerson,
+  //       email: agent.email,
+  //       contact: agent.mobile,
+  //     },
+  //     onSuccess: async () => {
+  //       setSavingOrder(true);
 
-        try {
-          const o = await createOrderMut.mutateAsync({
-            kind: "b2b",
-            customerId: null,
-            customerName: agent.contactPerson,
-            phone: agent.mobile,
-            email: agent.email,
-            address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
-            productId: product.id,
-            productCode: productCode(product),
-            productName: product.name,
-            subCategory: activeSub?.name ?? "",
-            material: product.material,
-            printType: printText,
-            sizes: sizeQty,
-            qty: total,
-            unitPrice,
-            printingPrice: printCharge,
-            gstPct: 5,
-            shipping: courier,
-            total: grandTotal,
-            paid: grandTotal,
-            paymentMode: "full",
-          });
-          toast({
-            title: "Payment successful",
-            description: `B2B order #${o.id.slice(0, 8).toUpperCase()} placed.`,
-          });
-          window.open(waLink(buildMessage()), "_blank", "noreferrer");
-          navigate("/");
-          setSuccessOrder({ id: o.id, amount: grandTotal });
-        } catch {
-          toast({
-            title: "Order failed",
-            description: "Payment received but order could not be saved.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsPaying(false);
-          setSavingOrder(false);
-        }
-      },
-      onDismiss: () => setIsPaying(false),
-    });
-  };
+  //       try {
+  //         const o = await createOrderMut.mutateAsync({
+  //           kind: "b2b",
+  //           customerId: null,
+  //           customerName: agent.contactPerson,
+  //           phone: agent.mobile,
+  //           email: agent.email,
+  //           address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
+  //           productId: product.id,
+  //           productCode: productCode(product),
+  //           productName: product.name,
+  //           subCategory: activeSub?.name ?? "",
+  //           material: product.material,
+  //           printType: printText,
+  //           sizes: sizeQty,
+  //           qty: total,
+  //           unitPrice,
+  //           printingPrice: printCharge,
+  //           gstPct: 5,
+  //           shipping: courier,
+  //           total: grandTotal,
+  //           paid: grandTotal,
+  //           paymentMode: "full",
+  //         });
+  //         toast({
+  //           title: "Payment successful",
+  //           description: `B2B order #${o.id.slice(0, 8).toUpperCase()} placed.`,
+  //         });
+  //         window.open(waLink(buildMessage()), "_blank", "noreferrer");
+  //         navigate("/");
+  //         setSuccessOrder({ id: o.id, amount: grandTotal });
+  //       } catch {
+  //         toast({
+  //           title: "Order failed",
+  //           description: "Payment received but order could not be saved.",
+  //           variant: "destructive",
+  //         });
+  //       } finally {
+  //         setIsPaying(false);
+  //         setSavingOrder(false);
+  //       }
+  //     },
+  //     onDismiss: () => setIsPaying(false),
+  //   });
+  // };
+
+
+  const handlePay = () => {
+  if (!product || !agent || isPaying) return;
+
+  if (total < B2B_MOQ) return;
+
+  setIsPaying(true);
+
+  openRazorpay({
+    amountInr: grandTotal,
+
+    name: "Arrheniux — B2B",
+
+    description: `${product.name} × ${total} pcs`,
+
+    prefill: {
+      name: agent.contactPerson,
+      email: agent.email,
+      contact: agent.mobile,
+    },
+
+    // IMPORTANT:
+    // This data goes to the backend AFTER successful Razorpay payment.
+    // The backend verifies the payment signature and creates the order.
+    orderPayload: {
+      kind: "b2b",
+
+      customerId: null,
+
+      customerName: agent.contactPerson,
+
+      phone: agent.mobile,
+
+      email: agent.email,
+
+      address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
+
+      // B2B Agent Information
+      agentId: agent.id,
+
+      agentCode: agent.code,
+
+      companyName: agent.company,
+
+      gstNumber: agent.gst,
+
+      productId: product.id,
+
+      productCode: productCode(product),
+
+      productName: product.name,
+
+      category: product.categorySlug ?? "",
+
+      subCategory: activeSub?.name ?? "",
+
+      material: product.material,
+
+      description: product.description ?? "",
+
+      printType: printText,
+
+      sizes: sizeQty,
+
+      qty: total,
+
+      unitPrice,
+
+      printingPrice: printCharge,
+
+      gstPct: 5,
+
+      shipping: courier,
+
+      total: grandTotal,
+
+      paid: grandTotal,
+
+      paymentMode: "full",
+    },
+
+    // Backend has already verified payment and created the order.
+    onSuccess: (order) => {
+      toast({
+        title: "Payment successful",
+        description: `B2B order #${order.id
+          .slice(0, 8)
+          .toUpperCase()} placed successfully.`,
+      });
+
+      window.open(
+        waLink(buildMessage()),
+        "_blank",
+        "noreferrer",
+      );
+
+      setSuccessOrder({
+        id: order.id,
+        amount: order.totalAmount ?? grandTotal,
+      });
+
+      setIsPaying(false);
+      setSavingOrder(false);
+
+      // navigate("/");
+    },
+
+    onDismiss: () => {
+      setIsPaying(false);
+      setSavingOrder(false);
+    },
+  });
+};
+
 
   // Avoid a flash of the verification gate while we check sessionStorage.
   if (restoringSession) {
@@ -882,11 +1008,117 @@ const B2BShop = () => {
                 isGarment={true}
               />
             )}
+
+
+            
           </>
         )}
+        
       </section>
+       {/* ================================ */}
+      {/* PAYMENT SUCCESS MODAL */}
+      {/* ================================ */}
+
+      <Dialog
+        open={!!successOrder}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSuccessOrder(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md overflow-hidden rounded-2xl p-0">
+          <div className="flex flex-col items-center px-6 py-8 text-center">
+
+            {/* Success Icon */}
+            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            </div>
+
+            {/* Heading */}
+            <h2 className="text-2xl font-bold">
+              Payment Successful!
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your B2B order has been placed successfully.
+            </p>
+
+            {/* Order Details */}
+            {successOrder && (
+              <div className="mt-6 w-full rounded-xl bg-secondary p-4 text-left">
+
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <span className="text-sm text-muted-foreground">
+                    Order ID
+                  </span>
+
+                  <span className="font-semibold">
+                    #{successOrder.id.slice(0, 8).toUpperCase()}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Amount Paid
+                  </span>
+
+                  <span className="text-lg font-bold">
+                    ₹{Number(successOrder.amount).toLocaleString("en-IN")}
+                  </span>
+                </div>
+
+              </div>
+            )}
+
+            {/* Information */}
+            <div className="mt-5 flex items-start gap-3 rounded-xl bg-secondary p-4 text-left">
+              <Package className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+
+              <p className="text-sm text-muted-foreground">
+                Your order has been received successfully. Our team will
+                contact you soon regarding your B2B order.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="mt-7 flex w-full flex-col gap-3">
+
+              <button
+                className="btn-bold w-full justify-center !py-3"
+                onClick={() => {
+                  setSuccessOrder(null);
+                  navigate("/");
+                }}
+              >
+                <Home className="mr-2 h-4 w-4" />
+                Back to Home
+              </button>
+
+              <button
+                className="w-full border border-border py-3 text-xs font-semibold uppercase tracking-widest hover:bg-secondary transition"
+                onClick={() => {
+                  setSuccessOrder(null);
+
+                  // Optional: reset order selection
+                  resetSelections();
+
+                  // Go back to B2B subcategories
+                  pushView({ step: "subs" });
+                }}
+              >
+                Continue Shopping
+              </button>
+
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
     </Layout>
+    
   );
+  
 };
 
 const Row = ({ label, value }: { label: string; value: string }) => (
@@ -921,6 +1153,6 @@ const GateField = ({
 
 export default B2BShop;
 
-function setSuccessOrder(arg0: { id: string; amount: number }) {
-  throw new Error("Function not implemented.");
-}
+// function setSuccessOrder(arg0: { id: string; amount: number }) {
+//   throw new Error("Function not implemented.");
+// }

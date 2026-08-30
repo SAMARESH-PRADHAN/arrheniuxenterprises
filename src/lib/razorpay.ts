@@ -89,23 +89,97 @@ const loadSdk = (): Promise<boolean> =>
     document.body.appendChild(s);
   });
 
+// export type RzpOptions = {
+//   amountInr: number;
+//   name: string;
+//   description: string;
+//   prefill?: { name?: string; email?: string; contact?: string };
+//   onSuccess: (paymentId: string) => void;
+//   onDismiss?: () => void;
+// };
+
+// export const openRazorpay = async (opts: RzpOptions) => {
+//   // 1. Create order on backend
+//   const orderRes = await fetch(`${API_BASE}/razorpay/create-order`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ amount: opts.amountInr, receipt: `order_${Date.now()}` }),
+//   });
+
+//   if (!orderRes.ok) {
+//     alert("Could not start payment. Please try again.");
+//     opts.onDismiss?.();
+//     return;
+//   }
+//   const order = await orderRes.json();
+
+//   // 2. Load checkout script
+//   const ready = await loadSdk();
+//   if (!ready || !window.Razorpay) {
+//     alert("Payment gateway failed to load. Please try again.");
+//     opts.onDismiss?.();
+//     return;
+//   }
+
+//   // 3. Open checkout — restricted to UPI + Card only
+//   const rzp = new window.Razorpay({
+//     key: order.keyId,
+//     order_id: order.orderId,
+//     amount: order.amount,
+//     currency: order.currency,
+//     name: opts.name,
+//     description: opts.description,
+//     prefill: opts.prefill,
+//     theme: { color: "#1a1a1a" },
+//     // Restrict to only UPI & Card
+//     method: {
+//       netbanking: false,
+//       wallet: false,
+//       emi: false,
+//       paylater: false,
+//       upi: true,
+//       card: true,
+//     },
+//     handler: async (resp: {
+//       razorpay_order_id: string;
+//       razorpay_payment_id: string;
+//       razorpay_signature: string;
+//     }) => {
+//       // 4. Verify signature on backend before trusting the payment
+//       const verifyRes = await fetch(`${API_BASE}/razorpay/verify`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(resp),
+//       });
+//       if (!verifyRes.ok) {
+//         alert("Payment could not be verified. Contact support with your payment ID: " + resp.razorpay_payment_id);
+//         return;
+//       }
+//       opts.onSuccess(resp.razorpay_payment_id);
+//     },
+//     modal: { ondismiss: () => opts.onDismiss?.() },
+//   });
+//   rzp.open();
+// };
+
+
+
 export type RzpOptions = {
   amountInr: number;
   name: string;
   description: string;
+  orderPayload: Record<string, unknown>; // NEW — sent at verify time, not create-order time
   prefill?: { name?: string; email?: string; contact?: string };
-  onSuccess: (paymentId: string) => void;
+  onSuccess: (order: any) => void; // now receives the server-created order
   onDismiss?: () => void;
 };
 
 export const openRazorpay = async (opts: RzpOptions) => {
-  // 1. Create order on backend
   const orderRes = await fetch(`${API_BASE}/razorpay/create-order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount: opts.amountInr, receipt: `order_${Date.now()}` }),
   });
-
   if (!orderRes.ok) {
     alert("Could not start payment. Please try again.");
     opts.onDismiss?.();
@@ -113,7 +187,6 @@ export const openRazorpay = async (opts: RzpOptions) => {
   }
   const order = await orderRes.json();
 
-  // 2. Load checkout script
   const ready = await loadSdk();
   if (!ready || !window.Razorpay) {
     alert("Payment gateway failed to load. Please try again.");
@@ -121,7 +194,6 @@ export const openRazorpay = async (opts: RzpOptions) => {
     return;
   }
 
-  // 3. Open checkout — restricted to UPI + Card only
   const rzp = new window.Razorpay({
     key: order.keyId,
     order_id: order.orderId,
@@ -131,31 +203,23 @@ export const openRazorpay = async (opts: RzpOptions) => {
     description: opts.description,
     prefill: opts.prefill,
     theme: { color: "#1a1a1a" },
-    // Restrict to only UPI & Card
-    method: {
-      netbanking: false,
-      wallet: false,
-      emi: false,
-      paylater: false,
-      upi: true,
-      card: true,
-    },
+    method: { netbanking: false, wallet: false, emi: false, paylater: false, upi: true, card: true },
     handler: async (resp: {
       razorpay_order_id: string;
       razorpay_payment_id: string;
       razorpay_signature: string;
     }) => {
-      // 4. Verify signature on backend before trusting the payment
       const verifyRes = await fetch(`${API_BASE}/razorpay/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(resp),
+        body: JSON.stringify({ ...resp, orderPayload: opts.orderPayload }), // NEW
       });
       if (!verifyRes.ok) {
         alert("Payment could not be verified. Contact support with your payment ID: " + resp.razorpay_payment_id);
         return;
       }
-      opts.onSuccess(resp.razorpay_payment_id);
+      const { order: createdOrder } = await verifyRes.json();
+      opts.onSuccess(createdOrder);
     },
     modal: { ondismiss: () => opts.onDismiss?.() },
   });
