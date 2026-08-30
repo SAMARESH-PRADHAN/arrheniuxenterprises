@@ -57,7 +57,7 @@ type Props = {
 
 export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
    const navigate = useNavigate();
-  // const createOrderMut = useCreateOrder();
+  const createOrderMut = useCreateOrder();
   const { data: printOverrides } = usePrintSettings();
   const rule = getAccessoryRules(product.subSlug);
   const isArr = isArrheniuxCategory(product.categorySlug);
@@ -267,187 +267,72 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
       );
       return;
     }
-  //   openRazorpay({
-  //     amountInr: total,
-  //     name: "Arrheniux — Sample",
-  //     description: `Sample: ${product.name}`,
-  //     prefill: {
-  //       name: user.name,
-  //       email: user.email,
-  //       contact: defaultAddr.mobile || user.phone,
-  //     },
-  //     onSuccess: async () => {
-  //       setSavingOrder(true);
-  //       try {
-  //         const o = await createOrderMut.mutateAsync({
-  //           kind: "retail",
-  //           isSample: true,
-  //           customerId: user.id,
-  //           customerName: user.name,
-  //           phone: defaultAddr.mobile || user.phone || "",
-  //           email: user.email,
-  //           address: formatAddress(defaultAddr),
-  //           productId: product.id,
-  //           productCode: productCode(product),
-  //           productName: `${product.name} (Sample)`,
-  //           category: cat?.name ?? "",
-  //           subCategory: subcat?.name ?? "",
-  //           material: product.material,
-  //           description: isKit
-  // ? `Kit Items: ${kitItems
-  //     .map((id) => {
-  //       const it = kitDefs.find((d) => d.id === id);
-  //       return it ? `${it.label} (₹${it.price})` : id;
-  //     })
-  //     .join(", ")}`
-  // : product.description,
-  //           printType: printText,
-  //           sizes: (isGarment || isKit) ? ({ [size]: qty } as Record<string, number>) : undefined,
-  //           qty,
-  //           unitPrice,
-  //           printingPrice: printCharge,
-  //           gstPct: Math.round(gstRate * 100),
-  //           shipping: courier,
-  //           total,
-  //           paid: total,
-  //           uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
-  //           paymentMode: "full",
-  //         });
-  //         toast({
-  //           title: "Sample ordered",
-  //           description: `Sample #${o.id.slice(0, 8).toUpperCase()} placed.`,
-  //         });
-  //         window.open(waLink(orderMsg), "_blank", "noreferrer");
-  //         setSuccessOrder({ id: o.id, amount: total });
-  //       } catch {
-  //         toast({
-  //           title: "Order failed",
-  //           description:
-  //             "Payment received but sample order could not be saved.",
-  //           variant: "destructive",
-  //         });
-  //       } finally {
-  //         setIsPaying(false);
-  //         setSavingOrder(false);
-  //       }
-  //     },
-  //     onDismiss: () => setIsPaying(false),
-  //   });
-
-
-
-  openRazorpay({
-  amountInr: total,
-
-  name: "Arrheniux — Sample",
-
-  description: `Sample: ${product.name}`,
-
-  prefill: {
-    name: user.name,
-    email: user.email,
-    contact: defaultAddr.mobile || user.phone,
-  },
-
-  // This payload goes to your backend after Razorpay payment.
-  // Backend verifies the Razorpay signature and creates the order.
-  orderPayload: {
-    kind: "retail",
-
-    isSample: true,
-
-    customerId: user.id,
-
-    customerName: user.name,
-
-    phone: defaultAddr.mobile || user.phone || "",
-
-    email: user.email,
-
-    address: formatAddress(defaultAddr),
-
-    productId: product.id,
-
-    productCode: productCode(product),
-
-    productName: `${product.name} (Sample)`,
-
-    category: cat?.name ?? "",
-
-    subCategory: subcat?.name ?? "",
-
-    material: product.material,
-
-    description: isKit
-      ? `Kit Items: ${kitItems
-          .map((id) => {
-            const it = kitDefs.find((d) => d.id === id);
-
-            return it
-              ? `${it.label} (₹${it.price})`
-              : id;
-          })
-          .join(", ")}`
-      : product.description,
-
-    printType: printText,
-
-    sizes:
-      isGarment || isKit
-        ? ({ [size]: qty } as Record<string, number>)
-        : undefined,
-
-    qty,
-
-    unitPrice,
-
-    printingPrice: printCharge,
-
-    gstPct: Math.round(gstRate * 100),
-
-    shipping: courier,
-
-    total,
-
-    paid: total,
-
-    uploadedLogo: !isArr
-      ? artwork[0]?.dataUrl ?? ""
-      : "",
-
-    paymentMode: "full",
-  },
-
-  // Backend has verified payment and created the order.
-  onSuccess: (order) => {
-    toast({
-      title: "Sample ordered successfully",
-      description: `Sample #${order.id
-        .slice(0, 8)
-        .toUpperCase()} placed successfully.`,
+    openRazorpay({
+      amountInr: total,
+      name: "Arrheniux — Sample",
+      description: `Sample: ${product.name}`,
+      prefill: {
+        name: user.name,
+        email: user.email,
+        contact: defaultAddr.mobile || user.phone,
+      },
+      onSuccess: async () => {
+        setSavingOrder(true);
+        try {
+          const o = await createOrderMut.mutateAsync({
+            kind: "retail",
+            isSample: true,
+            customerId: user.id,
+            customerName: user.name,
+            phone: defaultAddr.mobile || user.phone || "",
+            email: user.email,
+            address: formatAddress(defaultAddr),
+            productId: product.id,
+            productCode: productCode(product),
+            productName: `${product.name} (Sample)`,
+            category: cat?.name ?? "",
+            subCategory: subcat?.name ?? "",
+            material: product.material,
+            description: isKit
+  ? `Kit Items: ${kitItems
+      .map((id) => {
+        const it = kitDefs.find((d) => d.id === id);
+        return it ? `${it.label} (₹${it.price})` : id;
+      })
+      .join(", ")}`
+  : product.description,
+            printType: printText,
+            sizes: (isGarment || isKit) ? ({ [size]: qty } as Record<string, number>) : undefined,
+            qty,
+            unitPrice,
+            printingPrice: printCharge,
+            gstPct: Math.round(gstRate * 100),
+            shipping: courier,
+            total,
+            paid: total,
+            uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
+            paymentMode: "full",
+          });
+          toast({
+            title: "Sample ordered",
+            description: `Sample #${o.id.slice(0, 8).toUpperCase()} placed.`,
+          });
+          window.open(waLink(orderMsg), "_blank", "noreferrer");
+          setSuccessOrder({ id: o.id, amount: total });
+        } catch {
+          toast({
+            title: "Order failed",
+            description:
+              "Payment received but sample order could not be saved.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+          setSavingOrder(false);
+        }
+      },
+      onDismiss: () => setIsPaying(false),
     });
-
-    window.open(
-      waLink(orderMsg),
-      "_blank",
-      "noreferrer",
-    );
-
-    // Open Success Modal
-    setSuccessOrder({
-      id: order.id,
-      amount: order.totalAmount ?? total,
-    });
-
-    setIsPaying(false);
-    setSavingOrder(false);
-  },
-
-  onDismiss: () => {
-    setIsPaying(false);
-    setSavingOrder(false);
-  },
-});
   };
 
   return createPortal(

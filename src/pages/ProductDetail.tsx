@@ -572,104 +572,38 @@ const ProductDetailView = ({
       return;
     }
 
-    // openRazorpay({
-    //   amountInr: grandTotal,
-    //   name: "Arrheniux",
-    //   description: `${product.name} × ${total} pcs`,
-    //   prefill: {
-    //     name: user.name,
-    //     email: user.email,
-    //     contact: defaultAddr.mobile || user.phone,
-    //   },
-    //   onSuccess: async (paymentId) => {
-    //     setSavingOrder(true);
-    //     try {
-    //       const o = await createOrderMut.mutateAsync({
-    //         kind: "retail",
-    //         customerId: user.id,
-    //         customerName: user.name,
-    //         phone: defaultAddr.mobile || user.phone || "",
-    //         email: user.email,
-    //         address: formatAddress(defaultAddr),
-    //         productId: product.id,
-    //         productCode: code,
-    //         productName: product.name,
-    //         category: cat?.name ?? "",
-    //         productType:
-    //           product.tier === "premium"
-    //             ? "Premium"
-    //             : product.tier === "regular"
-    //               ? "Regular"
-    //               : "",
-    //         subCategory: subcat?.name ?? "",
-    //         material: product.material,
-    //         description: isKit
-    //           ? `Kit Items: ${kitItems
-    //               .map((id) => {
-    //                 const it = kitDefs.find((d) => d.id === id);
-    //                 return it ? `${it.label} (₹${it.price})` : id;
-    //               })
-    //               .join(", ")}`
-    //           : product.description,
-    //         printType: printTypeText,
-    //         sizes:
-    //           isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
-    //         qty: total,
-    //         unitPrice,
-    //         printingPrice: printCharge,
-    //         gstPct: gstPctLabel,
-    //         shipping: courier,
-    //         total: grandTotal,
-    //         paid: grandTotal,
-    //         uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
-    //         discountPct,
-    //         discountAmt,
-    //         paymentMode: "full",
-    //       });
-    //       toast({
-    //         title: "Payment successful",
-    //         description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
-    //       });
-    //       // window.open(waLink(orderMessage()), "_blank", "noreferrer");
-    //       setSuccessOrder({ id: o.id, amount: grandTotal });
-    //       clearPdpDraft(product.id);
-    //       // setSuccessOrder({ id: o.id, amount: grandTotal });
-    //     } catch {
-    //       toast({
-    //         title: "Order failed",
-    //         description:
-    //           "Payment received but order could not be saved. Contact support.",
-    //         variant: "destructive",
-    //       });
-    //     } finally {
-    //       setIsPaying(false); // ← add
-    //       setSavingOrder(false);
-    //     }
-    //   },
-    //   onDismiss: () => setIsPaying(false), // ← add this option (see razorpay.ts note below)
-    // });
-
-
     openRazorpay({
-  amountInr: grandTotal,
-  name: "Arrheniux",
-  description: `${product.name} × ${total} pcs`,
-  prefill: { name: user.name, email: user.email, contact: defaultAddr.mobile || user.phone },
-  orderPayload: {
-    kind: "retail",
-    customerId: user.id,
-    customerName: user.name,
-    phone: defaultAddr.mobile || user.phone || "",
-    email: user.email,
-    address: formatAddress(defaultAddr),
-    productId: product.id,
-    productCode: code,
-    productName: product.name,
-    category: cat?.name ?? "",
-    productType: product.tier === "premium" ? "Premium" : product.tier === "regular" ? "Regular" : "",
-    subCategory: subcat?.name ?? "",
-    material: product.material,
-    description: isKit
+      amountInr: grandTotal,
+      name: "Arrheniux",
+      description: `${product.name} × ${total} pcs`,
+      prefill: {
+        name: user.name,
+        email: user.email,
+        contact: defaultAddr.mobile || user.phone,
+      },
+      onSuccess: async (paymentId) => {
+        setSavingOrder(true);
+        try {
+          const o = await createOrderMut.mutateAsync({
+            kind: "retail",
+            customerId: user.id,
+            customerName: user.name,
+            phone: defaultAddr.mobile || user.phone || "",
+            email: user.email,
+            address: formatAddress(defaultAddr),
+            productId: product.id,
+            productCode: code,
+            productName: product.name,
+            category: cat?.name ?? "",
+            productType:
+              product.tier === "premium"
+                ? "Premium"
+                : product.tier === "regular"
+                  ? "Regular"
+                  : "",
+            subCategory: subcat?.name ?? "",
+            material: product.material,
+            description: isKit
               ? `Kit Items: ${kitItems
                   .map((id) => {
                     const it = kitDefs.find((d) => d.id === id);
@@ -677,25 +611,43 @@ const ProductDetailView = ({
                   })
                   .join(", ")}`
               : product.description,
-    printType: printTypeText,
-    sizes: isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
-    qty: total,
-    unitPrice,
-    printingPrice: printCharge,
-    gstPct: gstPctLabel,
-    shipping: courier,
-    total: grandTotal,          // kept for reference only — server ignores it for `paid`
-    uploadedLogo: !isArr ? artwork[0]?.dataUrl ?? "" : "",
-    discountPct,
-    discountAmt,
-  },
-  onSuccess: (order) => {
-    toast({ title: "Payment successful", description: `Order #${order.id.slice(0, 8).toUpperCase()} placed.` });
-    setSuccessOrder({ id: order.id, amount: order.totalAmount ?? grandTotal });
-    clearPdpDraft(product.id);
-  },
-  onDismiss: () => setIsPaying(false),
-});
+            printType: printTypeText,
+            sizes:
+              isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
+            qty: total,
+            unitPrice,
+            printingPrice: printCharge,
+            gstPct: gstPctLabel,
+            shipping: courier,
+            total: grandTotal,
+            paid: grandTotal,
+            uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
+            discountPct,
+            discountAmt,
+            paymentMode: "full",
+          });
+          toast({
+            title: "Payment successful",
+            description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
+          });
+          // window.open(waLink(orderMessage()), "_blank", "noreferrer");
+          setSuccessOrder({ id: o.id, amount: grandTotal });
+          clearPdpDraft(product.id);
+          // setSuccessOrder({ id: o.id, amount: grandTotal });
+        } catch {
+          toast({
+            title: "Order failed",
+            description:
+              "Payment received but order could not be saved. Contact support.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false); // ← add
+          setSavingOrder(false);
+        }
+      },
+      onDismiss: () => setIsPaying(false), // ← add this option (see razorpay.ts note below)
+    });
   }, [
     isBulk,
     canOrder,
