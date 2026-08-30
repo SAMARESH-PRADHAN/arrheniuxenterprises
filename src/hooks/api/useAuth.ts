@@ -100,6 +100,7 @@ export function useCreateOrder() {
 
       if (payload.paid > 0) {
         await createPayment({
+          id: payload.paymentRef,
           orderId: order.id,
           customer: payload.customerName,
           amount: payload.paid,
