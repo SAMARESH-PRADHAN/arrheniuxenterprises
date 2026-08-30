@@ -333,181 +333,181 @@ const B2BShop = () => {
     return lines.join("\n");
   };
 
-  // const handlePay = () => {
-  //   if (!product || !agent || isPaying) return;
-  //   if (total < B2B_MOQ) return;
-  //   setIsPaying(true);
-  //   openRazorpay({
-  //     amountInr: grandTotal,
-  //     name: "Arrheniux — B2B",
-  //     description: `${product.name} × ${total} pcs`,
-  //     prefill: {
-  //       name: agent.contactPerson,
-  //       email: agent.email,
-  //       contact: agent.mobile,
-  //     },
-  //     onSuccess: async () => {
-  //       setSavingOrder(true);
-
-  //       try {
-  //         const o = await createOrderMut.mutateAsync({
-  //           kind: "b2b",
-  //           customerId: null,
-  //           customerName: agent.contactPerson,
-  //           phone: agent.mobile,
-  //           email: agent.email,
-  //           address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
-  //           productId: product.id,
-  //           productCode: productCode(product),
-  //           productName: product.name,
-  //           subCategory: activeSub?.name ?? "",
-  //           material: product.material,
-  //           printType: printText,
-  //           sizes: sizeQty,
-  //           qty: total,
-  //           unitPrice,
-  //           printingPrice: printCharge,
-  //           gstPct: 5,
-  //           shipping: courier,
-  //           total: grandTotal,
-  //           paid: grandTotal,
-  //           paymentMode: "full",
-  //         });
-  //         toast({
-  //           title: "Payment successful",
-  //           description: `B2B order #${o.id.slice(0, 8).toUpperCase()} placed.`,
-  //         });
-  //         window.open(waLink(buildMessage()), "_blank", "noreferrer");
-  //         navigate("/");
-  //         setSuccessOrder({ id: o.id, amount: grandTotal });
-  //       } catch {
-  //         toast({
-  //           title: "Order failed",
-  //           description: "Payment received but order could not be saved.",
-  //           variant: "destructive",
-  //         });
-  //       } finally {
-  //         setIsPaying(false);
-  //         setSavingOrder(false);
-  //       }
-  //     },
-  //     onDismiss: () => setIsPaying(false),
-  //   });
-  // };
-
-
   const handlePay = () => {
-  if (!product || !agent || isPaying) return;
+    if (!product || !agent || isPaying) return;
+    if (total < B2B_MOQ) return;
+    setIsPaying(true);
+    openRazorpay({
+      amountInr: grandTotal,
+      name: "Arrheniux — B2B",
+      description: `${product.name} × ${total} pcs`,
+      prefill: {
+        name: agent.contactPerson,
+        email: agent.email,
+        contact: agent.mobile,
+      },
+      onSuccess: async () => {
+        setSavingOrder(true);
 
-  if (total < B2B_MOQ) return;
+        try {
+          const o = await createOrderMut.mutateAsync({
+            kind: "b2b",
+            customerId: null,
+            customerName: agent.contactPerson,
+            phone: agent.mobile,
+            email: agent.email,
+            address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
+            productId: product.id,
+            productCode: productCode(product),
+            productName: product.name,
+            subCategory: activeSub?.name ?? "",
+            material: product.material,
+            printType: printText,
+            sizes: sizeQty,
+            qty: total,
+            unitPrice,
+            printingPrice: printCharge,
+            gstPct: 5,
+            shipping: courier,
+            total: grandTotal,
+            paid: grandTotal,
+            paymentMode: "full",
+          });
+          toast({
+            title: "Payment successful",
+            description: `B2B order #${o.id.slice(0, 8).toUpperCase()} placed.`,
+          });
+          window.open(waLink(buildMessage()), "_blank", "noreferrer");
+          navigate("/");
+          setSuccessOrder({ id: o.id, amount: grandTotal });
+        } catch {
+          toast({
+            title: "Order failed",
+            description: "Payment received but order could not be saved.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsPaying(false);
+          setSavingOrder(false);
+        }
+      },
+      onDismiss: () => setIsPaying(false),
+    });
+  };
 
-  setIsPaying(true);
 
-  openRazorpay({
-    amountInr: grandTotal,
+//   const handlePay = () => {
+//   if (!product || !agent || isPaying) return;
 
-    name: "Arrheniux — B2B",
+//   if (total < B2B_MOQ) return;
 
-    description: `${product.name} × ${total} pcs`,
+//   setIsPaying(true);
 
-    prefill: {
-      name: agent.contactPerson,
-      email: agent.email,
-      contact: agent.mobile,
-    },
+//   openRazorpay({
+//     amountInr: grandTotal,
 
-    // IMPORTANT:
-    // This data goes to the backend AFTER successful Razorpay payment.
-    // The backend verifies the payment signature and creates the order.
-    orderPayload: {
-      kind: "b2b",
+//     name: "Arrheniux — B2B",
 
-      customerId: null,
+//     description: `${product.name} × ${total} pcs`,
 
-      customerName: agent.contactPerson,
+//     prefill: {
+//       name: agent.contactPerson,
+//       email: agent.email,
+//       contact: agent.mobile,
+//     },
 
-      phone: agent.mobile,
+//     // IMPORTANT:
+//     // This data goes to the backend AFTER successful Razorpay payment.
+//     // The backend verifies the payment signature and creates the order.
+//     orderPayload: {
+//       kind: "b2b",
 
-      email: agent.email,
+//       customerId: null,
 
-      address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
+//       customerName: agent.contactPerson,
 
-      // B2B Agent Information
-      agentId: agent.id,
+//       phone: agent.mobile,
 
-      agentCode: agent.code,
+//       email: agent.email,
 
-      companyName: agent.company,
+//       address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
 
-      gstNumber: agent.gst,
+//       // B2B Agent Information
+//       agentId: agent.id,
 
-      productId: product.id,
+//       agentCode: agent.code,
 
-      productCode: productCode(product),
+//       companyName: agent.company,
 
-      productName: product.name,
+//       gstNumber: agent.gst,
 
-      category: product.categorySlug ?? "",
+//       productId: product.id,
 
-      subCategory: activeSub?.name ?? "",
+//       productCode: productCode(product),
 
-      material: product.material,
+//       productName: product.name,
 
-      description: product.description ?? "",
+//       category: product.categorySlug ?? "",
 
-      printType: printText,
+//       subCategory: activeSub?.name ?? "",
 
-      sizes: sizeQty,
+//       material: product.material,
 
-      qty: total,
+//       description: product.description ?? "",
 
-      unitPrice,
+//       printType: printText,
 
-      printingPrice: printCharge,
+//       sizes: sizeQty,
 
-      gstPct: 5,
+//       qty: total,
 
-      shipping: courier,
+//       unitPrice,
 
-      total: grandTotal,
+//       printingPrice: printCharge,
 
-      paid: grandTotal,
+//       gstPct: 5,
 
-      paymentMode: "full",
-    },
+//       shipping: courier,
 
-    // Backend has already verified payment and created the order.
-    onSuccess: (order) => {
-      toast({
-        title: "Payment successful",
-        description: `B2B order #${order.id
-          .slice(0, 8)
-          .toUpperCase()} placed successfully.`,
-      });
+//       total: grandTotal,
 
-      window.open(
-        waLink(buildMessage()),
-        "_blank",
-        "noreferrer",
-      );
+//       paid: grandTotal,
 
-      setSuccessOrder({
-        id: order.id,
-        amount: order.totalAmount ?? grandTotal,
-      });
+//       paymentMode: "full",
+//     },
 
-      setIsPaying(false);
-      setSavingOrder(false);
+//     // Backend has already verified payment and created the order.
+//     onSuccess: (order) => {
+//       toast({
+//         title: "Payment successful",
+//         description: `B2B order #${order.id
+//           .slice(0, 8)
+//           .toUpperCase()} placed successfully.`,
+//       });
 
-      // navigate("/");
-    },
+//       window.open(
+//         waLink(buildMessage()),
+//         "_blank",
+//         "noreferrer",
+//       );
 
-    onDismiss: () => {
-      setIsPaying(false);
-      setSavingOrder(false);
-    },
-  });
-};
+//       setSuccessOrder({
+//         id: order.id,
+//         amount: order.totalAmount ?? grandTotal,
+//       });
+
+//       setIsPaying(false);
+//       setSavingOrder(false);
+
+//       // navigate("/");
+//     },
+
+//     onDismiss: () => {
+//       setIsPaying(false);
+//       setSavingOrder(false);
+//     },
+//   });
+// };
 
 
   // Avoid a flash of the verification gate while we check sessionStorage.
