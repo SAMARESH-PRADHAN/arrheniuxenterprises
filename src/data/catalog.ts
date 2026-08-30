@@ -140,6 +140,24 @@ import bannerdoctorapronR from "@/assets/bannerdoctorapronR.avif";
 import newnurseapronR from "@/assets/newnurseapronR.avif";
 import newnurseapronP from "@/assets/newnurseapronP.avif";
 import bannernurseapron from "@/assets/bannernurseapron.avif";
+import bannerspunroundnecktshirt from "@/assets/bannerspunroundnecktshirt.avif";
+import newspunroundnecktshirt from "@/assets/newspunroundnecktshirt.avif";
+import bannercorporatepolysterroundnecktshirt160gsm from "@/assets/bannercorporatepolysterroundnecktshirt160gsm.avif";
+import newcorporatepolysterroundnecktshirt160gsm from "@/assets/newcorporatepolysterroundnecktshirt160gsm.avif";
+import bannercorporatepolysterroundnecktshirt120gsm from "@/assets/bannercorporatepolysterroundnecktshirt120gsm.avif";
+import newcorporatepolysterroundnecktshirt120gsm from "@/assets/newcorporatepolysterroundnecktshirt120gsm.avif";
+import bannerdotnetwhiteroundnecktshirt120gsm from "@/assets/bannerdotnetwhiteroundnecktshirt120gsm.avif";
+import newdotnetwhiteroundnecktshirt120gsm from "@/assets/newdotnetwhiteroundnecktshirt120gsm.avif";
+import newcottonroundnecktshirt2 from "@/assets/newcottonroundnecktshirt2.avif";
+import bannercottonroundnecktshirt2 from "@/assets/bannerroundnecktshirt.avif";
+import bannerpolycottonroundnecktshirt from "@/assets/bannerpolycottonroundnecktshirt.avif";
+import newpolycottonroundnecktshirt from "@/assets/newpolycottonroundnecktshirt.avif";
+import newcorporatesapmattyroundnecktshirt from "@/assets/newcorporatesapmattyroundnecktshirt.avif";
+import bannercorporatesapmattyroundnecktshirt from "@/assets/bannercorporatesapmattyroundnecktshirt.avif";
+import bannersapmattywhiteroundnecktshirt from "@/assets/bannersapmattyroundnecktshirt.avif";
+import newsapmattywhiteroundnecktshirt from "@/assets/newsapmattyroundnecktshirt.avif";
+import bannercottongymroundnecktshirt from "@/assets/bannercottongymroundnecktshirt.avif";
+import newcottongymroundnecktshirt from "@/assets/newcottongymroundnecktshirt.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -406,18 +424,18 @@ export const catalog: CatalogCategory[] = [
       // "Corporate Polyester Round Neck T-Shirt",
       // "Dotnet White Round Neck T-Shirt",
       // "Gym Round Neck T-Shirt",
-      { name: "Spun Round Neck T-Shirt", image: spunRoundNeck },
+      { name: "Spun Round Neck T-Shirt", image: newspunroundnecktshirt, banner: bannerspunroundnecktshirt },
       {
         name: "Corporate Polyester Round Neck T-Shirt(160 GSM)",
-        image: corporatePolyesterRoundNeck,
+        image: newcorporatepolysterroundnecktshirt160gsm, banner: bannercorporatepolysterroundnecktshirt160gsm
       },
       {
         name: "Dotnet White Round Neck T-Shirt (120 GSM)",
-        image: dotnetWhiteRoundNeck,
+        image: newdotnetwhiteroundnecktshirt120gsm, banner: bannerdotnetwhiteroundnecktshirt120gsm
       },
       {
         name: "Corporate polyster Round Neck T-Shirt (120 GSM)",
-        image: gymRoundNeck,
+        image: newcorporatepolysterroundnecktshirt120gsm, banner: bannercorporatepolysterroundnecktshirt120gsm
       },
     ]),
     premium: makeSubs("custom-round-neck-t-shirts", tshirts, "premium", [
@@ -426,17 +444,17 @@ export const catalog: CatalogCategory[] = [
       // "Corporate SAP Matty Round Neck T-Shirt",
       // "SAP Matty White Round Neck T-Shirt",
       // "Cotton Gym Round Neck T-Shirt",
-      { name: "Cotton Round Neck T-Shirt", image: spunRoundNeck },
-      { name: "Polycotton Round Neck T-Shirt", image: tshirts },
+      { name: "Cotton Round Neck T-Shirt", image: newcottonroundnecktshirt2, banner: bannercottonroundnecktshirt2 },
+      { name: "Polycotton Round Neck T-Shirt", image: newpolycottonroundnecktshirt, banner: bannerpolycottonroundnecktshirt },
       {
         name: "Corporate SAP Matty Round Neck T-Shirt",
-        image: corporatePolyesterRoundNeck,
+        image: newcorporatesapmattyroundnecktshirt, banner: bannercorporatesapmattyroundnecktshirt
       },
       {
         name: "SAP Matty White Round Neck T-Shirt",
-        image: dotnetWhiteRoundNeck,
+        image: newsapmattywhiteroundnecktshirt, banner: bannersapmattywhiteroundnecktshirt
       },
-      { name: "Cotton Gym Round Neck T-Shirt", image: gymRoundNeck },
+      { name: "Cotton Gym Round Neck T-Shirt", image: newcottongymroundnecktshirt, banner: bannercottongymroundnecktshirt },
     ]),
   },
   {
