@@ -1,16 +1,7 @@
 import tshirts from "@/assets/over-shirt-arr .avif";
 import hoodies from "@/assets/hoodiearr.avif";
-import roundneck from "@/assets/round-nake-2.avif";
-import jersy from "@/assets/jersy.avif";
 import polos from "@/assets/polo.avif";
-import Aprons from "@/assets/approns (1).avif";
 import sweatshirts from "@/assets/cat-sweatshirts.jpg";
-import jeans from "@/assets/cat-jeans.jpg";
-import joggers from "@/assets/cat-joggers.jpg";
-import caps from "@/assets/cat-caps.jpg";
-import shorts from "@/assets/cat-shorts.jpg";
-import jackets from "@/assets/cat-jackets.jpg";
-import totes from "@/assets/custom-accessories (1).avif";
 import uniforms from "@/assets/uniform.avif";
 import corporate from "@/assets/corporate.avif";
 import corporatewelcoome from "@/assets/corpo-welcome-kit (1).avif";
@@ -26,19 +17,6 @@ import eventLanyard from "@/assets/eventLanyard (1).avif";
 import bottle from "@/assets/bottle (1).avif";
 import polytshirts from "@/assets/Polycotton Oversized T-Shirts sub.avif";
 import premiumover from "@/assets/premiumover (1).avif";
-import americanFleeceHoodie from "@/assets/americanFleeceHoodie (1).avif";
-import cottonHoodie from "@/assets/cotton-50kb.avif";
-import Loopnet from "@/assets/Loopnet (1).avif";
-import jerseyAllOverRegular from "@/assets/jerseyAllOverRegular.avif";
-import jerseyFrontRegular from "@/assets/jerseyFrontRegular.avif";
-import jerseyFrontBackRegular from "@/assets/jerseyFrontBackRegular.avif";
-import spunRoundNeck from "@/assets/spunRoundNeck.avif";
-import corporatePolyesterRoundNeck from "@/assets/corporatePolyesterRoundNeck.avif";
-import dotnetWhiteRoundNeck from "@/assets/dotnetWhiteRoundNeck.avif";
-import gymRoundNeck from "@/assets/gymRoundNeck.avif";
-import universityApron from "@/assets/university-apron.avif";
-import nurseApron from "@/assets/nurse-apron.avif";
-import medicalApron from "@/assets/medical-apron.avif";
 import classicWelcomeKit from "@/assets/classic-welcome-kit.avif";
 import newoversizetshirt from "@/assets/newoversizetshirt.avif";
 import newhoodies from "@/assets/newhoodies.avif";
@@ -158,6 +136,64 @@ import bannersapmattywhiteroundnecktshirt from "@/assets/bannersapmattyroundneck
 import newsapmattywhiteroundnecktshirt from "@/assets/newsapmattyroundnecktshirt.avif";
 import bannercottongymroundnecktshirt from "@/assets/bannercottongymroundnecktshirt.avif";
 import newcottongymroundnecktshirt from "@/assets/newcottongymroundnecktshirt.avif";
+import newcottoncollarnecktshirtP from "@/assets/newcottoncollarnecktshirtP.avif";
+import bannercottoncollarnecktshirtP from "@/assets/bannercottoncollarnecktshirtP.avif";
+import newpolycottoncollarnecktshirtP from "@/assets/newpolycottoncollarnecktshirtP.avif";
+import bannerpolycottoncollarnecktshirtP from "@/assets/bannerpolycottoncollarnecktshirtP.avif";
+import newdriftsapmattycollarnecktshirtP from "@/assets/newdriftsapmattycollarnecktshirtP.avif";
+import bannerdriftsapmattycollarnecktshirtP from "@/assets/bannerdriftsapmattycollarnecktshirtP.avif";
+import newreunioncollarnecktshirtP from "@/assets/newreunioncollarnecktshirtP.avif";
+import bannerreunioncollarnecktshirtP from "@/assets/bannerreunioncollarnecktshirtP.avif";
+import newmarketingitteamcollarnecktshirt from "@/assets/newmarketting(itteam)collarnecttshirtP.avif";
+import bannermarketingitteamcollarnecktshirt from "@/assets/bannermarketting(itteam)collarnecttshirtP.avif";
+import newarchitechcollarnecktshirtP from "@/assets/newarchiteckcollarnecktshirtP.avif";
+import bannerarchitechcollarnecktshirtP from "@/assets/bannerarchiteckcollarnecktshirtP.avif";
+import newyouthgroupredcollarnecktshirtsP from "@/assets/newyouthgroupredcollarnecktshirtP.avif";
+import banneryouthgroupredcollarnecktshirtsP from "@/assets/banneryouthgroupredcollarnecktshirtP.avif";
+import newaluminigroupcollarnecktshirtP from "@/assets/newaluminigroupcollarnecktshirtP.avif";
+import banneraluminigroupcollarnecktshirtP from "@/assets/banneraluminigroupcollarnecktshirtP.avif";
+import newtradehousecollarnecktshirtP from "@/assets/newtradehousecollarnecktshirtP.avif";
+import bannertradehousecollarnecktshirtP from "@/assets/bannertradehousecollarnecktshirtP.avif";
+import newsapmattywhitecollarnecktshirtP from "@/assets/newsapmattyranglancollarnecktshirtP.avif";
+import bannersapmattywhitecollarnecktshirtP from "@/assets/bannersapmattywhitecollarnecktshirtP.avif"
+import newcutandsewchaincollarnecktshirtP from "@/assets/newcutandsewcollarnecktshirtP.avif";
+import bannercutandsewchaincollarnecktshirtP from "@/assets/bannercutandsewcollarnecktshirtP.avif";
+import newsocietycollarnecktshirtP from "@/assets/newsocietycollarnecktshirtP.avif";
+import bannersocietycollarnecktshirtP from "@/assets/bannersocietycollarnecktshirtP.avif";
+import newsapmattyranglancollarnecktshirtP from "@/assets/newsapmattyranglancollarnecktshirtP.avif";
+import bannersapmattyranglancollarnecktshirtP from "@/assets/bannersapmattyranglancollarnecktshirtP.avif";
+import new240gsmpcmattyreflectivecollarnecktshirtP from "@/assets/new240gsmpcmattyreflectivercollarnecktshirtP.avif";
+import banner240gsmpcmattyreflectivecollarnecktshirtP from "@/assets/banner240gsmpcmattyreflectivercollarnecktshirtP.avif";
+import newspunmatty220gsmS from "@/assets/newspunmatty220gsmS.avif";
+import bannerspunmatty220gsmS from "@/assets/bannerspunmatty220gsmS.avif";
+import newpcmatty220gsm from "@/assets/newpcmatty220gsmS.avif";
+import bannerpcmatty220gsm from "@/assets/bannerpcmatty220gsmS.avif";
+import newtrackpantsuperpolypolyester from "@/assets/newtrackpantsuperpolypolysterS.avif";
+import bannertrackpantsuperpolypolyester from "@/assets/bannertrackpantsuperpolypolysterS.avif";
+import newhousetshirtspunmatty220gsmS from "@/assets/newhousetshirtspunmatty220gsmS.avif";
+import bannerhousetshirtspunmatty220gsmS from "@/assets/bannerhousetshirtspunmatty220gsmS.avif";
+import newhousetshirtpcmatty220gsmS from "@/assets/newhousetshirtpcmatty220gsmS.avif";
+import bannerhousetshirtpcmatty220gsmS from "@/assets/bannerhousetshirtpcmatty220gsmS.avif";
+import newhoodiesspunfleece300gsmS from "@/assets/newhoodiesspunfleece300gsmS.avif";
+import bannerhoodiesspunfleece300gsmS from "@/assets/bannerhoodiesspunfleece300gsmS.avif";
+import newhoodiespcfleece300gsmS from "@/assets/newhoodiespcfleece300gsmS.avif";
+import bannerhoodiespcfleece300gsmS from "@/assets/bannerhoodiespcfleece300gsmS.avif";
+import newtracpantcottonpcloopknitS from "@/assets/newtrackpantcottonpcloopknitS.avif";
+import newarrheniuxcottonroundnecktshirt from "@/assets/newarrheniuxcottonroundnecktshirt.avif";
+import bannerarrheniuxcottonroundnecktshirt from "@/assets/bannerarrheniuxcottonroundnecktshirt.avif";
+import newarrheniuxcottoncollarnecktshirt from "@/assets/newarrheniuxcottoncollarnecktshirt.avif";
+import bannerarrheniuxcottoncollarnecktshirt from "@/assets/bannerarrheniuxcottoncollarnecktshirt.avif";
+import newarrheniuxblendcollarnecktshirt from "@/assets/newarrheniuxblendcollarnecktshirt.avif";
+import bannerarrheniuxblendcollarnecktshirt from "@/assets/bannerarrheniuxblendcollarnecktshirt.avif";
+import newarrheniuxdryfitcollarnecktshirt from "@/assets/newarrheniuxdryfitcollarnecktshirt.avif";
+import bannerarrheniuxdryfitcollarnecktshirt from "@/assets/bannerarrheniuxdryfitcollarnecktshirt.avif";
+import bannertrackpantcottonpcloopknitS from "@/assets/bannertrackpantcottonpcloopknitS.avif";
+import newarrheniuxoversizetshirt from "@/assets/newarrheniuxoversizetshirt.avif";
+import bannerarrheniuxoversizetshirt from "@/assets/bannerarrheniuxoversizetshirt.avif";
+import newarrheniuxhoodies from "@/assets/newarrheniuxhoodies.avif";
+import bannerarrheniuxhoodies from "@/assets/bannerarrheniuxhoodies.avif";
+import newarrheniuxpolotshirt from "@/assets/newarrheniuxpolotshirt.avif";
+import bannnerarrheniuxpolotshirt from "@/assets/bannerarrheniuxpolotshirt.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -383,34 +419,34 @@ export const catalog: CatalogCategory[] = [
       { name: "Spun Collar Neck T-Shirt", image: newspuncollarnecktshirt, banner: bannerspuncollarnecktshirt},
       { name: "Cut & Sew Collar Neck T-Shirts", image: newcutandsewcollarnecktshirt, banner: bannercutandsewcollarnecktshirt},
       { name: "Corporate Economy Collar Neck T-Shirt", image: newcorporateeconomycollarnecktshirt, banner: bannercorporateeconomycollarnecktshirt},
-      { name: "Reunions Collar Neck T-Shirts", image: newreunionscollarnecktshirts, banner: bannerreunionscollarnecktshirt},
+      { name: "Construction Greay Collar Neck T-Shirts", image: newreunionscollarnecktshirts, banner: bannerreunionscollarnecktshirt},
       { name: "Marketing Collar Neck T-Shirts", image: newmarketingcollarnecktshirt, banner: bannermarketingcollarnecktshirt},
      { name: "Petrol Pump Collar Neck T-Shirts", image: newpetrolpumpcollarnecktshirt, banner: bannerpetrolpumpcollarnecktshirt},
       { name: "Conference Collar Neck T-Shirts", image: newconferancecollarnecktshirt, banner: bannerconferancecollarnecktshirt},
       { name: "Gym Collar Neck T-Shirts", image: newgymcollarnecktshirt, banner: bannergymcollarnecktshirt},
       { name: "Hotel Collar Neck T-Shirts", image: newhotelcollarnecktshirt, banner: bannerhotelcollarnecktshirt},
       { name: "NGO Collar Neck T-Shirts", image: newngocollarnecktshirt, banner: bannerngocollarnecktshirts},
-      { name: "Dotnet White Collar Neck T-Shirt", image: newdotnetwhitecollarnecktshirt, banner: bannerdotnetwhitecollarnecktshirt},
+      { name: "Dotnet Yoga Collar Neck T-Shirt", image: newdotnetwhitecollarnecktshirt, banner: bannerdotnetwhitecollarnecktshirt},
       { name: "Festival Group Collar Neck T-Shirts", image: newfestivalgroupcollarnecktshirt, banner: bannerfestivalgroupcollarnecktshirt},
       { name: "Ranglan Collar Neck T-Shirt", image: newranglancollarnecktshirt, banner: bannerranglancollarnecktshirt},
       { name: "220 GSM Spun Matty Reflective Collar Neck T-Shirt", image: new220gsmspunmattyreflectivecollarnecktshirt, banner: banner220gsmspunmattyreflectivecollarnecktshirt},
     ]),
     premium: makeSubs("corporate-wear", corporate, "premium", [
-      "Cotton Collar Neck T-Shirts",
-      "Blended Collar Neck T-Shirts",
-      "Drifit SAP Matty Collar Neck T-Shirts",
-      "Reunions Collar Neck T-Shirts",
-      "Marketing Collar Neck T-Shirts",
-      "Petrol Pump Collar Neck T-Shirts",
-      "Conference Collar Neck T-Shirts",
-      "Gym Collar Neck T-Shirts",
-      "Hotel Collar Neck T-Shirts",
-      "NGO Collar Neck T-Shirts",
-      "SAP Matty White Collar Neck T-Shirt",
-      "Cut & Sew Collar Neck T-Shirts",
-      "Festival Group Collar Neck T-Shirts",
-      "SAP Matty Ranglan Collar Neck T-Shirt",
-      "220 GSM Spun Matty Reflective Collar Neck T-Shirt",
+      { name: "Cotton Conference Collar Neck T-Shirts", image: newcottoncollarnecktshirtP, banner: bannercottoncollarnecktshirtP },
+      { name: "Pollycotton Collar Neck T-Shirts", image: newpolycottoncollarnecktshirtP, banner: bannerpolycottoncollarnecktshirtP},
+      { name: "Drifit SAP Matty Collar Neck T-Shirts", image: newdriftsapmattycollarnecktshirtP, banner: bannerdriftsapmattycollarnecktshirtP},
+      { name: "College Collar Neck T-Shirts", image: newreunioncollarnecktshirtP, banner: bannerreunioncollarnecktshirtP},
+      { name: "IT Team Collar Neck T-Shirts", image: newmarketingitteamcollarnecktshirt, banner: bannermarketingitteamcollarnecktshirt},
+      { name: "Reunion Collar Neck T-Shirts", image: newreunioncollarnecktshirtP, banner: bannerreunioncollarnecktshirtP},
+      { name: "Architech Collar Neck T-Shirts", image: newarchitechcollarnecktshirtP, banner: bannerarchitechcollarnecktshirtP},
+      { name: "Youth group red Collar Neck T-Shirts" , image: newyouthgroupredcollarnecktshirtsP, banner: banneryouthgroupredcollarnecktshirtsP},
+      { name: "Alumini Group Collar Neck T-Shirts", image: newaluminigroupcollarnecktshirtP, banner: banneraluminigroupcollarnecktshirtP},
+      { name: "Trade House Collar Neck T-Shirts", image: newtradehousecollarnecktshirtP, banner: bannertradehousecollarnecktshirtP},
+      { name: "SAP Matty White Collar Neck T-Shirt", image: newsapmattywhitecollarnecktshirtP, banner: bannersapmattywhitecollarnecktshirtP},
+      { name: "Cut & Sew Chain Collar Neck T-Shirts", image: newcutandsewchaincollarnecktshirtP, banner: bannercutandsewchaincollarnecktshirtP},
+      { name: "Society Collar Neck T-Shirts", image: newsocietycollarnecktshirtP, banner: bannersocietycollarnecktshirtP},
+      { name: "SAP Matty Ranglan Collar Neck T-Shirt", image: newsapmattyranglancollarnecktshirtP, banner: bannersapmattyranglancollarnecktshirtP},
+      { name: "240 GSM PC Matty Reflective Collar Neck T-Shirt", image: new240gsmpcmattyreflectivecollarnecktshirtP, banner: banner240gsmpcmattyreflectivecollarnecktshirtP},
     ]),
   },
   {
@@ -491,14 +527,14 @@ export const catalog: CatalogCategory[] = [
       uniforms,
       undefined,
       [
-        "Spun Matty 220 GSM",
-        "PC Matty 220 GSM",
-        "Track Pant Super Poly Polyester",
-        "Track Pant Cotton PC Loop Knit",
-        "House T-shirt Spun Matty 220 GSM",
-        "House T-shirt PC Matty 220 GSM",
-        "Hoodies Spun Fleece 300 GSM",
-        "Hoodies PC Fleece 300 GSM",
+        { name: "Spun Matty 220 GSM", image: newspunmatty220gsmS, banner: bannerspunmatty220gsmS},
+        { name: "PC Matty 220 GSM", image: newpcmatty220gsm, banner: bannerpcmatty220gsm},
+        { name: "Track Pant Super Poly Polyester", image: newtrackpantsuperpolypolyester, banner: bannertrackpantsuperpolypolyester},
+        { name: "Track Pant Cotton PC Loop Knit", image: newtracpantcottonpcloopknitS, banner: bannertrackpantcottonpcloopknitS},
+        { name: "House T-shirt Spun Matty 220 GSM", image: newhousetshirtspunmatty220gsmS, banner: bannerhousetshirtspunmatty220gsmS},
+        { name: "House T-shirt PC Matty 220 GSM", image: newhousetshirtpcmatty220gsmS, banner: bannerhousetshirtpcmatty220gsmS},
+        { name: "Hoodies Spun Fleece 300 GSM", image: newhoodiesspunfleece300gsmS, banner: bannerhoodiesspunfleece300gsmS},
+        { name: "Hoodies PC Fleece 300 GSM", image: newhoodiespcfleece300gsmS, banner: bannerhoodiespcfleece300gsmS},
       ],
       3,
     ),
@@ -583,13 +619,13 @@ export const catalog: CatalogCategory[] = [
     hasTiers: false,
     blurb: "Our in-house premium line — branded, finished, fully ready.",
     items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
-      "ARRHENIUX Cotton Round Neck T-Shirt",
-      "ARRHENIUX Cotton Collar Neck T-Shirt",
-      "ARRHENIUX Blend Collar Neck T-Shirt",
-      "ARRHENIUX Dryfit Collar Neck T-Shirt",
-      "ARRHENIUX Oversized T-Shirt",
-      "ARRHENIUX Hoodie",
-      "ARRHENIUX Polo T-Shirt",
+      { name: "ARRHENIUX Cotton Round Neck T-Shirt", image: newarrheniuxcottonroundnecktshirt, banner: bannerarrheniuxcottonroundnecktshirt},
+      { name: "ARRHENIUX Cotton Collar Neck T-Shirt", image: newarrheniuxcottoncollarnecktshirt, banner: bannerarrheniuxcottoncollarnecktshirt},
+      { name: "ARRHENIUX Blend Collar Neck T-Shirt", image: newarrheniuxblendcollarnecktshirt, banner: bannerarrheniuxblendcollarnecktshirt},
+      { name: "ARRHENIUX Drifit Collar Neck T-Shirt", image: newarrheniuxdryfitcollarnecktshirt, banner: bannerarrheniuxdryfitcollarnecktshirt},
+      { name: "ARRHENIUX Allover Oversized T-Shirt", image: newarrheniuxoversizetshirt, banner: bannerarrheniuxoversizetshirt},
+      { name: "ARRHENIUX Allover Hoodie", image: newarrheniuxhoodies, banner: bannerarrheniuxhoodies},
+      { name: "ARRHENIUX Allover Drift Polo T-Shirt", image: newarrheniuxpolotshirt, banner: bannnerarrheniuxpolotshirt},
     ], 2),
   },
 ];
