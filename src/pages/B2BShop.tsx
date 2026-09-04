@@ -25,6 +25,7 @@ import {
   B2B_MOQ,
   B2B_STEP,
   supportsPrint,
+  B2B_SHOP_BANNER,
   type CatalogProduct,
 } from "@/data/catalog";
 import {
@@ -49,10 +50,7 @@ import {
   clearB2BAgentSession,
 } from "@/lib/b2bAgentSession";
 import { ProductReviews } from "@/components/ProductReviews";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
 type Size = (typeof SIZES)[number];
@@ -124,9 +122,9 @@ const B2BShop = () => {
   const [savingOrder, setSavingOrder] = useState(false);
 
   const [successOrder, setSuccessOrder] = useState<{
-  id: string;
-  amount: number;
-} | null>(null);
+    id: string;
+    amount: number;
+  } | null>(null);
   // Restore verified agent session on mount (survives refresh, expires after 1hr,
   // and clears automatically when the tab/browser is closed).
   useEffect(() => {
@@ -395,120 +393,118 @@ const B2BShop = () => {
     });
   };
 
+  //   const handlePay = () => {
+  //   if (!product || !agent || isPaying) return;
 
-//   const handlePay = () => {
-//   if (!product || !agent || isPaying) return;
+  //   if (total < B2B_MOQ) return;
 
-//   if (total < B2B_MOQ) return;
+  //   setIsPaying(true);
 
-//   setIsPaying(true);
+  //   openRazorpay({
+  //     amountInr: grandTotal,
 
-//   openRazorpay({
-//     amountInr: grandTotal,
+  //     name: "Arrheniux — B2B",
 
-//     name: "Arrheniux — B2B",
+  //     description: `${product.name} × ${total} pcs`,
 
-//     description: `${product.name} × ${total} pcs`,
+  //     prefill: {
+  //       name: agent.contactPerson,
+  //       email: agent.email,
+  //       contact: agent.mobile,
+  //     },
 
-//     prefill: {
-//       name: agent.contactPerson,
-//       email: agent.email,
-//       contact: agent.mobile,
-//     },
+  //     // IMPORTANT:
+  //     // This data goes to the backend AFTER successful Razorpay payment.
+  //     // The backend verifies the payment signature and creates the order.
+  //     orderPayload: {
+  //       kind: "b2b",
 
-//     // IMPORTANT:
-//     // This data goes to the backend AFTER successful Razorpay payment.
-//     // The backend verifies the payment signature and creates the order.
-//     orderPayload: {
-//       kind: "b2b",
+  //       customerId: null,
 
-//       customerId: null,
+  //       customerName: agent.contactPerson,
 
-//       customerName: agent.contactPerson,
+  //       phone: agent.mobile,
 
-//       phone: agent.mobile,
+  //       email: agent.email,
 
-//       email: agent.email,
+  //       address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
 
-//       address: `${agent.address}, ${agent.city}, ${agent.state} - ${agent.pincode}`,
+  //       // B2B Agent Information
+  //       agentId: agent.id,
 
-//       // B2B Agent Information
-//       agentId: agent.id,
+  //       agentCode: agent.code,
 
-//       agentCode: agent.code,
+  //       companyName: agent.company,
 
-//       companyName: agent.company,
+  //       gstNumber: agent.gst,
 
-//       gstNumber: agent.gst,
+  //       productId: product.id,
 
-//       productId: product.id,
+  //       productCode: productCode(product),
 
-//       productCode: productCode(product),
+  //       productName: product.name,
 
-//       productName: product.name,
+  //       category: product.categorySlug ?? "",
 
-//       category: product.categorySlug ?? "",
+  //       subCategory: activeSub?.name ?? "",
 
-//       subCategory: activeSub?.name ?? "",
+  //       material: product.material,
 
-//       material: product.material,
+  //       description: product.description ?? "",
 
-//       description: product.description ?? "",
+  //       printType: printText,
 
-//       printType: printText,
+  //       sizes: sizeQty,
 
-//       sizes: sizeQty,
+  //       qty: total,
 
-//       qty: total,
+  //       unitPrice,
 
-//       unitPrice,
+  //       printingPrice: printCharge,
 
-//       printingPrice: printCharge,
+  //       gstPct: 5,
 
-//       gstPct: 5,
+  //       shipping: courier,
 
-//       shipping: courier,
+  //       total: grandTotal,
 
-//       total: grandTotal,
+  //       paid: grandTotal,
 
-//       paid: grandTotal,
+  //       paymentMode: "full",
+  //     },
 
-//       paymentMode: "full",
-//     },
+  //     // Backend has already verified payment and created the order.
+  //     onSuccess: (order) => {
+  //       toast({
+  //         title: "Payment successful",
+  //         description: `B2B order #${order.id
+  //           .slice(0, 8)
+  //           .toUpperCase()} placed successfully.`,
+  //       });
 
-//     // Backend has already verified payment and created the order.
-//     onSuccess: (order) => {
-//       toast({
-//         title: "Payment successful",
-//         description: `B2B order #${order.id
-//           .slice(0, 8)
-//           .toUpperCase()} placed successfully.`,
-//       });
+  //       window.open(
+  //         waLink(buildMessage()),
+  //         "_blank",
+  //         "noreferrer",
+  //       );
 
-//       window.open(
-//         waLink(buildMessage()),
-//         "_blank",
-//         "noreferrer",
-//       );
+  //       setSuccessOrder({
+  //         id: order.id,
+  //         amount: order.totalAmount ?? grandTotal,
+  //       });
 
-//       setSuccessOrder({
-//         id: order.id,
-//         amount: order.totalAmount ?? grandTotal,
-//       });
+  //       setIsPaying(false);
+  //       setSavingOrder(false);
 
-//       setIsPaying(false);
-//       setSavingOrder(false);
+  //       // navigate("/");
+  //     },
 
-//       // navigate("/");
-//     },
-
-//     onDismiss: () => {
-//       setIsPaying(false);
-//       setSavingOrder(false);
-//     },
-//   });
-// };
-
+  //     onDismiss: () => {
+  //       setIsPaying(false);
+  //       setSavingOrder(false);
+  //     },
+  //   });
+  // };
 
   // Avoid a flash of the verification gate while we check sessionStorage.
   if (restoringSession) {
@@ -650,70 +646,46 @@ const B2BShop = () => {
 
   return (
     <Layout>
-      <section className="relative bg-secondary overflow-hidden">
-  {activeSub?.banner && (
-    <>
-      <img
-        src={activeSub.banner}
-        alt={activeSub.name}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-ink/30" />
-    </>
-  )}
- <div className="container-x py-16 md:py-24 min-h-[280px] md:min-h-[380px] flex flex-col justify-center relative z-10">
-    <div className="flex items-start justify-between gap-4 flex-wrap">
-      <div>
-        <span
-          className={`text-xs font-bold uppercase tracking-widest ${
-            activeSub?.banner ? "text-cream/70" : "text-primary"
-          }`}
-        >
-          {activeSub ? "B2B · Subcategory" : "B2B"}
-        </span>
-        <h1
-          className={`font-display text-5xl md:text-7xl leading-none mt-2 ${
-            activeSub?.banner ? "text-cream" : "text-ink"
-          }`}
-        >
-          {activeSub ? activeSub.name.toUpperCase() : "B2B SHOP"}
-        </h1>
-        <p
-          className={`mt-3 max-w-2xl ${
-            activeSub?.banner ? "text-cream/80" : "text-muted-foreground"
-          }`}
-        >
-          {activeSub
-            ? `${products.length} product${products.length === 1 ? "" : "s"} available · MOQ ${B2B_MOQ} pcs · steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount`
-            : `Wholesale storefront for corporate buyers. Minimum order ${B2B_MOQ} pieces per product · quantities in steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount · Courier FREE · 5% GST.`}
-        </p>
-      </div>
-      <div className="flex flex-col items-end gap-2 shrink-0">
-        <div
-          className={`text-xs ${
-            activeSub?.banner ? "text-cream/80" : "text-muted-foreground"
-          }`}
-        >
-          Verified as{" "}
-          <span
-            className={`font-semibold ${
-              activeSub?.banner ? "text-cream" : "text-ink"
-            }`}
-          >
-            {agent?.contactPerson}
-          </span>{" "}
-          · {agent?.company}
+      <section className="relative overflow-hidden">
+  <img
+    src={activeSub?.banner || B2B_SHOP_BANNER}
+    alt={activeSub?.name || "B2B Shop"}
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-ink/30" />
+        <div className="container-x py-16 md:py-24 min-h-[280px] md:min-h-[380px] flex flex-col justify-center relative z-10">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-cream/70">
+                {activeSub ? "B2B · Subcategory" : "B2B"}
+              </span>
+             <h1 className="font-display text-5xl md:text-7xl leading-none mt-2 text-cream">
+                {activeSub ? activeSub.name.toUpperCase() : "B2B SHOP"}
+              </h1>
+             <p className="mt-3 max-w-2xl text-cream/80">
+                {activeSub
+                  ? `${products.length} product${products.length === 1 ? "" : "s"} available · MOQ ${B2B_MOQ} pcs · steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount`
+                  : `Wholesale storefront for corporate buyers. Minimum order ${B2B_MOQ} pieces per product · quantities in steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount · Courier FREE · 5% GST.`}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="text-xs text-cream/80">
+  Verified as{" "}
+  <span className="font-semibold text-cream">
+                  {agent?.contactPerson}
+                </span>{" "}
+                · {agent?.company}
+              </div>
+              <button
+                onClick={exitAndSwitchAgent}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-cream bg-destructive/90 hover:bg-destructive px-3.5 py-2 rounded-full transition shadow-sm"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Exit / Switch Agent
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={exitAndSwitchAgent}
-          className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-cream bg-destructive/90 hover:bg-destructive px-3.5 py-2 rounded-full transition shadow-sm"
-        >
-          <LogOut className="h-3.5 w-3.5" /> Exit / Switch Agent
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       <section className="container-x py-10">
         {view.step === "subs" && (
@@ -723,29 +695,31 @@ const B2BShop = () => {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {B2B_SUBCATEGORIES.map((s) => (
-  <button
-    key={s.slug}
-    onClick={() => pushView({ step: "products", subSlug: s.slug })}
-    className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
-  >
-    <div className="aspect-square overflow-hidden bg-secondary">
-      <img
-        src={s.image}
-        alt={s.name}
-        loading="lazy"
-        className="w-full h-full object-cover group-hover:scale-105 transition"
-      />
-    </div>
-    <div className="p-3">
-      <div className="font-condensed text-lg tracking-wide">
-        {s.name.toUpperCase()}
-      </div>
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
-        {getB2BProducts(s.slug).length} products
-      </div>
-    </div>
-  </button>
-))}
+                <button
+                  key={s.slug}
+                  onClick={() =>
+                    pushView({ step: "products", subSlug: s.slug })
+                  }
+                  className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
+                >
+                  <div className="aspect-square overflow-hidden bg-secondary">
+                    <img
+                      src={s.image}
+                      alt={s.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <div className="font-condensed text-lg tracking-wide">
+                      {s.name.toUpperCase()}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
+                      {getB2BProducts(s.slug).length} products
+                    </div>
+                  </div>
+                </button>
+              ))}
             </div>
           </>
         )}
@@ -1030,14 +1004,10 @@ const B2BShop = () => {
                 isGarment={true}
               />
             )}
-
-
-            
           </>
         )}
-        
       </section>
-       {/* ================================ */}
+      {/* ================================ */}
       {/* PAYMENT SUCCESS MODAL */}
       {/* ================================ */}
 
@@ -1051,16 +1021,13 @@ const B2BShop = () => {
       >
         <DialogContent className="max-w-md overflow-hidden rounded-2xl p-0">
           <div className="flex flex-col items-center px-6 py-8 text-center">
-
             {/* Success Icon */}
             <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
               <CheckCircle2 className="h-12 w-12 text-green-600" />
             </div>
 
             {/* Heading */}
-            <h2 className="text-2xl font-bold">
-              Payment Successful!
-            </h2>
+            <h2 className="text-2xl font-bold">Payment Successful!</h2>
 
             <p className="mt-2 text-sm text-muted-foreground">
               Your B2B order has been placed successfully.
@@ -1069,7 +1036,6 @@ const B2BShop = () => {
             {/* Order Details */}
             {successOrder && (
               <div className="mt-6 w-full rounded-xl bg-secondary p-4 text-left">
-
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <span className="text-sm text-muted-foreground">
                     Order ID
@@ -1089,7 +1055,6 @@ const B2BShop = () => {
                     ₹{Number(successOrder.amount).toLocaleString("en-IN")}
                   </span>
                 </div>
-
               </div>
             )}
 
@@ -1098,14 +1063,13 @@ const B2BShop = () => {
               <Package className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
 
               <p className="text-sm text-muted-foreground">
-                Your order has been received successfully. Our team will
-                contact you soon regarding your B2B order.
+                Your order has been received successfully. Our team will contact
+                you soon regarding your B2B order.
               </p>
             </div>
 
             {/* Buttons */}
             <div className="mt-7 flex w-full flex-col gap-3">
-
               <button
                 className="btn-bold w-full justify-center !py-3"
                 onClick={() => {
@@ -1131,16 +1095,12 @@ const B2BShop = () => {
               >
                 Continue Shopping
               </button>
-
             </div>
           </div>
         </DialogContent>
       </Dialog>
-      
     </Layout>
-    
   );
-  
 };
 
 const Row = ({ label, value }: { label: string; value: string }) => (
