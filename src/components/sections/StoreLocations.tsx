@@ -15,18 +15,18 @@ const STORES: Store[] = [
     phone: "+91 82603 68742",
     mapsUrl: "https://maps.app.goo.gl/oh4CuRvus1gfH4D49",
   },
-  {
-    name: "Arrheniux Factory — Cuttack",
-    address: "Jagatpur Industrial Estate, Cuttack, Odisha 754021",
-    phone: "+91 82603 68742",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Jagatpur+Industrial+Estate+Cuttack",
-  },
-  {
-    name: "Arrheniux Studio — Kolkata",
-    address: "Salt Lake Sector V, Kolkata, West Bengal 700091",
-    phone: "+91 82603 68742",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Salt+Lake+Sector+V+Kolkata",
-  },
+  // {
+  //   name: "Arrheniux Factory — Cuttack",
+  //   address: "Jagatpur Industrial Estate, Cuttack, Odisha 754021",
+  //   phone: "+91 82603 68742",
+  //   mapsUrl: "https://www.google.com/maps/search/?api=1&query=Jagatpur+Industrial+Estate+Cuttack",
+  // },
+  // {
+  //   name: "Arrheniux Studio — Kolkata",
+  //   address: "Salt Lake Sector V, Kolkata, West Bengal 700091",
+  //   phone: "+91 82603 68742",
+  //   mapsUrl: "https://www.google.com/maps/search/?api=1&query=Salt+Lake+Sector+V+Kolkata",
+  // },
 ];
 
 export const StoreLocations = () => {

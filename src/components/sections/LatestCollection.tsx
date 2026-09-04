@@ -52,9 +52,9 @@ export const LatestCollection = () => {
         >
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cream bg-gradient-to-r from-primary to-accent px-3 py-1.5 rounded-full shadow-sm">
-              02 — Arreheniux Top Wear
+              02 — Arrheniux Top Wear
             </span>
-            <h2 className="font-display text-5xl md:text-6xl mt-2">ARREHENIUX TOP WEAR</h2>
+            <h2 className="font-display text-5xl md:text-6xl mt-2">ARRHENIUX TOP WEAR</h2>
           </div>
           <p className="max-w-sm text-muted-foreground text-sm">
             Our latest top wear styles — engineered for bulk and ready to customize.
@@ -73,9 +73,9 @@ export const LatestCollection = () => {
             ))}
           </div>
         ) : isError ? (
-          <p className="text-muted-foreground text-sm">Could not load Arreheniux Top Wear items.</p>
+          <p className="text-muted-foreground text-sm">Could not load Arrheniux Top Wear items.</p>
         ) : items.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No Arreheniux Top Wear items yet.</p>
+          <p className="text-muted-foreground text-sm">No Arrheniux Top Wear items yet.</p>
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

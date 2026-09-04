@@ -218,6 +218,7 @@ import neweventlanyard from "@/assets/neweventlanyard.avif";
 import bannereventlanyard from "@/assets/bannereventlanyard.avif";
 import newbottle from "@/assets/newbottle.avif";
 import bannerbottle from "@/assets/bannerbottle.avif";
+import b2bbanner from "@/assets/b2bbanner.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -1312,6 +1313,7 @@ export type B2BSub = {
   image: string;
   banner?: string;
 };
+export const B2B_SHOP_BANNER = b2bbanner;
 export const B2B_SUBCATEGORIES: B2BSub[] = [
   {
     slug: "oversized-tshirt",
@@ -1326,8 +1328,8 @@ export const B2B_SUBCATEGORIES: B2BSub[] = [
     name: "Dry Fit Collar Neck T-Shirts",
     catSlug: "corporate-wear",
     tier: "premium",
-    image: newarrheniuxdryfitcollarnecktshirt,
-    banner: bannerarrheniuxdryfitcollarnecktshirt
+    image: newarrheniuxpolotshirt,
+    banner: bannnerarrheniuxpolotshirt
   },
   {
     slug: "american-fleece",
@@ -1358,8 +1360,8 @@ export const B2B_SUBCATEGORIES: B2BSub[] = [
     name: "Round Neck T-Shirts",
     catSlug: "custom-round-neck-t-shirts",
     tier: "regular",
-    image: newarrheniuxcottoncollarnecktshirt,
-    banner: bannerarrheniuxcottoncollarnecktshirt
+    image: newarrheniuxcottonroundnecktshirt,
+    banner: bannerarrheniuxcottonroundnecktshirt
   },
 ];
 

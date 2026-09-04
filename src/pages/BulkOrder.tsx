@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Minus, Plus, CreditCard, MessageCircle  } from "lucide-react";
+import { Minus, Plus, CreditCard, MessageCircle } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { PrintPicker } from "@/components/PrintPicker";
 import {
@@ -52,7 +52,12 @@ import { filterProductsForSubcategory } from "@/lib/productMappers";
 import { openRazorpay } from "@/lib/razorpay";
 import { toast } from "@/hooks/use-toast";
 import { SuccessDialog } from "@/components/SuccessDialog";
-import { useCreateOrder, useProduct, useProducts, usePrintSettings } from "@/hooks/api";
+import {
+  useCreateOrder,
+  useProduct,
+  useProducts,
+  usePrintSettings,
+} from "@/hooks/api";
 import { BrandLoader } from "@/components/BrandLoader";
 import { useDiscountTiers } from "@/hooks/api";
 import { getDefaultAddress, formatAddress } from "@/lib/authStore";
@@ -123,8 +128,10 @@ const BulkOrder = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const createOrderMut = useCreateOrder();
-const { data: apiProducts = [], isLoading: productsLoading } = useProducts({ status: "Active" });
-const { data: discountOverrides } = useDiscountTiers();
+  const { data: apiProducts = [], isLoading: productsLoading } = useProducts({
+    status: "Active",
+  });
+  const { data: discountOverrides } = useDiscountTiers();
   const { data: printOverrides } = usePrintSettings();
   const urlPid = params.get("product");
   const { data: urlProduct } = useProduct(urlPid ?? undefined);
@@ -223,33 +230,35 @@ const { data: discountOverrides } = useDiscountTiers();
     setUnitQty(seedQty);
     setSizeQty(hasUrlSizes ? urlSizes : emptySizes(urlProduct.categorySlug));
     if (urlPrint.method) setPrintSel(urlPrint);
-   // Restore the full draft saved on the product page (sizes, uploaded
-  // artwork, print selection, welcome-kit items) — URL params alone can't
-  // carry file uploads, so this fills in what the URL-based seeding above
-  // couldn't.
-  try {
-    const raw = localStorage.getItem(BULK_REDIRECT_DRAFT_KEY);
-    if (raw) {
-      const draft = JSON.parse(raw);
-      if (draft.productId === urlProduct.id) {
-        if (draft.sizeQty) setSizeQty(draft.sizeQty);
-        if (typeof draft.unitQty === "number") setUnitQty(Math.max(BULK_THRESHOLD, draft.unitQty));
-        if (draft.printSel) setPrintSel(draft.printSel);
-        if (draft.artwork) setArtwork(draft.artwork);
-        if (draft.kitItems) setKitItems(draft.kitItems);
-        if (typeof draft.kitQtyManual === "number") setKitQtyManual(draft.kitQtyManual);
-        if (draft.namedColor) setNamedColor(draft.namedColor);
-        if (draft.printColor) setPrintColor(draft.printColor);
+    // Restore the full draft saved on the product page (sizes, uploaded
+    // artwork, print selection, welcome-kit items) — URL params alone can't
+    // carry file uploads, so this fills in what the URL-based seeding above
+    // couldn't.
+    try {
+      const raw = localStorage.getItem(BULK_REDIRECT_DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.productId === urlProduct.id) {
+          if (draft.sizeQty) setSizeQty(draft.sizeQty);
+          if (typeof draft.unitQty === "number")
+            setUnitQty(Math.max(BULK_THRESHOLD, draft.unitQty));
+          if (draft.printSel) setPrintSel(draft.printSel);
+          if (draft.artwork) setArtwork(draft.artwork);
+          if (draft.kitItems) setKitItems(draft.kitItems);
+          if (typeof draft.kitQtyManual === "number")
+            setKitQtyManual(draft.kitQtyManual);
+          if (draft.namedColor) setNamedColor(draft.namedColor);
+          if (draft.printColor) setPrintColor(draft.printColor);
+        }
+        localStorage.removeItem(BULK_REDIRECT_DRAFT_KEY);
       }
-      localStorage.removeItem(BULK_REDIRECT_DRAFT_KEY);
+    } catch {
+      // corrupted/unavailable draft — the URL-seeded values above still apply
     }
-  } catch {
-    // corrupted/unavailable draft — the URL-seeded values above still apply
-  }
-}, [urlProduct, params]);
-useEffect(() => {
-  setActiveImg(0);
-}, [productId]);
+  }, [urlProduct, params]);
+  useEffect(() => {
+    setActiveImg(0);
+  }, [productId]);
   const cat = findCategory(catSlug)!;
   const showsTierStep = cat.hasTiers;
   const subs = cat.hasTiers
@@ -270,7 +279,10 @@ useEffect(() => {
     [apiProducts, catSlug, tier, subSlug],
   );
   const product = products.find((p) => p.id === productId);
-  const kitDefs = useMemo(() => (product ? getKitItemDefs(product) : []), [product]);
+  const kitDefs = useMemo(
+    () => (product ? getKitItemDefs(product) : []),
+    [product],
+  );
   const isKit = isWelcomeKitCategory(catSlug);
   const isGarment = product
     ? !isNonGarmentCategory(product.categorySlug)
@@ -307,7 +319,7 @@ useEffect(() => {
   // const printFreeLabel = rule?.print.kind === "free" ? rule.print.label : null;
   // const printDisabled = rule?.print.kind === "none";
 
-    const rule = product ? getAccessoryRules(product.subSlug) : null;
+  const rule = product ? getAccessoryRules(product.subSlug) : null;
 
   // Admin print settings (category / type / subcategory) + hardcoded fallback
   const resolvedPrint = useMemo(
@@ -348,10 +360,10 @@ useEffect(() => {
   }, [catSlug, tier]);
 
   useEffect(() => {
-  if (productsLoading) return; // don't clear productId while product list is still loading
-  setProductId((prev) => (products.find((p) => p.id === prev) ? prev : ""));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [subSlug, productsLoading]);
+    if (productsLoading) return; // don't clear productId while product list is still loading
+    setProductId((prev) => (products.find((p) => p.id === prev) ? prev : ""));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subSlug, productsLoading]);
 
   useEffect(() => {
     if (product && !color) setColor(product.colors[0] || "");
@@ -489,13 +501,13 @@ useEffect(() => {
       lines.push(`• Balance Due: ₹${grandTotal - paid}`);
     lines.push("");
     lines.push("*Customer Details*");
-    lines.push(`• Name: ${user?.name || "—"}`);  // or keep from session
-if (customer.company) lines.push(`• Company: ${customer.company}`);
-if (customer.gst)     lines.push(`• GST: ${customer.gst}`);
-if (customer.notes) {
-  lines.push("");
-  lines.push(`*Notes*: ${customer.notes}`);
-}
+    lines.push(`• Name: ${user?.name || "—"}`); // or keep from session
+    if (customer.company) lines.push(`• Company: ${customer.company}`);
+    if (customer.gst) lines.push(`• GST: ${customer.gst}`);
+    if (customer.notes) {
+      lines.push("");
+      lines.push(`*Notes*: ${customer.notes}`);
+    }
     lines.push("");
     lines.push(
       "Sharing logo / artwork / printing design / reference images in the next messages.",
@@ -530,15 +542,15 @@ if (customer.notes) {
       subCategory: subcat?.name ?? "",
       material: product.material,
       description: isKit
-  ? `Kit Items: ${kitItems
-      .map((id) => {
-        const it = kitDefs.find((d) => d.id === id);
-        return it ? `${it.label} (₹${it.price})` : id;
-      })
-      .join(", ")}`
-  : product.description,
+        ? `Kit Items: ${kitItems
+            .map((id) => {
+              const it = kitDefs.find((d) => d.id === id);
+              return it ? `${it.label} (₹${it.price})` : id;
+            })
+            .join(", ")}`
+        : product.description,
       printType: printText,
-      sizes: (isGarment || (isKit && kitIncludesTshirt)) ? sizeQty : undefined,
+      sizes: isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
       qty: total,
       unitPrice,
       printingPrice: printCharge,
@@ -606,7 +618,7 @@ if (customer.notes) {
       description: product
         ? `${product.name} × ${total} pcs (${mode === "full" ? "Full" : "50% Advance"})`
         : "Bulk",
-            prefill: {
+      prefill: {
         name: user.name || "",
         email: user.email || "",
         contact: defaultAddr.mobile || user.phone || "",
@@ -628,7 +640,7 @@ if (customer.notes) {
             );
             setSuccessOrder({ id: o.id, amount });
           }
-          setSuccessOrder({ id: o.id, amount: grandTotal });
+          // setSuccessOrder({ id: o.id, amount: grandTotal });
         } catch {
           toast({
             title: "Order failed",
@@ -653,613 +665,792 @@ if (customer.notes) {
   return (
     <Layout>
       <section className="relative overflow-hidden min-h-[320px] md:min-h-[430px] flex items-center">
-  <img
-    src={bulkorderbanner}
-    alt="Bulk order — polo shirts, hoodies, tote bags, mugs, bottles, caps and duffel bags"
-    className="absolute inset-0 w-full h-full object-cover"
-  />
-  <div className="container-x relative z-10 py-10 md:py-0">
-    <div className="max-w-md">
-  <span className="relative inline-block text-sm font-bold uppercase tracking-widest text-primary pb-2">
-    {BULK_THRESHOLD}+ PCS
-    <span className="absolute left-0 -bottom-0.5 h-[3px] w-10 bg-primary rounded-full" />
-  </span>
-  <h1 className="font-display text-6xl md:text-7xl leading-[0.95] mt-4 text-[#0e2e1c] tracking-tight">
-    BULK ORDER
-  </h1>
-  <p className="mt-5 text-ink/70 text-base leading-relaxed">
-    For corporate, institutional and event orders of {BULK_THRESHOLD} pieces
-    and above. Auto up to {BULK_DISCOUNT_PCT}% bulk discount, free courier,
-    5% GST. Pay 100% or 50% advance — WhatsApp opens after payment for
-    artwork.
-  </p>
-  <a
-    href={waLink()}
-    target="_blank"
-    rel="noreferrer"
-    className="mt-6 inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-cream pl-2 pr-6 py-2 rounded-full font-semibold text-base transition shadow-md"
-  >
-    <span className="flex items-center justify-center h-9 w-9 rounded-full bg-white/15">
-      <MessageCircle className="h-4.5 w-4.5" />
-    </span>
-    Order in Bulk
-  </a>
-</div>
-  </div>
-</section>
+        <img
+          src={bulkorderbanner}
+          alt="Bulk order — polo shirts, hoodies, tote bags, mugs, bottles, caps and duffel bags"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="container-x relative z-10 py-10 md:py-0">
+          <div className="max-w-md">
+            <span className="relative inline-block text-sm font-bold uppercase tracking-widest text-primary pb-2">
+              {BULK_THRESHOLD}+ PCS
+              <span className="absolute left-0 -bottom-0.5 h-[3px] w-10 bg-primary rounded-full" />
+            </span>
+            <h1 className="font-display text-6xl md:text-7xl leading-[0.95] mt-4 text-[#0e2e1c] tracking-tight">
+              BULK ORDER
+            </h1>
+            <p className="mt-5 text-ink/70 text-base leading-relaxed">
+              For corporate, institutional and event orders of {BULK_THRESHOLD}{" "}
+              pieces and above. Auto up to {BULK_DISCOUNT_PCT}% bulk discount,
+              free courier, 5% GST. Pay 100% or 50% advance — WhatsApp opens
+              after payment for artwork.
+            </p>
+            <a
+              href={waLink()}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-cream pl-2 pr-6 py-2 rounded-full font-semibold text-base transition shadow-md"
+            >
+              <span className="flex items-center justify-center h-9 w-9 rounded-full bg-white/15">
+                <MessageCircle className="h-4.5 w-4.5" />
+              </span>
+              Order in Bulk
+            </a>
+          </div>
+        </div>
+      </section>
 
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="container-x py-12 grid lg:grid-cols-[1.1fr_1fr] gap-10"
+        className="container-x py-10 md:py-14"
       >
-        <div className="space-y-8">
-          <div className="border border-border p-5 bg-card">
-            <h2 className="font-condensed text-2xl tracking-wide mb-4">
-              SELECT PRODUCT
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Select
-                label="Category"
-                value={catSlug}
-                onChange={setCatSlug}
-                options={catList.map((c) => ({ value: c.slug, label: c.name }))}
-              />
-              {showsTierStep && (
-                <Select
-                  label="Regular / Premium"
-                  value={tier}
-                  onChange={(v) => setTier(v as Tier | "")}
-                  options={[
-                    { value: "", label: "Choose tier…" },
-                    ...(cat.regular?.length
-                      ? [{ value: "regular", label: "Regular" }]
-                      : []),
-                    ...(cat.premium?.length
-                      ? [{ value: "premium", label: "Premium" }]
-                      : []),
-                  ]}
-                />
-              )}
-              <Select
-                label="Subcategory"
-                value={subSlug}
-                onChange={setSubSlug}
-                options={[
-                  { value: "", label: "Choose subcategory…" },
-                  ...subs.map((s) => ({ value: s.slug, label: s.name })),
-                ]}
-              />
-            </div>
+        <div className="max-w-3xl mx-auto text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            Bulk Order Configurator
           </div>
 
-          {subcat && (
-            <div className="border border-border p-5 bg-card">
-              <h2 className="font-condensed text-2xl tracking-wide mb-4">
-                PICK A PRODUCT
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {products.map((p) => (
-                  <button
-                    type="button"
-                    key={p.id}
-                    onClick={() => setProductId(p.id)}
-                    className={`text-left bg-secondary border-2 overflow-hidden transition ${productId === p.id ? "border-ink" : "border-transparent hover:border-border"}`}
-                  >
-                    <div className="aspect-square overflow-hidden">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-2">
-                      <div className="text-xs font-condensed tracking-wide leading-tight">
-                        {p.name.toUpperCase()}
-                      </div>
-                      <div className="text-[10px] font-mono text-muted-foreground">
-                        {productCode(p)}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        {p.price} / pc
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <h2 className="font-display text-4xl md:text-5xl mt-4 tracking-tight text-ink">
+            Build Your Perfect Order
+          </h2>
 
-          {product && (
-            <div className="border border-border p-5 bg-card">
-              <h2 className="font-condensed text-2xl tracking-wide mb-1">
-                {product.name.toUpperCase()}
-              </h2>
-              <div className="text-[11px] font-mono text-muted-foreground">
-                Code: {productCode(product)}
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                {product.description}
-              </p>
+          <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+            Select your products, customize quantities and printing, then review
+            your order before payment.
+          </p>
+        </div>
 
-              <div className={`mt-5 grid gap-px bg-border ${isKit ? "grid-cols-1" : "grid-cols-2"}`}>
-  {!isKit && (
-    <div className="bg-background p-3">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-        Material
-      </div>
-      <div className="font-medium mt-1 text-sm">
-        {product.material}
-      </div>
-    </div>
-  )}
-  {!isKit && (<div className="bg-background p-3 accent-glow">
-    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-      Price
-    </div>
-    <div className="font-display text-xl mt-1">
-      {product.price}
-      <span className="text-xs font-sans text-muted-foreground">/pc</span>
-    </div>
-  </div>)}
-</div>
-
-              {rule?.namedColors && (
-                <div className="mt-5">
-                  <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
-                    Color / Variant *
-                  </h4>
-                  <select
-                    value={namedColor || rule.namedColors[0]}
-                    onChange={(e) => setNamedColor(e.target.value)}
-                    className="w-full border border-border px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-ink"
-                  >
-                    {rule.namedColors.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+        <div className="space-y-8">
+          <div className="space-y-6">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 md:p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm">
+                  01
                 </div>
-              )}
 
-              {rule?.printColors && (
-                <div className="mt-4">
-                  <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
-                    Print Color
-                  </h4>
-                  <select
-                    value={printColor || rule.printColors[0]}
-                    onChange={(e) => setPrintColor(e.target.value)}
-                    className="w-full border border-border px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-ink"
-                  >
-                    {rule.printColors.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {rule?.note && (
-                <p className="mt-3 text-xs italic text-muted-foreground border-l-2 border-primary pl-3">
-                  Note: {rule.note}
-                </p>
-              )}
-
-              {canPrint && (
-                <div className="mt-5">
-                  <PrintPicker
-                    value={printSel}
-                    onChange={setPrintSel}
-                    qty={total}
-                    methods={restrictedMethods}
-                    freeLabel={printFreeLabel}
-                    disabled={printDisabled}
-                  />
-                </div>
-              )}
-
-              {isKit && (
-                <div className="mt-5 border border-primary/40 bg-primary/5 p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold">
-                      Print Type: Company Logo Printing
-                    </span>
-                    <span className="text-[10px] font-mono uppercase text-primary">
-                      FREE
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Free Custom Tote Bag included with every Welcome Kit.
+                <div>
+                  <h2 className="font-condensed text-2xl tracking-wide">
+                    SELECT PRODUCT
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Choose the category and product you want
                   </p>
                 </div>
-              )}
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <Select
+                  label="Category"
+                  value={catSlug}
+                  onChange={setCatSlug}
+                  options={catList.map((c) => ({
+                    value: c.slug,
+                    label: c.name,
+                  }))}
+                />
+                {showsTierStep && (
+                  <Select
+                    label="Regular / Premium"
+                    value={tier}
+                    onChange={(v) => setTier(v as Tier | "")}
+                    options={[
+                      { value: "", label: "Choose tier…" },
+                      ...(cat.regular?.length
+                        ? [{ value: "regular", label: "Regular" }]
+                        : []),
+                      ...(cat.premium?.length
+                        ? [{ value: "premium", label: "Premium" }]
+                        : []),
+                    ]}
+                  />
+                )}
+                <Select
+                  label="Subcategory"
+                  value={subSlug}
+                  onChange={setSubSlug}
+                  options={[
+                    { value: "", label: "Choose subcategory…" },
+                    ...subs.map((s) => ({ value: s.slug, label: s.name })),
+                  ]}
+                />
+              </div>
+            </div>
 
-              {!isArrheniuxCategory(product.categorySlug) && (
-                <ArtworkUpload value={artwork} onChange={setArtwork} />
-              )}
+            {subcat && (
+              <div className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 md:p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                <h2 className="font-condensed text-2xl tracking-wide mb-4">
+                  PICK A PRODUCT
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {products.map((p) => (
+                    <button
+                      type="button"
+                      key={p.id}
+                      onClick={() => setProductId(p.id)}
+                      className={`group relative text-left rounded-2xl overflow-hidden border-2 bg-card
+transition-all duration-300
+hover:-translate-y-1 hover:shadow-xl
+${
+  productId === p.id
+    ? "border-primary shadow-lg shadow-primary/10"
+    : "border-border/60 hover:border-primary/40"
+}`}
+                    >
+                      {productId === p.id && (
+                        <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
+                          ✓ Selected
+                        </span>
+                      )}
+                      <div className="aspect-[1/1] overflow-hidden bg-secondary relative">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <div className="text-sm font-semibold tracking-wide leading-tight">
+                          {p.name.toUpperCase()}
+                        </div>
+                        <div className="text-[10px] font-mono text-muted-foreground mt-1">
+                          {productCode(p)}
+                        </div>
+                        <div className="text-sm font-semibold text-primary mt-2">
+                          {p.price} / pc
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-              {isKit ? (
-                <div className="mt-6 space-y-5">
-  <div className="border-2 border-primary/60 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-5 rounded-lg shadow-[0_8px_30px_-15px_hsl(var(--primary)/0.4)]">
-    <div className="flex items-center gap-2 mb-1">
-      <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-      <h4 className="text-sm uppercase tracking-widest font-bold text-primary">
-        Customize Combined Product
-      </h4>
-    </div>
-    <p className="text-xs text-muted-foreground mb-4">
-      Build your own welcome kit. Select at least{" "}
-      {WELCOME_KIT_MIN_ITEMS} products.
-    </p>
-    <div className="grid grid-cols-2 gap-3">
-                      {kitDefs.map((it)  => {
-                        const checked = kitItems.includes(it.id);
-                        const isTshirt = it.id === "tshirt";
-                        return (
-                          <label
-                            key={it.id}
-                            className={`flex items-center justify-between gap-2 border px-3 py-2 text-sm transition ${checked ? "border-ink bg-secondary" : "border-border"} ${isTshirt ? "" : "cursor-pointer"}`}
-                          >
-                            <span className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                disabled={isTshirt}
-                                onChange={() => {
-                                  if (isTshirt) return;
-                                  setKitItems((prev) =>
-                                    prev.includes(it.id)
-                                      ? prev.filter((x) => x !== it.id)
-                                      : [...prev, it.id],
-                                  );
-                                }}
-                                className="h-4 w-4 accent-primary"
-                              />
-                              <span>
-                                {isTshirt
-                                  ? "Custom T-Shirt (required)"
-                                  : it.label}
-                              </span>
-                            </span>
-                            <span className="text-[10px] font-mono text-muted-foreground">
-                              ₹{it.price}
-                            </span>
-                          </label>
-                        );
-                      })}
+            {product && (
+              <div className="grid gap-6 lg:grid-cols-[1fr_1fr] items-start">
+                <div className="rounded-2xl border border-border/70 bg-card p-5 md:p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-sm">
+                      02
                     </div>
-                    {!kitEnoughItems && (
-                      <p className="text-xs text-destructive mt-2">
-                        Please select at least {WELCOME_KIT_MIN_ITEMS} products.
+
+                    <div>
+                      <h2 className="font-condensed text-2xl tracking-wide">
+                        CUSTOMER INFORMATION
+                      </h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Optional billing and order details
                       </p>
-                    )}
-                    <div className="mt-3 flex items-center justify-between border border-border px-3 py-2 bg-secondary/50">
-                      <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                        Kit Unit Price (sum of items)
-                      </span>
-                      <span className="font-display text-lg">₹{kitUnit}</span>
                     </div>
                   </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <Input
+                      label="Company Name"
+                      value={customer.company}
+                      onChange={(v) => setCustomer({ ...customer, company: v })}
+                    />
+                    <Input
+                      label="GST Number"
+                      value={customer.gst}
+                      onChange={(v) => setCustomer({ ...customer, gst: v })}
+                    />
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                        Additional Notes
+                      </label>
+                      <textarea
+                        value={customer.notes}
+                        onChange={(e) =>
+                          setCustomer({ ...customer, notes: e.target.value })
+                        }
+                        rows={3}
+                        className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm transition-all duration-200 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                  {kitIncludesTshirt ? (
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-xs uppercase tracking-widest font-bold">
-                          T-Shirt Sizes
-                        </h4>
-                        <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                          Total kits = total shirts ({kitSizeTotal})
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {SIZES.map((s) => (
-                          <div
-                            key={s}
-                            className="flex items-center justify-between border border-border px-3 py-2"
+                {product ? (
+                  <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-lg">
+                    <div className="flex gap-4 p-4">
+                      {/* LEFT SIDE THUMBNAILS */}
+                      <div className="flex w-20 shrink-0 flex-col gap-3">
+                        {product.gallery.slice(0, 4).map((src, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setActiveImg(i)}
+                            className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all duration-200 ${
+                              activeImg === i
+                                ? "border-primary ring-2 ring-primary/20"
+                                : "border-border/60 hover:border-primary/50"
+                            }`}
                           >
-                            <span className="font-condensed text-lg w-10">
-                              {s}
-                            </span>
-                            <div className="inline-flex items-center border border-ink">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setSizeQty((q) => ({
-                                    ...q,
-                                    [s]: Math.max(0, (q[s] || 0) - 1),
-                                  }))
-                                }
-                                className="px-2.5 py-1.5"
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </button>
-                              <input
-                                type="number"
-                                min={0}
-                                value={sizeQty[s]}
-                                onChange={(e) =>
-                                  setSizeQty((q) => ({
-                                    ...q,
-                                    [s]: Math.max(
-                                      0,
-                                      Number(e.target.value) || 0,
-                                    ),
-                                  }))
-                                }
-                                className="w-14 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setSizeQty((q) => ({
-                                    ...q,
-                                    [s]: (q[s] || 0) + 1,
-                                  }))
-                                }
-                                className="px-2.5 py-1.5"
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
+                            <img
+                              src={src}
+                              alt={`${product.name} ${i + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                          </button>
                         ))}
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
-                        Kit Quantity (min {WELCOME_KIT_MIN})
-                      </h4>
-                      <div className="flex items-center justify-between border border-border px-3 py-3">
-                        <span className="font-condensed text-lg">Kits</span>
-                        <div className="inline-flex items-center border border-ink">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setKitQtyManual((q) =>
-                                Math.max(WELCOME_KIT_MIN, q - 1),
-                              )
-                            }
-                            className="px-3 py-1.5"
-                          >
-                            <Minus className="h-3.5 w-3.5" />
-                          </button>
-                          <input
-                            type="number"
-                            min={WELCOME_KIT_MIN}
-                            value={kitQtyManual}
-                            onChange={(e) =>
-                              setKitQtyManual(
-                                Math.max(0, Number(e.target.value) || 0),
-                              )
-                            }
-                            className="w-16 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
+
+                      {/* MAIN PRODUCT IMAGE */}
+                      <div className="group relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-secondary">
+                        <div className="aspect-square">
+                          <img
+                            src={product.gallery[activeImg] || product.image}
+                            alt={product.name}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
-                          <button
-                            type="button"
-                            onClick={() => setKitQtyManual((q) => q + 1)}
-                            className="px-3 py-1.5"
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                          </button>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-secondary aspect-square flex items-center justify-center text-muted-foreground text-sm uppercase tracking-widest">
+                    Choose a product to preview
+                  </div>
+                )}
+              </div>
+            )}
+
+            {product && (
+              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 md:p-6 shadow-sm">
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary text-xs font-bold">
+                        03
+                      </span>
+
+                      <h2 className="font-condensed text-2xl tracking-wide">
+                        CUSTOMIZE
+                      </h2>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Customize {product.name} for your bulk order.
+                    </p>
+                  </div>
+
+                  <div className="hidden sm:block rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                    {productCode(product)}
+                  </div>
+                </div>
+                <h2 className="font-condensed text-2xl tracking-wide mb-1">
+                  {product.name.toUpperCase()}
+                </h2>
+                <div className="text-[11px] font-mono text-muted-foreground">
+                  Code: {productCode(product)}
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {product.description}
+                </p>
+
+                <div
+                  className={`mt-5 grid gap-px bg-border ${isKit ? "grid-cols-1" : "grid-cols-2"}`}
+                >
+                  {!isKit && (
+                    <div className="bg-background p-3">
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                        Material
+                      </div>
+                      <div className="font-medium mt-1 text-sm">
+                        {product.material}
+                      </div>
+                    </div>
+                  )}
+                  {!isKit && (
+                    <div className="bg-background p-3 accent-glow">
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                        Price
+                      </div>
+                      <div className="font-display text-xl mt-1">
+                        {product.price}
+                        <span className="text-xs font-sans text-muted-foreground">
+                          /pc
+                        </span>
                       </div>
                     </div>
                   )}
                 </div>
-              ) : isGarment ? (
-                <div className="mt-5">
-                  <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
-                    Sizes & Quantity (step of {SIZE_STEP})
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {SIZES.map((s) => (
-                      <div
-                        key={s}
-                        className="flex items-center justify-between border border-border px-3 py-2"
-                      >
-                        <span className="font-condensed text-lg w-10">{s}</span>
-                        <div className="inline-flex items-center border border-ink">
-                          <button
-                            type="button"
-                            onClick={() => bumpSize(s, -1)}
-                            className="px-2.5 py-1.5"
-                          >
-                            <Minus className="h-3.5 w-3.5" />
-                          </button>
-                          <input
-                            type="number"
-                            min={0}
-                            step={SIZE_STEP}
-                            value={sizeQty[s]}
-                            onChange={(e) =>
-                              setSizeQty((q) => ({
-                                ...q,
-                                [s]: Math.max(0, Number(e.target.value) || 0),
-                              }))
-                            }
-                            className="w-14 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => bumpSize(s, 1)}
-                            className="px-2.5 py-1.5"
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                          </button>
+
+                {rule?.namedColors && (
+                  <div className="mt-5">
+                    <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
+                      Color / Variant *
+                    </h4>
+                    <select
+                      value={namedColor || rule.namedColors[0]}
+                      onChange={(e) => setNamedColor(e.target.value)}
+                      className="w-full border border-border px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-ink"
+                    >
+                      {rule.namedColors.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {rule?.printColors && (
+                  <div className="mt-4">
+                    <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
+                      Print Color
+                    </h4>
+                    <select
+                      value={printColor || rule.printColors[0]}
+                      onChange={(e) => setPrintColor(e.target.value)}
+                      className="w-full border border-border px-3 py-2.5 text-sm bg-background focus:outline-none focus:border-ink"
+                    >
+                      {rule.printColors.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {rule?.note && (
+                  <p className="mt-3 text-xs italic text-muted-foreground border-l-2 border-primary pl-3">
+                    Note: {rule.note}
+                  </p>
+                )}
+
+                {canPrint && (
+                  <div className="mt-5">
+                    <PrintPicker
+                      value={printSel}
+                      onChange={setPrintSel}
+                      qty={total}
+                      methods={restrictedMethods}
+                      freeLabel={printFreeLabel}
+                      disabled={printDisabled}
+                    />
+                  </div>
+                )}
+
+                {isKit && (
+                  <div className="mt-5 border border-primary/40 bg-primary/5 p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold">
+                        Print Type: Company Logo Printing
+                      </span>
+                      <span className="text-[10px] font-mono uppercase text-primary">
+                        FREE
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Free Custom Tote Bag included with every Welcome Kit.
+                    </p>
+                  </div>
+                )}
+
+                {!isArrheniuxCategory(product.categorySlug) && (
+                  <ArtworkUpload value={artwork} onChange={setArtwork} />
+                )}
+
+                {isKit ? (
+                  <div className="mt-6 space-y-5">
+                    <div className="border-2 border-primary/60 bg-gradient-to-br from-primary/5 via-background to-accent/5 p-5 rounded-lg shadow-[0_8px_30px_-15px_hsl(var(--primary)/0.4)]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        <h4 className="text-sm uppercase tracking-widest font-bold text-primary">
+                          Customize Combined Product
+                        </h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Build your own welcome kit. Select at least{" "}
+                        {WELCOME_KIT_MIN_ITEMS} products.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {kitDefs.map((it) => {
+                          const checked = kitItems.includes(it.id);
+                          const isTshirt = it.id === "tshirt";
+                          return (
+                            <label
+                              key={it.id}
+                              className={`flex items-center justify-between gap-2 border px-3 py-2 text-sm transition ${checked ? "border-ink bg-secondary" : "border-border"} ${isTshirt ? "" : "cursor-pointer"}`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  disabled={isTshirt}
+                                  onChange={() => {
+                                    if (isTshirt) return;
+                                    setKitItems((prev) =>
+                                      prev.includes(it.id)
+                                        ? prev.filter((x) => x !== it.id)
+                                        : [...prev, it.id],
+                                    );
+                                  }}
+                                  className="h-4 w-4 accent-primary"
+                                />
+                                <span>
+                                  {isTshirt
+                                    ? "Custom T-Shirt (required)"
+                                    : it.label}
+                                </span>
+                              </span>
+                              <span className="text-[10px] font-mono text-muted-foreground">
+                                ₹{it.price}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      {!kitEnoughItems && (
+                        <p className="text-xs text-destructive mt-2">
+                          Please select at least {WELCOME_KIT_MIN_ITEMS}{" "}
+                          products.
+                        </p>
+                      )}
+                      <div className="mt-3 flex items-center justify-between border border-border px-3 py-2 bg-secondary/50">
+                        <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                          Kit Unit Price (sum of items)
+                        </span>
+                        <span className="font-display text-lg">₹{kitUnit}</span>
+                      </div>
+                    </div>
+
+                    {kitIncludesTshirt ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs uppercase tracking-widest font-bold">
+                            T-Shirt Sizes
+                          </h4>
+                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                            Total kits = total shirts ({kitSizeTotal})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {SIZES.map((s) => (
+                            <div
+                              key={s}
+                              className="flex items-center justify-between rounded-xl border border-border/70 bg-background p-3 transition-all duration-200 hover:border-primary/40 hover:shadow-sm"
+                            >
+                              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-sm">
+                                {s}
+                              </span>
+                              <div className="inline-flex items-center rounded-xl border border-border bg-background overflow-hidden shadow-sm">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setSizeQty((q) => ({
+                                      ...q,
+                                      [s]: Math.max(0, (q[s] || 0) - 1),
+                                    }))
+                                  }
+                                  className="px-2.5 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary"
+                                >
+                                  <Minus className="h-3.5 w-3.5" />
+                                </button>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={sizeQty[s]}
+                                  onChange={(e) =>
+                                    setSizeQty((q) => ({
+                                      ...q,
+                                      [s]: Math.max(
+                                        0,
+                                        Number(e.target.value) || 0,
+                                      ),
+                                    }))
+                                  }
+                                  className="w-14 text-center text-sm bg-transparent border-x border-border py-2 font-bold focus:outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setSizeQty((q) => ({
+                                      ...q,
+                                      [s]: (q[s] || 0) + 1,
+                                    }))
+                                  }
+                                  className="px-2.5 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      <div>
+                        <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
+                          Kit Quantity (min {WELCOME_KIT_MIN})
+                        </h4>
+                        <div className="flex items-center justify-between border border-border px-3 py-3">
+                          <span className="font-condensed text-lg">Kits</span>
+                          <div className="inline-flex items-center border border-ink">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setKitQtyManual((q) =>
+                                  Math.max(WELCOME_KIT_MIN, q - 1),
+                                )
+                              }
+                              className="px-3 py-1.5"
+                            >
+                              <Minus className="h-3.5 w-3.5" />
+                            </button>
+                            <input
+                              type="number"
+                              min={WELCOME_KIT_MIN}
+                              value={kitQtyManual}
+                              onChange={(e) =>
+                                setKitQtyManual(
+                                  Math.max(0, Number(e.target.value) || 0),
+                                )
+                              }
+                              className="w-16 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setKitQtyManual((q) => q + 1)}
+                              className="px-3 py-1.5"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="mt-5">
-                  <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
-                    Quantity (min {BULK_THRESHOLD})
-                  </h4>
-                  <div className="flex items-center justify-between border border-border px-3 py-3">
-                    <span className="font-condensed text-lg">Units</span>
-                    <div className="inline-flex items-center border border-ink">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setUnitQty((q) => Math.max(SIZE_STEP, q - SIZE_STEP))
-                        }
-                        className="px-3 py-1.5"
-                      >
-                        <Minus className="h-3.5 w-3.5" />
-                      </button>
-                      <input
-                        type="number"
-                        min={BULK_THRESHOLD}
-                        step={SIZE_STEP}
-                        value={unitQty}
-                        onChange={(e) =>
-                          setUnitQty(Math.max(0, Number(e.target.value) || 0))
-                        }
-                        className="w-16 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setUnitQty((q) => q + SIZE_STEP)}
-                        className="px-3 py-1.5"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </button>
+                ) : isGarment ? (
+                  <div className="mt-5">
+                    <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
+                      Sizes & Quantity (step of {SIZE_STEP})
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {SIZES.map((s) => (
+                        <div
+                          key={s}
+                          className="flex items-center justify-between rounded-xl border border-border/70 bg-background p-3 transition-all duration-200 hover:border-primary/40 hover:shadow-sm"
+                        >
+                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-sm">
+                            {s}
+                          </span>
+
+                          <div className="inline-flex items-center overflow-hidden rounded-xl border border-border bg-background shadow-sm">
+                            <button
+                              type="button"
+                              onClick={() => bumpSize(s, -1)}
+                              className="px-2.5 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary"
+                            >
+                              <Minus className="h-3.5 w-3.5" />
+                            </button>
+
+                            <input
+                              type="number"
+                              min={0}
+                              step={SIZE_STEP}
+                              value={sizeQty[s]}
+                              onChange={(e) =>
+                                setSizeQty((q) => ({
+                                  ...q,
+                                  [s]: Math.max(0, Number(e.target.value) || 0),
+                                }))
+                              }
+                              className="w-14 border-x border-border bg-transparent py-1.5 text-center text-sm font-bold outline-none focus:text-primary"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() => bumpSize(s, 1)}
+                              className="px-2.5 py-1.5 transition-colors hover:bg-primary/10 hover:text-primary"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              )}
-
-              <div className="mt-5 border border-border bg-secondary">
-                <Row label="Unit Price" value={`₹${unitPrice}`} />
-                <Row label="Total Quantity" value={`${total} pcs`} />
-                {printCharge > 0 && (
-                  <Row
-                    label={`Print (${printText})`}
-                    value={`+₹${printCharge}`}
-                  />
+                ) : (
+                  <div className="mt-5">
+                    <h4 className="text-xs uppercase tracking-widest font-bold mb-2">
+                      Quantity (min {BULK_THRESHOLD})
+                    </h4>
+                    <div className="flex items-center justify-between border border-border px-3 py-3">
+                      <span className="font-condensed text-lg">Units</span>
+                      <div className="inline-flex items-center border border-ink">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setUnitQty((q) =>
+                              Math.max(BULK_THRESHOLD, q - SIZE_STEP),
+                            )
+                          }
+                          className="px-3 py-1.5"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <input
+                          type="number"
+                          min={BULK_THRESHOLD}
+                          step={SIZE_STEP}
+                          value={unitQty}
+                          onChange={(e) =>
+                            setUnitQty(Math.max(0, Number(e.target.value) || 0))
+                          }
+                          className="w-16 text-center text-sm bg-transparent border-x border-ink py-1.5 font-bold"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setUnitQty((q) => q + SIZE_STEP)}
+                          className="px-3 py-1.5"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
-                <Row
-                  label="Subtotal"
-                  value={`₹${subtotal.toLocaleString("en-IN")}`}
-                />
-                <Row
-                  label={`Bulk Discount ${bulkPct}%`}
-                  value={`−₹${discountAmt.toLocaleString("en-IN")}`}
-                />
-                <Row
-                  label={
-                    courierPc > 0
-                      ? `Courier (₹${courierPc}×${total})`
-                      : "Courier"
-                  }
-                  value={
-                    courierPc > 0
-                      ? `₹${courier.toLocaleString("en-IN")}`
-                      : "FREE"
-                  }
-                />
-                <Row
-                  label={`GST ${gstPctLabel}%`}
-                  value={`₹${gst.toLocaleString("en-IN")}`}
-                />
-                <div className="shine-sweep flex items-center justify-between px-4 py-3 bg-ink text-cream">
-                  <span className="text-xs uppercase tracking-widest font-bold">
-                    Grand Total
-                  </span>
-                  <span className="font-display text-2xl">
-                    ₹{grandTotal.toLocaleString("en-IN")}
-                  </span>
+
+                <div className="mt-6 overflow-hidden rounded-2xl border border-border/70 bg-secondary/60 shadow-sm">
+                  <div className="px-4 py-4 border-b border-border/60">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-sm">Order Summary</h3>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          Live pricing based on your selections
+                        </p>
+                      </div>
+
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        ₹
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Keep all your existing Row components here */}
+                  <Row label="Unit Price" value={`₹${unitPrice}`} />
+                  <Row label="Total Quantity" value={`${total} pcs`} />
+                  {printCharge > 0 && (
+                    <Row
+                      label={`Print (${printText})`}
+                      value={`+₹${printCharge}`}
+                    />
+                  )}
+                  <Row
+                    label="Subtotal"
+                    value={`₹${subtotal.toLocaleString("en-IN")}`}
+                  />
+                  <Row
+                    label={`Bulk Discount ${bulkPct}%`}
+                    value={`−₹${discountAmt.toLocaleString("en-IN")}`}
+                  />
+                  <Row
+                    label={
+                      courierPc > 0
+                        ? `Courier (₹${courierPc}×${total})`
+                        : "Courier"
+                    }
+                    value={
+                      courierPc > 0
+                        ? `₹${courier.toLocaleString("en-IN")}`
+                        : "FREE"
+                    }
+                  />
+                  <Row
+                    label={`GST ${gstPctLabel}%`}
+                    value={`₹${gst.toLocaleString("en-IN")}`}
+                  />
+                  <div className="shine-sweep flex items-center justify-between px-5 py-5 bg-primary text-white">
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold opacity-90">
+                      Grand Total
+                    </span>
+                    <span className="font-display text-3xl">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Pay 100% or 50% advance. After payment, WhatsApp opens
+                  automatically with your order — attach logo / artwork /
+                  instructions there.
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-2">
-                Pay 100% or 50% advance. After payment, WhatsApp opens
-                automatically with your order — attach logo / artwork /
-                instructions there.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
 
-        <div className="space-y-8">
-         {product ? (
-  <div className="tilt-card">
-  <div className="tilt-card-inner bg-secondary overflow-hidden">
-    <div className="aspect-square">
-      <img src={product.gallery[activeImg] || product.image} alt={product.name} className="w-full h-full object-cover" />
-    </div>
-    <div className="grid grid-cols-4 gap-1 p-1">
-      {product.gallery.slice(0, 4).map((src, i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => setActiveImg(i)}
-          className={`aspect-square overflow-hidden border-2 transition ${
-            activeImg === i ? "border-ink" : "border-transparent hover:border-border"
-          }`}
-        >
-          <img src={src} alt="" className="w-full h-full object-cover" />
-        </button>
-      ))}
-    </div>
-  </div>
-  </div>
-) : (
-            <div className="bg-secondary aspect-square flex items-center justify-center text-muted-foreground text-sm uppercase tracking-widest">
-              Choose a product to preview
-            </div>
-          )}
+            {product && (
+              <>
+                {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <div className="border border-border p-5 bg-card">
-  <h2 className="font-condensed text-2xl tracking-wide mb-4">
-    CUSTOMER INFORMATION
-  </h2>
-  <p className="text-xs text-muted-foreground mb-3">
-    Optional – fill only if you want these details on the order / invoice.
-  </p>
-  <div className="grid sm:grid-cols-2 gap-3">
-    <Input
-      label="Company Name"
-      value={customer.company}
-      onChange={(v) => setCustomer({ ...customer, company: v })}
-    />
-    <Input
-      label="GST Number"
-      value={customer.gst}
-      onChange={(v) => setCustomer({ ...customer, gst: v })}
-    />
-    <div className="sm:col-span-2">
-      <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-        Additional Notes
-      </label>
-      <textarea
-        value={customer.notes}
-        onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
-        rows={3}
-        className="mt-1 w-full border border-border rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-ink"
-      />
-    </div>
-  </div>
-</div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <div className="grid sm:grid-cols-2 gap-2">
-            <button type="button" onClick={() => handlePay("advance-50")} disabled={!!payingMode} className="btn-bold btn-magnetic justify-center !py-3.5 text-sm disabled:opacity-50">
-  {payingMode === "advance-50" ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : <><CreditCard className="h-4 w-4" /> Pay 50% Advance</>}
-</button>
-<button type="button" onClick={() => handlePay("full")} disabled={!!payingMode} className="btn-bold btn-magnetic justify-center !py-3.5 text-sm disabled:opacity-50">
-  {payingMode === "full" ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing…</> : <><CreditCard className="h-4 w-4" /> Pay in Full</>}
-</button>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePay("advance-50")}
+                    disabled={!!payingMode}
+                    className="group relative overflow-hidden flex items-center justify-center gap-2
+rounded-xl
+border-2 border-primary
+bg-white
+px-5 py-4
+text-sm font-bold text-primary
+shadow-sm
+transition-all duration-300
+hover:-translate-y-0.5
+hover:bg-primary/5
+hover:shadow-lg
+disabled:cursor-not-allowed
+disabled:opacity-50
+"
+                  >
+                    {payingMode === "advance-50" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4" /> Pay 50% Advance
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePay("full")}
+                    disabled={!!payingMode}
+                    className="
+group relative overflow-hidden
+flex items-center justify-center gap-2
+rounded-xl
+bg-primary
+px-5 py-4
+text-sm font-bold text-white
+shadow-lg shadow-primary/20
+transition-all duration-300
+hover:-translate-y-0.5
+hover:bg-primary/90
+hover:shadow-xl
+disabled:cursor-not-allowed
+disabled:opacity-50
+"
+                  >
+                    {payingMode === "full" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4" /> Pay in Full
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  Login required before payment. WhatsApp will open with your
+                  order after successful payment.
+                </p>
+              </>
+            )}
           </div>
-          <p className="text-xs text-muted-foreground text-center">
-            Login required before payment. WhatsApp will open with your order
-            after successful payment.
-          </p>
         </div>
       </form>
       <SuccessDialog
@@ -1278,11 +1469,12 @@ if (customer.notes) {
 };
 
 const Row = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-center justify-between px-4 py-2 border-b border-border last:border-b-0">
-    <span className="text-xs uppercase tracking-widest text-muted-foreground">
+  <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-border/60 last:border-b-0">
+    <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
       {label}
     </span>
-    <span className="text-sm font-medium">{value}</span>
+
+    <span className="text-sm font-semibold text-right">{value}</span>
   </div>
 );
 
@@ -1304,7 +1496,21 @@ const Select = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="mt-1 w-full border border-border rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-ink"
+      className="
+mt-2 w-full rounded-xl
+border border-border/70
+bg-background
+px-4 py-3
+text-sm
+font-medium
+outline-none
+transition-all duration-200
+cursor-pointer
+hover:border-primary/40
+focus:border-primary
+focus:ring-4
+focus:ring-primary/10
+"
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>
@@ -1334,7 +1540,20 @@ const Input = ({
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="mt-1 w-full border border-border rounded-none px-3 py-2 text-sm bg-background focus:outline-none focus:border-ink"
+      className="
+mt-2 w-full rounded-xl
+border border-border/70
+bg-background
+px-4 py-3
+text-sm
+outline-none
+transition-all duration-200
+placeholder:text-muted-foreground/50
+hover:border-primary/40
+focus:border-primary
+focus:ring-4
+focus:ring-primary/10
+"
     />
   </div>
 );
