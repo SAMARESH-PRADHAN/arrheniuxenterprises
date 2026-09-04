@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Minus, Plus, CreditCard } from "lucide-react";
+import { Minus, Plus, CreditCard, MessageCircle  } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { PrintPicker } from "@/components/PrintPicker";
 import {
@@ -56,6 +56,7 @@ import { useCreateOrder, useProduct, useProducts, usePrintSettings } from "@/hoo
 import { BrandLoader } from "@/components/BrandLoader";
 import { useDiscountTiers } from "@/hooks/api";
 import { getDefaultAddress, formatAddress } from "@/lib/authStore";
+import bulkorderbanner from "@/assets/bulkorderbanner.avif";
 
 const SIZE_STEP = 1;
 
@@ -651,22 +652,41 @@ if (customer.notes) {
 
   return (
     <Layout>
-      <section className="bg-secondary">
-        <div className="container-x py-12 md:py-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">
-            {BULK_THRESHOLD}+ pcs
-          </span>
-          <h1 className="font-display text-5xl md:text-7xl leading-none mt-3">
-            BULK ORDER
-          </h1>
-          <p className="mt-3 text-muted-foreground max-w-2xl">
-            For corporate, institutional and event orders of {BULK_THRESHOLD}{" "}
-            pieces and above. Auto {BULK_DISCOUNT_PCT}% bulk discount, ₹
-            {COURIER_PER_PC}/pc courier, 5% GST. Pay 100% or 50% advance —
-            WhatsApp opens after payment for artwork.
-          </p>
-        </div>
-      </section>
+      <section className="relative overflow-hidden min-h-[320px] md:min-h-[430px] flex items-center">
+  <img
+    src={bulkorderbanner}
+    alt="Bulk order — polo shirts, hoodies, tote bags, mugs, bottles, caps and duffel bags"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  <div className="container-x relative z-10 py-10 md:py-0">
+    <div className="max-w-md">
+  <span className="relative inline-block text-sm font-bold uppercase tracking-widest text-primary pb-2">
+    {BULK_THRESHOLD}+ PCS
+    <span className="absolute left-0 -bottom-0.5 h-[3px] w-10 bg-primary rounded-full" />
+  </span>
+  <h1 className="font-display text-6xl md:text-7xl leading-[0.95] mt-4 text-[#0e2e1c] tracking-tight">
+    BULK ORDER
+  </h1>
+  <p className="mt-5 text-ink/70 text-base leading-relaxed">
+    For corporate, institutional and event orders of {BULK_THRESHOLD} pieces
+    and above. Auto up to {BULK_DISCOUNT_PCT}% bulk discount, free courier,
+    5% GST. Pay 100% or 50% advance — WhatsApp opens after payment for
+    artwork.
+  </p>
+  <a
+    href={waLink()}
+    target="_blank"
+    rel="noreferrer"
+    className="mt-6 inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-cream pl-2 pr-6 py-2 rounded-full font-semibold text-base transition shadow-md"
+  >
+    <span className="flex items-center justify-center h-9 w-9 rounded-full bg-white/15">
+      <MessageCircle className="h-4.5 w-4.5" />
+    </span>
+    Order in Bulk
+  </a>
+</div>
+  </div>
+</section>
 
       <form
         onSubmit={(e) => e.preventDefault()}

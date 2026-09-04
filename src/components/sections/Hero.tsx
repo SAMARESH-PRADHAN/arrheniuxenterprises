@@ -2,7 +2,7 @@ import { MessageCircle, Truck, Factory, Package } from "lucide-react";
 import { waLink } from "@/data/site";
 
 // Public path — must match <link rel="preload"> in index.html
-const HERO_SRC = "/hero-model.avif";
+const HERO_SRC = "/hero-model-new.avif";
 
 export const Hero = () => (
   <section className="relative bg-primary text-primary-foreground overflow-hidden">
@@ -38,18 +38,18 @@ export const Hero = () => (
           </span>
         </div>
       </div>
-      <div className="relative order-1 lg:order-2 min-h-[300px] lg:min-h-[600px] overflow-hidden">
-        <img
-          src={HERO_SRC}
-          alt="Model wearing Arrheniux custom hoodie"
-          width={1024}
-          height={1024}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-transparent to-transparent pointer-events-none" />
-      </div>
+      <div className="relative order-1 lg:order-2 min-h-[420px] sm:min-h-[480px] lg:min-h-[640px] overflow-hidden">
+  <img
+    src={HERO_SRC}
+    alt="Arrheniux branded merchandise and apparel"
+    width={1280}
+    height={800}
+    fetchPriority="high"
+    decoding="async"
+    className="absolute inset-0 w-full h-full object-cover object-[center_30%] lg:object-center"
+  />
+  <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-transparent to-transparent pointer-events-none" />
+</div>
     </div>
     <div className="border-t border-cream/10 bg-ink overflow-hidden py-3">
       <div className="flex animate-marquee whitespace-nowrap font-condensed text-2xl tracking-widest text-cream/80">

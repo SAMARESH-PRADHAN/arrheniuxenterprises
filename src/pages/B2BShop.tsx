@@ -650,41 +650,70 @@ const B2BShop = () => {
 
   return (
     <Layout>
-      <section className="bg-secondary">
-        <div className="container-x py-12">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary">
-                B2B
-              </span>
-              <h1 className="font-display text-5xl md:text-7xl leading-none mt-2">
-                B2B SHOP
-              </h1>
-              <p className="mt-3 text-muted-foreground max-w-2xl">
-                Wholesale storefront for corporate buyers. Minimum order{" "}
-                {B2B_MOQ} pieces per product · quantities in steps of {B2B_STEP}{" "}
-                · auto {BULK_DISCOUNT_PCT}% bulk discount · Courier FREE · 5%
-                GST.
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <div className="text-xs text-muted-foreground">
-                Verified as{" "}
-                <span className="font-semibold text-ink">
-                  {agent?.contactPerson}
-                </span>{" "}
-                · {agent?.company}
-              </div>
-              <button
-                onClick={exitAndSwitchAgent}
-                className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-destructive transition"
-              >
-                <LogOut className="h-3.5 w-3.5" /> Exit / Switch Agent
-              </button>
-            </div>
-          </div>
+      <section className="relative bg-secondary overflow-hidden">
+  {activeSub?.banner && (
+    <>
+      <img
+        src={activeSub.banner}
+        alt={activeSub.name}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-ink/30" />
+    </>
+  )}
+ <div className="container-x py-16 md:py-24 min-h-[280px] md:min-h-[380px] flex flex-col justify-center relative z-10">
+    <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <span
+          className={`text-xs font-bold uppercase tracking-widest ${
+            activeSub?.banner ? "text-cream/70" : "text-primary"
+          }`}
+        >
+          {activeSub ? "B2B · Subcategory" : "B2B"}
+        </span>
+        <h1
+          className={`font-display text-5xl md:text-7xl leading-none mt-2 ${
+            activeSub?.banner ? "text-cream" : "text-ink"
+          }`}
+        >
+          {activeSub ? activeSub.name.toUpperCase() : "B2B SHOP"}
+        </h1>
+        <p
+          className={`mt-3 max-w-2xl ${
+            activeSub?.banner ? "text-cream/80" : "text-muted-foreground"
+          }`}
+        >
+          {activeSub
+            ? `${products.length} product${products.length === 1 ? "" : "s"} available · MOQ ${B2B_MOQ} pcs · steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount`
+            : `Wholesale storefront for corporate buyers. Minimum order ${B2B_MOQ} pieces per product · quantities in steps of ${B2B_STEP} · auto ${BULK_DISCOUNT_PCT}% bulk discount · Courier FREE · 5% GST.`}
+        </p>
+      </div>
+      <div className="flex flex-col items-end gap-2 shrink-0">
+        <div
+          className={`text-xs ${
+            activeSub?.banner ? "text-cream/80" : "text-muted-foreground"
+          }`}
+        >
+          Verified as{" "}
+          <span
+            className={`font-semibold ${
+              activeSub?.banner ? "text-cream" : "text-ink"
+            }`}
+          >
+            {agent?.contactPerson}
+          </span>{" "}
+          · {agent?.company}
         </div>
-      </section>
+        <button
+          onClick={exitAndSwitchAgent}
+          className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-cream bg-destructive/90 hover:bg-destructive px-3.5 py-2 rounded-full transition shadow-sm"
+        >
+          <LogOut className="h-3.5 w-3.5" /> Exit / Switch Agent
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
 
       <section className="container-x py-10">
         {view.step === "subs" && (
@@ -693,37 +722,30 @@ const B2BShop = () => {
               CHOOSE A SUBCATEGORY
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {B2B_SUBCATEGORIES.map((s) => {
-                const first = getB2BProducts(s.slug)[0];
-                return (
-                  <button
-                    key={s.slug}
-                    onClick={() =>
-                      pushView({ step: "products", subSlug: s.slug })
-                    }
-                    className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
-                  >
-                    <div className="aspect-square overflow-hidden bg-secondary">
-                      {first && (
-                        <img
-                          src={first.image}
-                          alt={s.name}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition"
-                        />
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <div className="font-condensed text-lg tracking-wide">
-                        {s.name.toUpperCase()}
-                      </div>
-                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
-                        {getB2BProducts(s.slug).length} products
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+              {B2B_SUBCATEGORIES.map((s) => (
+  <button
+    key={s.slug}
+    onClick={() => pushView({ step: "products", subSlug: s.slug })}
+    className="text-left border border-border bg-card overflow-hidden hover:border-ink transition group"
+  >
+    <div className="aspect-square overflow-hidden bg-secondary">
+      <img
+        src={s.image}
+        alt={s.name}
+        loading="lazy"
+        className="w-full h-full object-cover group-hover:scale-105 transition"
+      />
+    </div>
+    <div className="p-3">
+      <div className="font-condensed text-lg tracking-wide">
+        {s.name.toUpperCase()}
+      </div>
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
+        {getB2BProducts(s.slug).length} products
+      </div>
+    </div>
+  </button>
+))}
             </div>
           </>
         )}
