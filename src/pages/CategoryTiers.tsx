@@ -12,18 +12,21 @@ const CategoryTiers = () => {
     const items = cat.items ?? [];
     return (
       <Layout>
-        <section className="relative overflow-hidden bg-secondary">
+       <section className="relative overflow-hidden bg-secondary min-h-[320px] md:min-h-[420px] lg:min-h-[480px]">
   <img
     src={cat.banner || cat.image}
     alt={cat.name}
+    width={1920}
+    height={700}
     loading="lazy"
     className="absolute inset-0 w-full h-full object-cover"
   />
-  <div className="absolute inset-0 bg-cream/70" />
-  <div className="container-x relative z-10 py-12 md:py-16">
-    <span className="text-xs font-bold uppercase tracking-widest text-primary">Catalog</span>
-    <h1 className="font-display text-6xl md:text-8xl leading-none mt-3">{cat.name.toUpperCase()}</h1>
-    <p className="mt-4 text-muted-foreground max-w-md">{cat.blurb}</p>
+  <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/55 to-ink/15" />
+  <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/20" />
+  <div className="container-x relative z-10 py-16 md:py-20 lg:py-24">
+    <span className="text-xs font-bold uppercase tracking-widest text-cream/70">Catalog</span>
+    <h1 className="font-display text-6xl md:text-8xl leading-none mt-3 text-cream">{cat.name.toUpperCase()}</h1>
+    <p className="mt-4 text-cream/85 max-w-md">{cat.blurb}</p>
   </div>
 </section>
         <section className="container-x py-12">

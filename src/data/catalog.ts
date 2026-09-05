@@ -232,6 +232,20 @@ import bannerschooluniformcata from "@/assets/bannerschooluniformcata.avif";
 import bannercustomeasscessrories from "@/assets/bannercustomeasscesoriescata.avif";
 import bannerwelcomekitcata from "@/assets/bannerwelcomekitcata.avif";
 import bannerarrheniuxcata from "@/assets/bannerarrheniuxcata.avif";
+import bannerapronsregular from "@/assets/bannerapronsregular.avif";
+import bannerapronspremium from "@/assets/bannerapronspremium.avif"
+import bannercorporatewearregular from "@/assets/bannercorporatewearregular.avif";
+import bannercorporatewearpremium from "@/assets/bannercorporatewearpremium.avif";
+import bannerhoodiesregular from "@/assets/bannerhoodiesregular.avif";
+import bannerhoodiespremium from "@/assets/bannerhoodiespremium.avif";
+import bannerjerseyregular from "@/assets/bannerjerseyregular.avif";
+import bannerjerseypremium from "@/assets/bannerjerseypremium.avif";
+import banneroversizestshirtregular from "@/assets/banneroversizetshirtregular.avif";
+import banneroversizestshirtpremium from "@/assets/banneroversizetshirtpremium.avif";
+import bannerpolotshirtsregular from "@/assets/bannerpolotshirtregular.avif";
+import bannerpolotshirtspremium from "@/assets/bannerpolotshirtpremium.avif";
+import bannerroundnecktshirtregular from "@/assets/bannerroundnecktshirtregular.avif";
+import bannerroundnecktshirtpremium from "@/assets/bannerroundnecktshirtpremium.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -281,6 +295,8 @@ export type CatalogCategory = {
   name: string;
   image: string;
   banner?: string; // one banner for ALL subs in this category
+  regularBanner?: string; // ← add
+  premiumBanner?: string;
   hasTiers: boolean;
   blurb: string;
   regular?: Subcategory[];
@@ -376,6 +392,8 @@ export const catalog: CatalogCategory[] = [
     name: "Oversized T-Shirts",
     image: newoversizetshirt,
     banner: banneroversizehoodiescata,
+    regularBanner: banneroversizestshirtregular,
+    premiumBanner: banneroversizestshirtpremium,
     hasTiers: true,
     blurb: "Drop-shoulder fits in heavy and lightweight builds.",
     regular: makeSubs("oversized-t-shirts", polytshirts, "regular", [
@@ -391,6 +409,8 @@ export const catalog: CatalogCategory[] = [
     name: "Hoodies",
     image: newhoodies,
     banner: bannerhoodiescata,
+    regularBanner: bannerhoodiesregular,
+    premiumBanner: bannerhoodiespremium,
     hasTiers: true,
     blurb: "Fleece-lined, structured hoods, double-stitched seams.",
     regular: makeSubs("hoodies", hoodies, "regular", [{ name: "Spun Fleece Hoodies", image: newspunfleecehoodies, banner: bannerspunfleecehoodies}]),
@@ -405,6 +425,8 @@ export const catalog: CatalogCategory[] = [
     name: "Jersey",
     image: newjersey,
     banner: bannerjerseycata,
+    regularBanner: bannerjerseyregular,
+    premiumBanner: bannerjerseypremium,
     hasTiers: true,
     blurb: "Sublimation-ready jerseys for sports, events and teams.",
     regular: makeSubs("jersey", sweatshirts, "regular", [
@@ -426,6 +448,8 @@ export const catalog: CatalogCategory[] = [
     name: "Custom Premium Polo T-Shirt",
     image: newpolotshirt,
     banner: bannercustomepolotshirtcata,
+    regularBanner: bannerpolotshirtsregular,
+    premiumBanner: bannerpolotshirtspremium,
     hasTiers: true,
     blurb: "Pick your exact fabric and GSM — built to spec. Minimum 50 pcs.",
     regular: makeSubs("custom-fabric-t-shirts", polos, "regular", [
@@ -453,6 +477,8 @@ export const catalog: CatalogCategory[] = [
     name: "Corporate Wear",
     image: newcorporatewear,
     banner: bannercorporatewearcata,
+    regularBanner: bannercorporatewearregular,
+    premiumBanner: bannercorporatewearpremium,
     hasTiers: true,
     blurb: "Collar-neck programs for offices, events and field teams.",
     regular: makeSubs("corporate-wear", corporate, "regular", [
@@ -494,6 +520,8 @@ export const catalog: CatalogCategory[] = [
     name: "Custom Round Neck T-Shirts",
     image: roundnecktshirt,
     banner: bannercustomeroundnecktshirtcata,
+    regularBanner: bannerroundnecktshirtregular,
+    premiumBanner: bannerroundnecktshirtpremium,
     hasTiers: true,
     blurb: "Classic crew tees across every common fabric build.",
     regular: makeSubs("custom-round-neck-t-shirts", tshirts, "regular", [
@@ -539,6 +567,8 @@ export const catalog: CatalogCategory[] = [
     name: "Aprons",
     image: newaprons,
     banner: bannerapronscata,
+    regularBanner: bannerapronsregular,
+    premiumBanner: bannerapronspremium,
     hasTiers: true,
     blurb: "Functional aprons for hospitals, kitchens and universities.",
     regular: makeSubs("aprons", uniforms, "regular", [

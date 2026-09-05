@@ -12,7 +12,12 @@ const SubcategoryList = () => {
     return <Navigate to={`/category/${cat.slug}`} replace />;
 
   const subs = getSubsForTier(cat, tier);
-  const bannerSrc = cat.banner || cat.image;
+  const bannerSrc =
+  tier === "premium"
+    ? cat.premiumBanner || cat.banner || cat.image
+    : tier === "regular"
+      ? cat.regularBanner || cat.banner || cat.image
+      : cat.banner || cat.image;
 
   return (
     <Layout>

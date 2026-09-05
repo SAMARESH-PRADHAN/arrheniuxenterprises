@@ -1,6 +1,6 @@
-import f1 from "@/assets/factory-1.jpg";
-import f2 from "@/assets/factory-2.jpg";
-import f3 from "@/assets/factory-3.jpg";
+import f1 from "@/assets/f1.avif";
+import f2 from "@/assets/f2.avif";
+import f3 from "@/assets/f3.avif";
 
 const stats = [
   { num: "50K+", label: "Pieces / month capacity" },
