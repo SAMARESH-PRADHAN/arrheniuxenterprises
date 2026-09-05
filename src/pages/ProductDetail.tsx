@@ -320,7 +320,7 @@ const ProductDetailView = ({
   const isArr = isArrheniuxCategory(product.categorySlug);
   const rule = getAccessoryRules(product.subSlug);
   const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
-  const maxQty = isKit ? 80 : getMaxQty(product);
+  const maxQty = isKit ? 80 : (isArr || isNewCollection) ? ARR_SIZE_MAX : getMaxQty(product);
   const bulkThreshold = maxQty + 1;
   const code = productCode(product);
   const gstRate = getGstPct(product);
@@ -376,7 +376,7 @@ const ProductDetailView = ({
   const courier = total * courierPerPc;
   const gst = Math.round((afterDiscount + courier) * gstRate);
   const grandTotal = afterDiscount + courier + gst;
-  const isBulk = !isArr && total > maxQty;
+const isBulk = !isArr && !isNewCollection && total > maxQty;
   const meetsMoq = total >= moq;
   const canOrder = meetsMoq && total <= maxQty && (!isKit || kitEnoughItems);
   const samplePriceValue = (() => {
@@ -391,7 +391,7 @@ const ProductDetailView = ({
     (s: Size, d: number) =>
       setSizeQty((q) => {
         let next = Math.max(0, (q[s] || 0) + d);
-        if (isArr) {
+        if (isArr || isNewCollection) {
           next = Math.min(ARR_SIZE_MAX, next);
           const others = SIZES.reduce(
             (sum, k) => sum + (k === s ? 0 : q[k] || 0),
@@ -774,7 +774,7 @@ const ProductDetailView = ({
               </div>
             </div>
             {/* ===== CELEBRATION DISCOUNT / OFFER BOX (UNDER PHOTO) ===== */}
-            {!isKit && !isArr && (
+            {!isKit && !isArr && !isNewCollection && (
               <div className="relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-primary/10 dark:via-background dark:to-accent/10 shadow-[0_12px_40px_-12px_rgba(234,88,12,0.35)]">
                 {/* Decorative confetti-style dots */}
                 <div className="pointer-events-none absolute -top-2 -right-2 h-24 w-24 rounded-full bg-gradient-to-br from-amber-300/40 to-rose-300/30 blur-2xl" />
@@ -1393,7 +1393,7 @@ const ProductDetailView = ({
                 Minimum order quantity is {moq} pcs.
               </p>
             )}
-            {isArr && total >= ARR_SIZE_MAX && (
+            {(isArr || isNewCollection) && total >= ARR_SIZE_MAX && (
               <p className="text-xs text-primary font-semibold mt-2">
                 Maximum order quantity for ARRHENIUX is {ARR_SIZE_MAX} pieces
                 per order.

@@ -219,6 +219,19 @@ import bannereventlanyard from "@/assets/bannereventlanyard.avif";
 import newbottle from "@/assets/newbottle.avif";
 import bannerbottle from "@/assets/bannerbottle.avif";
 import b2bbanner from "@/assets/b2bbanner.avif";
+import newwelcomekitcatagorythumb from "@/assets/newwelcomekitcatagorythumb.avif";
+import newarrheniuxcatagorythumb from "@/assets/newarrheniuxcatagorythumb.avif";
+import banneroversizehoodiescata from "@/assets/banneroversizetshirtcata.avif";
+import bannerhoodiescata from "@/assets/bannerhoodiescata.avif";
+import bannerjerseycata from "@/assets/bannerjerseycata.avif";
+import bannercustomepolotshirtcata from "@/assets/bannercustompolotshirtcata.avif";
+import bannercorporatewearcata from "@/assets/bannercorporatewearcata.avif";
+import bannercustomeroundnecktshirtcata from "@/assets/bannercustomroundnecktshirtcata.avif";
+import bannerapronscata from "@/assets/banneraproncata.avif";
+import bannerschooluniformcata from "@/assets/bannerschooluniformcata.avif";
+import bannercustomeasscessrories from "@/assets/bannercustomeasscesoriescata.avif";
+import bannerwelcomekitcata from "@/assets/bannerwelcomekitcata.avif";
+import bannerarrheniuxcata from "@/assets/bannerarrheniuxcata.avif";
 import type { ApiPrintSetting, ApiPrintConfig } from "@/lib/api";
 import { PRINT_METHODS, type PrintMethod } from "@/data/printOptions";
 //b2b images
@@ -362,7 +375,7 @@ export const catalog: CatalogCategory[] = [
     slug: "oversized-t-shirts",
     name: "Oversized T-Shirts",
     image: newoversizetshirt,
-    banner: banneroversizetshirt,
+    banner: banneroversizehoodiescata,
     hasTiers: true,
     blurb: "Drop-shoulder fits in heavy and lightweight builds.",
     regular: makeSubs("oversized-t-shirts", polytshirts, "regular", [
@@ -377,7 +390,7 @@ export const catalog: CatalogCategory[] = [
     slug: "hoodies",
     name: "Hoodies",
     image: newhoodies,
-    banner: bannerhoodies,
+    banner: bannerhoodiescata,
     hasTiers: true,
     blurb: "Fleece-lined, structured hoods, double-stitched seams.",
     regular: makeSubs("hoodies", hoodies, "regular", [{ name: "Spun Fleece Hoodies", image: newspunfleecehoodies, banner: bannerspunfleecehoodies}]),
@@ -391,7 +404,7 @@ export const catalog: CatalogCategory[] = [
     slug: "jersey",
     name: "Jersey",
     image: newjersey,
-    banner: bannerjersey,
+    banner: bannerjerseycata,
     hasTiers: true,
     blurb: "Sublimation-ready jerseys for sports, events and teams.",
     regular: makeSubs("jersey", sweatshirts, "regular", [
@@ -412,6 +425,7 @@ export const catalog: CatalogCategory[] = [
     slug: "custom-fabric-t-shirts",
     name: "Custom Premium Polo T-Shirt",
     image: newpolotshirt,
+    banner: bannercustomepolotshirtcata,
     hasTiers: true,
     blurb: "Pick your exact fabric and GSM — built to spec. Minimum 50 pcs.",
     regular: makeSubs("custom-fabric-t-shirts", polos, "regular", [
@@ -438,6 +452,7 @@ export const catalog: CatalogCategory[] = [
     slug: "corporate-wear",
     name: "Corporate Wear",
     image: newcorporatewear,
+    banner: bannercorporatewearcata,
     hasTiers: true,
     blurb: "Collar-neck programs for offices, events and field teams.",
     regular: makeSubs("corporate-wear", corporate, "regular", [
@@ -478,6 +493,7 @@ export const catalog: CatalogCategory[] = [
     slug: "custom-round-neck-t-shirts",
     name: "Custom Round Neck T-Shirts",
     image: roundnecktshirt,
+    banner: bannercustomeroundnecktshirtcata,
     hasTiers: true,
     blurb: "Classic crew tees across every common fabric build.",
     regular: makeSubs("custom-round-neck-t-shirts", tshirts, "regular", [
@@ -522,6 +538,7 @@ export const catalog: CatalogCategory[] = [
     slug: "aprons",
     name: "Aprons",
     image: newaprons,
+    banner: bannerapronscata,
     hasTiers: true,
     blurb: "Functional aprons for hospitals, kitchens and universities.",
     regular: makeSubs("aprons", uniforms, "regular", [
@@ -545,6 +562,7 @@ export const catalog: CatalogCategory[] = [
     slug: "customize-school-uniform",
     name: "Customize School Uniform",
     image: newschooluniform,
+    banner: bannerschooluniformcata,
     hasTiers: false,
     blurb: "School uniform T-shirts and track pants — built per your specs.",
     items: makeSubs(
@@ -568,6 +586,7 @@ export const catalog: CatalogCategory[] = [
     slug: "custom-accessories",
     name: "Custom Accessories",
     image: newcustomeaccessories,
+    banner: bannercustomeasscessrories,
     hasTiers: false,
     blurb: "Branded merch and add-ons to round out your kit.",
     items: makeSubs(
@@ -592,7 +611,8 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "corporate-welcome-kit",
     name: "Corporate Welcome Kit",
-    image: corporatewelcoome,
+    image: newwelcomekitcatagorythumb,
+    banner: bannerwelcomekitcata,
     hasTiers: false,
     blurb:
       "Ready-to-ship welcome kits for new hires, events, colleges and teams.",
@@ -640,7 +660,8 @@ export const catalog: CatalogCategory[] = [
   {
     slug: "arrheniux-t-shirts",
     name: "ARRHENIUX T-Shirts",
-    image: tshirts,
+    image: newarrheniuxcatagorythumb,
+    banner: bannerarrheniuxcata,
     hasTiers: false,
     blurb: "Our in-house premium line — branded, finished, fully ready.",
     items: makeSubs("arrheniux-t-shirts", tshirts, "premium", [
@@ -754,6 +775,7 @@ export const ARR_SIZE_MAX = 3; // ARRHENIUX per-size cap
 // Per-product MOQ: ARRHENIUX = 1, Custom Premium Polo = 50, accessories per rule, else 5
 export const getMOQ = (p: Pick<CatalogProduct, "categorySlug" | "subSlug">) => {
   if (isArrheniuxCategory(p.categorySlug)) return 1;
+  if (p.categorySlug === "new-collection") return 1;
   if (p.categorySlug === "custom-fabric-t-shirts") return 50;
   const rule = getAccessoryRules(p.subSlug);
   if (rule) return rule.moq;
