@@ -133,6 +133,7 @@ export type StorefrontOrder = {
   subCategory?: string;          // ← NEW
   material?: string;    
     description?: string;  
+    invoiceNumber?: string;
 };
 
 export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrder {
@@ -194,6 +195,7 @@ export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrd
     subCategory: o.subCategory,   // ← NEW
     material: o.material,  
     description: o.description,
+    invoiceNumber: (o as any).invoiceNumber || "",
   };
 }
 
