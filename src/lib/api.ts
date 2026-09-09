@@ -225,6 +225,7 @@ export type ApiOrder = {
   totalAmount: number;
   paidAmount: number;
   timeline: Array<{ status: ApiOrderStatus; at: string }>;
+  invoiceNumber?: string;
 };
 
 export type ApiPayment = {

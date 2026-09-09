@@ -147,12 +147,35 @@ const COMPANY = {
   name: "ARRHENIUX",
   legal: "Arrheniux Enterprises",
   tagline: "Factory-Direct Custom Apparel",
-  address: ADDRESS,
+  address: "Plot No. 88 Niladrivihar, Chandrasekharapur, Bhubaneswar, Odisha, 751016",
   email: EMAIL,
   phone: WHATSAPP_DISPLAY,
+  gstin: "21BLBPB7509J1ZI",
 };
 
 const fmt = (n: number) => `Rs ${Math.round(n).toLocaleString("en-IN")}`;
+
+
+// This function convort amount in words
+function numberToWords(num: number): string {
+  if (num === 0) return "Zero Rupees Only";
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const convert = (n: number): string => {
+    if (n < 20) return ones[n];
+    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+    if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 ? " " + convert(n % 100) : "");
+    if (n < 100000) return convert(Math.floor(n / 1000)) + " Thousand" + (n % 1000 ? " " + convert(n % 1000) : "");
+    if (n < 10000000) return convert(Math.floor(n / 100000)) + " Lakh" + (n % 100000 ? " " + convert(n % 100000) : "");
+    return convert(Math.floor(n / 10000000)) + " Crore" + (n % 10000000 ? " " + convert(n % 10000000) : "");
+  };
+  const rupees = Math.floor(num);
+  const paise = Math.round((num - rupees) * 100);
+  let result = convert(rupees) + " Rupees";
+  if (paise > 0) result += " and " + convert(paise) + " Paise";
+  return result + " Only";
+}
 
 const KIND_LABEL: Record<string, string> = {
   retail: "Retail Order",
@@ -208,7 +231,10 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
   const M = 14; // page margin
   const contentW = W - M * 2;
 
-  const invoiceNo = `ARR-${order.id.toUpperCase()}`;
+  const ordId = `ARR-${order.id.toUpperCase()}`;
+ const invoiceNo = order.invoiceNumber
+  ? String(order.invoiceNumber)
+  : "Not Assign";
   const orderDate = new Date(order.createdAt);
   const expected = order.expectedDelivery
     ? new Date(order.expectedDelivery)
@@ -246,7 +272,7 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
   doc.setFontSize(8.5);
   doc.setTextColor(...GRAY_TEXT);
   doc.text(COMPANY.tagline, textX, y + 7.5);
-  doc.text(COMPANY.address, textX, y + 12);
+  doc.text(ADDRESS, textX, y + 12);
   doc.text(`${COMPANY.email}  |  ${COMPANY.phone}`, textX, y + 16.5);
 
   doc.setFont("helvetica", "bold");
@@ -256,8 +282,9 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(...GRAY_TEXT);
-  doc.text(`Invoice #: ${invoiceNo}`, W - M, y + 8, { align: "right" });
-  doc.text(`Invoice Date: ${orderDate.toLocaleDateString("en-IN")}`, W - M, y + 12.5, { align: "right" });
+  doc.text(`ORD ID : ${ordId}`, W - M, y + 8, { align: "right" });
+  doc.text(`Invoice No : ${invoiceNo}`, W - M, y + 13, { align: "right" });
+  doc.text(`Invoice Date: ${orderDate.toLocaleDateString("en-IN")}`, W - M, y + 18, { align: "right" });
   // doc.text(`Expected Delivery: ${expected.toLocaleDateString("en-IN")}`, W - M, y + 17, { align: "right" });
 
   // Status badge
@@ -286,6 +313,7 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
     COMPANY.address,
     `Email: ${COMPANY.email}`,
     `Phone: ${COMPANY.phone}`,
+    `GSTIN: ${COMPANY.gstin}`,
   ];
 
   const billToLines = [
@@ -498,6 +526,23 @@ addRow(`GST (${gstRate}%)`, fmt(gstAmount));
     addRow("Balance Due", "Rs 0 (Fully Paid)", { color: GREEN_OK });
   }
   if (order.paymentRef) addRow("Payment Ref.", order.paymentRef);
+
+
+    // ---- Amount in Words ------------------------------------------------------
+  y += 4;
+  doc.setFillColor(...CREAM);
+  doc.roundedRect(M, y, contentW, 12, 1.5, 1.5, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...PRIMARY);
+  doc.text("Amount in Words:", M + 4, y + 5);
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(10.5);
+  doc.setTextColor(...INK);
+  const words = numberToWords(order.total);
+  const wrappedWords = doc.splitTextToSize(words, contentW - 55);
+  doc.text(wrappedWords, M + 42, y + 5);
+  y += 16;
 
   // ---- Footer ---------------------------------------------------------------
   const footerY = H - 34;

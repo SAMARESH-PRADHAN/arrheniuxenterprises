@@ -11,10 +11,10 @@ import totes from "@/assets/cat-totes.jpg";
 import uniforms from "@/assets/cat-uniforms.jpg";
 import corporate from "@/assets/cat-corporate.jpg";
 
-export const WHATSAPP_NUMBER = "919937864993";
-export const WHATSAPP_DISPLAY = "+91 99378 64993";
-export const EMAIL = "banamali08@gmail.com";
-export const ADDRESS = "Odisha, India 751021";
+export const WHATSAPP_NUMBER = "919777624205";
+export const WHATSAPP_DISPLAY = "+91 97776 24205";
+export const EMAIL = "arrheniuxofficial@gmail.com";
+export const ADDRESS = "Bhubaneswar, Odisha, 751016";
 export const MAPS_URL = "https://maps.app.goo.gl/oh4CuRvus1gfH4D49";
 
 export const waLink = (msg = "Hi Arrheniux, I'd like to enquire about your custom apparel.") =>
