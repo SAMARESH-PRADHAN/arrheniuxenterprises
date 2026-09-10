@@ -12,7 +12,7 @@ const STORES: Store[] = [
   {
     name: "Arrheniux HQ — Bhubaneswar",
     address: "Niladri Vihar, Bhubaneswar, Odisha 751021",
-    phone: "+91 82603 68742",
+    phone: "+91 97776 24205",
     mapsUrl: "https://maps.app.goo.gl/oh4CuRvus1gfH4D49",
   },
   // {

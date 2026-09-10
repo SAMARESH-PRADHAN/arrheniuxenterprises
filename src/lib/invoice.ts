@@ -333,7 +333,7 @@ export const downloadInvoice = async (order: InvoiceOrder) => {
     cust.address
       ? [cust.address, cust.city, cust.state, cust.pincode].filter(Boolean).join(", ")
       : order.address || "",
-    order.notes ? `Notes: ${order.notes}` : "",
+    // order.notes ? `Notes: ${order.notes}` : "",
   ].filter(Boolean) as string[];
 
   const maxLines = Math.max(fromLines.length, billToLines.length);
@@ -529,7 +529,7 @@ addRow(`GST (${gstRate}%)`, fmt(gstAmount));
 
 
     // ---- Amount in Words ------------------------------------------------------
-  y += 4;
+  y += 3;
   doc.setFillColor(...CREAM);
   doc.roundedRect(M, y, contentW, 12, 1.5, 1.5, "F");
   doc.setFont("helvetica", "bold");
@@ -542,8 +542,21 @@ addRow(`GST (${gstRate}%)`, fmt(gstAmount));
   const words = numberToWords(order.total);
   const wrappedWords = doc.splitTextToSize(words, contentW - 55);
   doc.text(wrappedWords, M + 42, y + 5);
-  y += 16;
+  y += 12;
+  // ---- HSN / SAC Code ------------------------------------------------------
+  doc.setFillColor(...CREAM);
+  doc.roundedRect(M, y, contentW, 9, 1.5, 1.5, "F");
 
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...PRIMARY);
+  doc.text("HSN/SAC CODE", M + 4, y + 5.8);
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...INK);
+  doc.text("61099010", M + 38, y + 5.8);
+
+  y += 9;
   // ---- Footer ---------------------------------------------------------------
   const footerY = H - 34;
   doc.setDrawColor(...GRAY_LINE);

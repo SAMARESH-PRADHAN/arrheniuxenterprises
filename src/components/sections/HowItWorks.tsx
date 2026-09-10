@@ -1,9 +1,9 @@
 import { Leaf, Grid3x3, Waves, Hexagon, Gauge, Feather, Shirt, Layers, Sparkles, Target, Heart, ShieldCheck } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
-import tshirts from "@/assets/over-shirt-arr .avif";
-import polos from "@/assets/polo.avif";
-import corporate from "@/assets/corporate.avif";
-import hoodies from "@/assets/hoodiearr.avif";
+import cotton from "@/assets/cotton.avif";
+import polycotton from "@/assets/polycotton.avif";
+import spun from "@/assets/spun.avif";
+import polyster from "@/assets/polyster.avif";
 import f2 from "@/assets/f2.avif";
 
 const fabrics = [
@@ -11,7 +11,7 @@ const fabrics = [
     icon: Leaf,
     tag: "Natural Comfort for Everyday",
     title: "Cotton",
-    image: tshirts,
+    image: cotton,
     accent: "bg-emerald-600",
     accentSoft: "bg-emerald-50 text-emerald-700",
     points: [
@@ -26,7 +26,7 @@ const fabrics = [
     icon: Grid3x3,
     tag: "The Right Blend for Real Life",
     title: "Polycotton",
-    image: corporate,
+    image: polycotton,
     accent: "bg-primary",
     accentSoft: "bg-primary/10 text-primary",
     points: [
@@ -41,7 +41,7 @@ const fabrics = [
     icon: Waves,
     tag: "Smooth, Durable, Versatile",
     title: "Spun / Spun Matty",
-    image: polos,
+    image: spun,
     accent: "bg-teal-700",
     accentSoft: "bg-teal-50 text-teal-700",
     points: [
@@ -56,7 +56,7 @@ const fabrics = [
     icon: Hexagon,
     tag: "Built for Performance",
     title: "Polyester",
-    image: hoodies,
+    image: polyster,
     accent: "bg-accent",
     accentSoft: "bg-accent/10 text-accent",
     points: [
@@ -101,10 +101,10 @@ const gsmTiers = [
 ];
 
 const usageGuide = [
-  { fabric: "Cotton", image: tshirts, min: 180, max: 240, gradient: "from-emerald-600 to-emerald-700" },
-  { fabric: "Polycotton", image: corporate, min: 180, max: 240, gradient: "from-primary to-primary/70" },
-  { fabric: "Spun / Spun Matty", image: polos, min: 180, max: 240, gradient: "from-teal-700 to-teal-800" },
-  { fabric: "Polyester", image: hoodies, min: 120, max: 180, gradient: "from-slate-700 to-slate-900" },
+  { fabric: "Cotton", image: cotton, min: 180, max: 240, gradient: "from-emerald-600 to-emerald-700" },
+  { fabric: "Polycotton", image: polycotton, min: 180, max: 240, gradient: "from-primary to-primary/70" },
+  { fabric: "Spun / Spun Matty", image: spun, min: 180, max: 240, gradient: "from-teal-700 to-teal-800" },
+  { fabric: "Polyester", image: polyster, min: 120, max: 180, gradient: "from-slate-700 to-slate-900" },
 ];
 const SCALE_MIN = 100;
 const SCALE_MAX = 260;

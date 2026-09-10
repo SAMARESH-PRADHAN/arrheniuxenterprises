@@ -292,7 +292,7 @@ const MyOrders = () => {
 
                   <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap gap-2">
-                      <button
+                      {/* <button
                         onClick={() => handleDownloadInvoice(o)}
                         disabled={downloadingInvoiceId === o.id}
                         className="btn-magnetic text-[11px] uppercase tracking-widest border border-border px-3 py-1.5 hover:border-ink inline-flex items-center gap-1 disabled:opacity-50"
@@ -302,8 +302,56 @@ const MyOrders = () => {
                         ) : (
                           <><Download className="h-3.5 w-3.5" /> Download Invoice</>
                         )}
-                      </button>
-                      {!paymentPaid && (
+                      </button> */}
+
+                      <button
+  onClick={() => handleDownloadInvoice(o)}
+  disabled={downloadingInvoiceId === o.id}
+  className="
+    group relative overflow-hidden
+    inline-flex items-center justify-center gap-2
+    min-h-[40px] px-4 py-2
+    rounded-md
+    bg-blue-600 text-white
+    text-[11px] font-bold uppercase tracking-widest
+    shadow-[0_4px_14px_rgba(37,99,235,0.22)]
+    transition-all duration-300
+    hover:-translate-y-0.5
+    hover:bg-blue-700
+    hover:shadow-[0_8px_22px_rgba(37,99,235,0.32)]
+    active:translate-y-0
+    disabled:opacity-60
+    disabled:pointer-events-none
+  "
+>
+  {/* Shine effect */}
+  <span
+    className="
+      absolute inset-0 -translate-x-full
+      bg-gradient-to-r
+      from-transparent
+      via-white/20
+      to-transparent
+      transition-transform duration-700
+      group-hover:translate-x-full
+    "
+  />
+
+  <span className="relative flex items-center gap-2">
+    {downloadingInvoiceId === o.id ? (
+      <>
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Generating...
+      </>
+    ) : (
+      <>
+        <Download className="h-4 w-4" />
+        <span>Download Invoice</span>
+      </>
+    )}
+  </span>
+</button>
+                      {/* {!paymentPaid && (
                         <button
                           onClick={() => payRemaining(o)}
                           disabled={payingOrderId === o.id}
@@ -321,8 +369,65 @@ const MyOrders = () => {
                             </>
                           )}
                         </button>
-                      )}
-                      {delivered && !reviewed && (
+                      )} */}
+
+                     {!paymentPaid && (
+  <button
+    onClick={() => payRemaining(o)}
+    disabled={payingOrderId === o.id}
+    className="
+      group relative overflow-hidden
+      inline-flex items-center justify-center gap-2
+      min-h-[40px] px-4 py-2
+      rounded-md
+      bg-red-600 text-white
+      text-[11px] font-bold uppercase tracking-widest
+      shadow-[0_4px_14px_rgba(220,38,38,0.25)]
+      transition-all duration-300
+      hover:-translate-y-0.5
+      hover:bg-red-700
+      hover:shadow-[0_8px_22px_rgba(220,38,38,0.35)]
+      active:translate-y-0
+      disabled:opacity-60
+      disabled:pointer-events-none
+    "
+  >
+    {/* Shine effect */}
+    <span
+      className="
+        absolute inset-0 -translate-x-full
+        bg-gradient-to-r
+        from-transparent
+        via-white/20
+        to-transparent
+        transition-transform duration-700
+        group-hover:translate-x-full
+      "
+    />
+
+    <span className="relative flex items-center gap-2">
+      {payingOrderId === o.id ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Processing...
+        </>
+      ) : (
+        <>
+          <CreditCard className="h-4 w-4" />
+
+          <span>Pay Rest</span>
+
+          <span className="h-4 w-px bg-white/30" />
+
+          <span className="font-bold">
+            ₹{due.toLocaleString("en-IN")}
+          </span>
+        </>
+      )}
+    </span>
+  </button>
+)}
+                      {/* {delivered && !reviewed && (
                         <button
                           onClick={() => {
                             setReviewFor(o);
@@ -333,12 +438,73 @@ const MyOrders = () => {
                         >
                           <MessageSquare className="h-3.5 w-3.5" /> Write Review
                         </button>
-                      )}
-                      {delivered && reviewed && (
+                      )} */}
+
+                      {delivered && !reviewed && (
+  <button
+    onClick={() => {
+      setReviewFor(o);
+      setRating(5);
+      setReviewText("");
+    }}
+    className="
+      group
+      relative
+      inline-flex items-center justify-center gap-2
+      min-h-[38px] px-4 py-2
+      rounded-md
+      border border-accent/40
+      bg-accent/5
+      text-ink
+      text-[11px] font-bold uppercase tracking-widest
+      transition-all duration-300
+      hover:-translate-y-0.5
+      hover:border-accent
+      hover:bg-accent
+      hover:text-white
+      hover:shadow-[0_6px_18px_rgba(201,122,74,0.25)]
+    "
+  >
+    <Star
+      className="
+        h-4 w-4
+        text-accent
+        transition-transform duration-300
+        group-hover:scale-110
+        group-hover:rotate-12
+        group-hover:fill-current
+        group-hover:text-white
+      "
+    />
+
+    <span>Write a Review</span>
+  </button>
+)}
+                      {/* {delivered && reviewed && (
                         <span className="text-[11px] uppercase tracking-widest text-primary inline-flex items-center gap-1">
                           <Check className="h-3.5 w-3.5" /> Review Submitted
                         </span>
-                      )}
+                      )} */}
+
+                      {delivered && reviewed && (
+  <span
+    className="
+      inline-flex items-center gap-2
+      min-h-[38px] px-4 py-2
+      rounded-md
+      bg-primary/10
+      border border-primary/20
+      text-primary
+      text-[11px] font-bold uppercase tracking-widest
+    "
+  >
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-cream">
+      <Check className="h-3 w-3" />
+    </span>
+
+    Review Submitted
+  </span>
+)}
                     </div>
                   </div>
                 </div>
