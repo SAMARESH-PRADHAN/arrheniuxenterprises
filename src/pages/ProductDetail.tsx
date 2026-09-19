@@ -167,61 +167,107 @@ const ProductDetailView = ({
   const { data: moqOverrides } = useMoqSettings();
   // console.log("MOQ overrides:", moqOverrides);
   const { data: discountOverrides } = useDiscountTiers();
+  // const displayTiers = useMemo(() => {
+  //   const rule = getAccessoryRules(product.subSlug);
+  //   if (rule && !rule.discountEnabled) return null;
+
+  //   const catName = findCategory(product.categorySlug)?.name;
+  //   const fallback = [
+  //     { minQty: 5, maxQty: 9, discountPct: 0, isBulk: false },
+  //     { minQty: 10, maxQty: 24, discountPct: 10, isBulk: false },
+  //     { minQty: 25, maxQty: 49, discountPct: 20, isBulk: false },
+  //     { minQty: 50, maxQty: 80, discountPct: 30, isBulk: false },
+  //     {
+  //       minQty: 81,
+  //       maxQty: null as number | null,
+  //       discountPct: 40,
+  //       isBulk: true,
+  //     },
+  //   ];
+
+  //   if (!catName || !discountOverrides?.length) return fallback;
+
+  //   const normalizeName = (s: string) => s.trim().toLowerCase();
+  //   const subName = (() => {
+  //     const cat = findCategory(product.categorySlug);
+  //     return cat
+  //       ? findSubcategory(cat, product.tier, product.subSlug)?.name
+  //       : undefined;
+  //   })();
+
+  //   const hasSubTiers = discountOverrides.some(
+  //     (x) =>
+  //       normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+  //   );
+
+  //   const bucket = discountOverrides.filter((o) => {
+  //     if (normalizeName(o.category) !== normalizeName(catName)) return false;
+  //     if (hasSubTiers && subName) {
+  //       return (
+  //         o.subCategory &&
+  //         normalizeName(o.subCategory) === normalizeName(subName)
+  //       );
+  //     }
+  //     return !o.subCategory;
+  //   });
+
+  //   if (!bucket.length) return fallback;
+
+  //   const sorted = [...bucket]
+  //     .filter((t) => !t.isBulk)
+  //     .sort((a, b) => a.minQty - b.minQty);
+
+  //   const bulk = bucket.find((t) => t.isBulk);
+  //   if (bulk) sorted.push(bulk);
+
+  //   return sorted.length ? sorted : fallback;
+  // }, [product, discountOverrides]);
+
   const displayTiers = useMemo(() => {
-    const rule = getAccessoryRules(product.subSlug);
-    if (rule && !rule.discountEnabled) return null;
+  const rule = getAccessoryRules(product.subSlug);
+  if (rule && !rule.discountEnabled) return null;
 
-    const catName = findCategory(product.categorySlug)?.name;
-    const fallback = [
-      { minQty: 5, maxQty: 9, discountPct: 0, isBulk: false },
-      { minQty: 10, maxQty: 24, discountPct: 10, isBulk: false },
-      { minQty: 25, maxQty: 49, discountPct: 20, isBulk: false },
-      { minQty: 50, maxQty: 80, discountPct: 30, isBulk: false },
-      {
-        minQty: 81,
-        maxQty: null as number | null,
-        discountPct: 40,
-        isBulk: true,
-      },
-    ];
+  const catName = findCategory(product.categorySlug)?.name;
+  const fallback = [
+    { minQty: 5, maxQty: 9, discountPct: 0, isBulk: false },
+    { minQty: 10, maxQty: 24, discountPct: 10, isBulk: false },
+    { minQty: 25, maxQty: 49, discountPct: 20, isBulk: false },
+    { minQty: 50, maxQty: 80, discountPct: 30, isBulk: false },
+    { minQty: 81, maxQty: null as number | null, discountPct: 40, isBulk: true },
+  ];
 
-    if (!catName || !discountOverrides?.length) return fallback;
+  if (!catName || !discountOverrides?.length) return fallback;
 
-    const normalizeName = (s: string) => s.trim().toLowerCase();
-    const subName = (() => {
-      const cat = findCategory(product.categorySlug);
-      return cat
-        ? findSubcategory(cat, product.tier, product.subSlug)?.name
-        : undefined;
-    })();
+  const normalizeName = (s: string) => s.trim().toLowerCase();
+  const subName = (() => {
+    const cat = findCategory(product.categorySlug);
+    return cat
+      ? findSubcategory(cat, product.tier, product.subSlug)?.name
+      : undefined;
+  })();
 
-    const hasSubTiers = discountOverrides.some(
-      (x) =>
-        normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+  // Prefer exact subcategory tiers; otherwise use category-level (subCategory null)
+  let bucket = discountOverrides.filter((o) => {
+    if (normalizeName(o.category) !== normalizeName(catName)) return false;
+    if (subName && o.subCategory) {
+      return normalizeName(o.subCategory) === normalizeName(subName);
+    }
+    return !o.subCategory;
+  });
+
+  // If no subcategory match, fall back to category-wide tiers
+  if (!bucket.length && subName) {
+    bucket = discountOverrides.filter(
+      (o) =>
+        normalizeName(o.category) === normalizeName(catName) && !o.subCategory,
     );
+  }
 
-    const bucket = discountOverrides.filter((o) => {
-      if (normalizeName(o.category) !== normalizeName(catName)) return false;
-      if (hasSubTiers && subName) {
-        return (
-          o.subCategory &&
-          normalizeName(o.subCategory) === normalizeName(subName)
-        );
-      }
-      return !o.subCategory;
-    });
+  if (!bucket.length) return fallback;
 
-    if (!bucket.length) return fallback;
-
-    const sorted = [...bucket]
-      .filter((t) => !t.isBulk)
-      .sort((a, b) => a.minQty - b.minQty);
-
-    const bulk = bucket.find((t) => t.isBulk);
-    if (bulk) sorted.push(bulk);
-
-    return sorted.length ? sorted : fallback;
-  }, [product, discountOverrides]);
+  // Show ALL tiers from admin, sorted by minQty
+  return [...bucket].sort((a, b) => a.minQty - b.minQty);
+}, [product, discountOverrides]);
 
   const { data: printOverrides } = usePrintSettings();
   const SIZES = getSizesFor(product.categorySlug) as readonly string[];
@@ -1426,8 +1472,7 @@ const isBulk = !isArr && !isNewCollection && total > maxQty;
               </button>
             )}
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Complete payment first. WhatsApp will auto-open with your order —
-              attach logo, artwork or instructions there.
+              Complete payment first. Then you  can see your order update in my order section.
             </p>
 
             {/* Sample — hidden for ARRHENIUX products and new collection*/}
