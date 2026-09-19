@@ -398,12 +398,12 @@ const BulkOrder = () => {
       ? printLabel(printSel, restrictedMethods)
       : "N/A";
   const subtotal = unitPrice * total + printCharge;
-  const bulkPct = isKit
+    const bulkPct = isKit
     ? 0
     : rule && !rule.discountEnabled
       ? 0
       : product
-        ? resolveBulkDiscountPct(product, discountOverrides)
+        ? resolveBulkDiscountPct(product, discountOverrides, total)
         : BULK_DISCOUNT_PCT;
   const discountAmt = Math.round((subtotal * bulkPct) / 100);
   const afterDiscount = Math.max(0, subtotal - discountAmt);

@@ -880,35 +880,76 @@ export type DiscountOverrideTier = {
 
 const normalizeName = (s: string) => s.trim().toLowerCase();
 
+// export const resolveDiscountPct = (
+//   qty: number,
+//   p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+//   overrides?: DiscountOverrideTier[] | null,
+// ): number => {
+//   const catName = findCategory(p.categorySlug)?.name;
+//   if (!catName) return getDiscountPct(qty, p); // fallback, unchanged
+
+//   const rule = getAccessoryRules(p.subSlug);
+//   if (rule && !rule.discountEnabled) return 0;
+
+//   if (overrides?.length) {
+//     const subName = subCategoryNameFor(p);
+//     const bucket = overrides.filter((o) => {
+//       const catMatches = normalizeName(o.category) === normalizeName(catName);
+//       if (!catMatches) return false;
+//       // exact sub-category tiers take priority over category-wide tiers
+//       const hasSubTiers = overrides.some(
+//         (x) =>
+//           normalizeName(x.category) === normalizeName(catName) && x.subCategory,
+//       );
+//       if (hasSubTiers && subName) {
+//         return (
+//           o.subCategory &&
+//           normalizeName(o.subCategory) === normalizeName(subName)
+//         );
+//       }
+//       return !o.subCategory;
+//     });
+
+//     if (bucket.length) {
+//       const match = bucket.find(
+//         (t) => qty >= t.minQty && (t.maxQty == null || qty <= t.maxQty),
+//       );
+//       if (match) return match.discountPct;
+//     }
+//   }
+
+//   return getDiscountPct(qty, p); // no admin tiers set for this category — hardcoded fallback
+// };
+
+
 export const resolveDiscountPct = (
   qty: number,
   p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
   overrides?: DiscountOverrideTier[] | null,
 ): number => {
   const catName = findCategory(p.categorySlug)?.name;
-  if (!catName) return getDiscountPct(qty, p); // fallback, unchanged
+  if (!catName) return getDiscountPct(qty, p);
 
   const rule = getAccessoryRules(p.subSlug);
   if (rule && !rule.discountEnabled) return 0;
 
   if (overrides?.length) {
     const subName = subCategoryNameFor(p);
-    const bucket = overrides.filter((o) => {
-      const catMatches = normalizeName(o.category) === normalizeName(catName);
-      if (!catMatches) return false;
-      // exact sub-category tiers take priority over category-wide tiers
-      const hasSubTiers = overrides.some(
-        (x) =>
-          normalizeName(x.category) === normalizeName(catName) && x.subCategory,
-      );
-      if (hasSubTiers && subName) {
-        return (
-          o.subCategory &&
-          normalizeName(o.subCategory) === normalizeName(subName)
-        );
+
+    let bucket = overrides.filter((o) => {
+      if (normalizeName(o.category) !== normalizeName(catName)) return false;
+      if (subName && o.subCategory) {
+        return normalizeName(o.subCategory) === normalizeName(subName);
       }
       return !o.subCategory;
     });
+
+    if (!bucket.length && subName) {
+      bucket = overrides.filter(
+        (o) =>
+          normalizeName(o.category) === normalizeName(catName) && !o.subCategory,
+      );
+    }
 
     if (bucket.length) {
       const match = bucket.find(
@@ -918,20 +959,92 @@ export const resolveDiscountPct = (
     }
   }
 
-  return getDiscountPct(qty, p); // no admin tiers set for this category — hardcoded fallback
+  return getDiscountPct(qty, p);
 };
 
+
 // Bulk-tier discount % for a category (used by BulkOrder.tsx instead of the flat BULK_DISCOUNT_PCT).
+// export const resolveBulkDiscountPct = (
+//   p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
+//   overrides?: DiscountOverrideTier[] | null,
+// ): number => {
+//   const catName = findCategory(p.categorySlug)?.name;
+//   if (!catName || !overrides?.length) return BULK_DISCOUNT_PCT;
+//   const bulkTier = overrides.find(
+//     (o) => normalizeName(o.category) === normalizeName(catName) && o.isBulk,
+//   );
+//   return bulkTier ? bulkTier.discountPct : BULK_DISCOUNT_PCT;
+// };
+
+// Bulk Order: prefer the 80+ / isBulk tier by default;
+// extra admin rows apply only when qty falls in their range.
 export const resolveBulkDiscountPct = (
   p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
   overrides?: DiscountOverrideTier[] | null,
+  qty?: number,
 ): number => {
   const catName = findCategory(p.categorySlug)?.name;
   if (!catName || !overrides?.length) return BULK_DISCOUNT_PCT;
-  const bulkTier = overrides.find(
-    (o) => normalizeName(o.category) === normalizeName(catName) && o.isBulk,
-  );
-  return bulkTier ? bulkTier.discountPct : BULK_DISCOUNT_PCT;
+
+  const rule = getAccessoryRules(p.subSlug);
+  if (rule && !rule.discountEnabled) return 0;
+
+  const subName = subCategoryNameFor(p);
+
+  let bucket = overrides.filter((o) => {
+    if (normalizeName(o.category) !== normalizeName(catName)) return false;
+    if (subName && o.subCategory) {
+      return normalizeName(o.subCategory) === normalizeName(subName);
+    }
+    return !o.subCategory;
+  });
+
+  if (!bucket.length && subName) {
+    bucket = overrides.filter(
+      (o) =>
+        normalizeName(o.category) === normalizeName(catName) && !o.subCategory,
+    );
+  }
+
+  if (!bucket.length) return BULK_DISCOUNT_PCT;
+
+  const q = qty != null && qty > 0 ? qty : undefined;
+
+  // 1) isBulk tier that matches qty (or any isBulk if qty not set)
+  const bulkTiers = bucket
+    .filter((t) => t.isBulk)
+    .sort((a, b) => b.minQty - a.minQty);
+
+  if (bulkTiers.length) {
+    if (q == null) return bulkTiers[0].discountPct;
+
+    const bulkMatch = bulkTiers.find(
+      (t) => q >= t.minQty && (t.maxQty == null || q <= t.maxQty),
+    );
+    if (bulkMatch) return bulkMatch.discountPct;
+
+    // Qty is at bulk-order level but still below isBulk.minQty
+    // (e.g. qty 80, bulk starts at 81) → still use main bulk % as default
+    const mainBulk = bulkTiers[bulkTiers.length - 1]; // lowest minQty bulk = "80+" section
+    if (q >= BULK_THRESHOLD && mainBulk) return mainBulk.discountPct;
+  }
+
+  // 2) Extra rows / other tiers: match by quantity (highest minQty wins)
+  if (q != null) {
+    const matches = bucket
+      .filter((t) => q >= t.minQty && (t.maxQty == null || q <= t.maxQty))
+      .sort((a, b) => b.minQty - a.minQty);
+    if (matches.length) return matches[0].discountPct;
+  }
+
+  // 3) Open-ended fallback
+  const openEnded = bucket
+    .filter((t) => t.maxQty == null)
+    .sort((a, b) => a.minQty - b.minQty)[0]; // prefer lower min = classic 80+ style
+  if (openEnded) return openEnded.discountPct;
+
+  const highest = [...bucket].sort((a, b) => b.minQty - a.minQty)[0];
+  return highest?.discountPct ?? BULK_DISCOUNT_PCT;
 };
 
 // Human-friendly product code

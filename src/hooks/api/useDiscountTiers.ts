@@ -6,6 +6,7 @@ export function useDiscountTiers() {
   return useQuery({
     queryKey: queryKeys.discountTiers,
     queryFn: fetchDiscountTiers,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,        // 30s instead of 5 min
+    refetchOnWindowFocus: true,  // refresh when user returns to tab
   });
 }
