@@ -16,13 +16,29 @@ export function useCatalogProducts(
   tier: string | undefined,
   subSlug: string | undefined,
 ) {
+  const cat = catSlug ? findCategory(catSlug) : undefined;
   const catName = catSlug ? findCategory(catSlug)?.name : undefined;
   const apiType = apiTypeFromTier(tier);
   
+  // Get exact sub-category name from catalog
+  let subName: string | undefined;
+  if (cat && subSlug) {
+    const subs = cat.hasTiers
+      ? tier === "regular"
+        ? cat.regular ?? []
+        : tier === "premium"
+          ? cat.premium ?? []
+          : []
+      : cat.items ?? [];
+    subName = subs.find((s) => s.slug === subSlug)?.name;
+  }
+
   const query = useProducts({ 
     status: "Active", 
     category: catName, 
-    type: apiType 
+    type: apiType,
+    subCategory: subName, 
+    limit: 200,
   });
 
   const products =

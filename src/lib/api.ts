@@ -280,6 +280,8 @@ export type ProductFilters = {
   status?: string;
   category?: string;
   type?: string;
+  subCategory?: string;  // add
+  limit?: number;        // add
 };
 
 export type CreateCustomerInput = {
@@ -393,6 +395,8 @@ export function fetchProducts(filters: ProductFilters = {}) {
   if (filters.status) params.set("status", filters.status);
   if (filters.category) params.set("category", filters.category);
   if (filters.type) params.set("type", filters.type);
+  if (filters.subCategory) params.set("subCategory", filters.subCategory);
+  if (filters.limit) params.set("limit", String(filters.limit));
   const qs = params.toString();
   return request<ApiProduct[]>(`products${qs ? `?${qs}` : ""}`);
 }
