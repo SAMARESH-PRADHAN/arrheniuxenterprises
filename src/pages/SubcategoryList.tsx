@@ -2,9 +2,15 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { ChevronRight, Scissors } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { findCategory, getSubsForTier, listingHref } from "@/data/catalog";
+import { useProducts } from "@/hooks/api";
+import { filterProductsForSubcategory } from "@/lib/productMappers";
 
 const SubcategoryList = () => {
   const { cat: catSlug, tier } = useParams();
+   const { data: apiProducts = [], isLoading: countsLoading } = useProducts({
+    status: "Active",
+    limit: 500,
+  });
   const cat = findCategory(catSlug);
   if (!cat) return <Navigate to="/" replace />;
   if (!cat.hasTiers) return <Navigate to={`/category/${cat.slug}`} replace />;
@@ -12,6 +18,8 @@ const SubcategoryList = () => {
     return <Navigate to={`/category/${cat.slug}`} replace />;
 
   const subs = getSubsForTier(cat, tier);
+  const countFor = (subSlug: string) =>
+    filterProductsForSubcategory(apiProducts, cat.slug, tier, subSlug, "category").length;
   const bannerSrc =
   tier === "premium"
     ? cat.premiumBanner || cat.banner || cat.image
@@ -197,7 +205,9 @@ const SubcategoryList = () => {
           <p className="text-muted-foreground">No subcategories yet.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {subs.map((s) => (
+            {subs.map((s) => {
+              const count = countFor(s.slug);
+               return (
               <Link
                 key={s.slug}
                 to={listingHref(cat.slug, cat.hasTiers ? tier : undefined, s.slug)}
@@ -215,11 +225,12 @@ const SubcategoryList = () => {
                     {s.name.toUpperCase()}
                   </h3>
                   <p className="text-[10px] text-cream/70 mt-1 uppercase tracking-widest">
-                    {s.products.length} styles
-                  </p>
+          {countsLoading ? "…" : `${count} ${count === 1 ? "product" : "products"}`}
+        </p>
                 </div>
               </Link>
-            ))}
+               );
+})}
           </div>
         )}
       </section>
