@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, CreditCard, Package } from "lucide-react";
+import { X, CreditCard, Package, Info  } from "lucide-react";
 import { PrintPicker } from "@/components/PrintPicker";
 import {
   ArtworkUpload,
@@ -203,7 +203,7 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
     lines.push(`• Product: ${product.name} (Sample)`);
     lines.push(`• Code: ${productCode(product)}`);
     lines.push(`• Material: ${product.material}`);
-    if (selectedColor) lines.push(`• Color: ${selectedColor}`);
+   lines.push(`• Color: White (sample)`);
     if (selectedPrintColor) lines.push(`• Print Color: ${selectedPrintColor}`);
     if (isGarment) lines.push(`• Size: ${size}`);
     if (canPrint) lines.push(`• Print: ${printText}`);
@@ -338,9 +338,9 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
   return createPortal(
     <>
       {open && (
-        <div className="fixed inset-0 z-[60] bg-ink/70 flex items-center justify-center p-3 overflow-y-auto animate-fade-in">
-          <div className="bg-cream w-full max-w-2xl border border-border shadow-2xl my-6 animate-scale-in">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border sticky top-0 bg-cream z-10">
+        <div className="fixed inset-0 z-[60] bg-ink/70 flex items-center justify-center p-3 animate-fade-in">
+  <div className="bg-cream w-full max-w-2xl border border-border shadow-2xl animate-scale-in flex flex-col max-h-[92dvh]">
+           <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-border bg-cream">
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-primary font-bold flex items-center gap-1.5">
                   <Package className="h-3 w-3" /> Sample Order · Qty fixed at 1
@@ -361,7 +361,30 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
               </button>
             </div>
 
-            <div className="px-5 py-4 space-y-5 max-h-[75vh] overflow-y-auto">
+
+            {/* ===== SAMPLE COLOR NOTICE ===== */}
+<div className="shrink-0 relative overflow-hidden border-b border-amber-300/60 bg-gradient-to-r from-amber-100 via-orange-50 to-amber-100 px-5 py-3">              <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-amber-500 to-orange-500" />
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white shadow-md">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-amber-400/50" />
+                  <Info className="relative h-4 w-4" />
+                </span>
+                <p className="text-xs md:text-[13px] leading-snug text-amber-950">
+                  <span className="font-bold uppercase tracking-widest text-[10px] text-amber-700 mr-2">
+                    Important
+                  </span>
+                  Samples are provided in{" "}
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-400 bg-white px-2 py-0.5 font-bold text-ink align-middle">
+                    <span className="h-2.5 w-2.5 rounded-full border border-gray-400 bg-white" />
+                    WHITE
+                  </span>{" "}
+                  colour only, whichever colour you choose for the bulk order.
+                </p>
+              </div>
+            </div>
+
+
+           <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5">
               {/* Product & material info */}
               <div className="flex gap-3">
                 <img
@@ -596,7 +619,7 @@ export const SampleDialog = ({ product, open, onClose, isGarment }: Props) => {
               </div>
             </div>
 
-            <div className="px-5 py-3 border-t border-border sticky bottom-0 bg-cream">
+           <div className="shrink-0 px-5 py-3 border-t border-border bg-cream">
               <button
                 onClick={handlePay}
                 disabled={isPaying || (isKit && !kitEnoughItems)}
