@@ -539,7 +539,7 @@ export const catalog: CatalogCategory[] = [
         image: newdotnetwhiteroundnecktshirt120gsm, banner: bannerdotnetwhiteroundnecktshirt120gsm
       },
       {
-        name: "Corporate polyster Round Neck T-Shirts (120 GSM)",
+        name: "Corporate Polyster Round Neck T-Shirts (120 GSM)",
         image: newcorporatepolysterroundnecktshirt120gsm, banner: bannercorporatepolysterroundnecktshirt120gsm
       },
     ]),
