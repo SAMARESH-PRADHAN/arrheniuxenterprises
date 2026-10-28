@@ -36,6 +36,8 @@ notes?: string;
   discountPct?: number; 
   discountAmt?: number;
   paymentRef?: string;
+    couponCode?: string | null;
+  couponDiscount?: number;
 };
 
 const KIND_TO_TYPE: Record<StorefrontOrderKind, CreateOrderInput["type"]> = {
@@ -84,6 +86,7 @@ notes:       payload.notes ?? "",
     shipping: payload.shipping ?? 0,
     discountPct: payload.discountPct ?? 0,
     discountAmt: payload.discountAmt ?? 0,
+    
     total: payload.total,
     paid: payload.paid,
     type: KIND_TO_TYPE[payload.kind],

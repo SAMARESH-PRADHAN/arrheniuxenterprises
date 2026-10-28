@@ -9,6 +9,7 @@ import {
   LogOut,
   CheckCircle2,
   Home,
+ 
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { PrintPicker } from "@/components/PrintPicker";
@@ -51,6 +52,8 @@ import {
 } from "@/lib/b2bAgentSession";
 import { ProductReviews } from "@/components/ProductReviews";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { validateCoupon } from "@/lib/api";
+import { slugify } from "@/lib/productMappers";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
 type Size = (typeof SIZES)[number];
@@ -103,10 +106,12 @@ const B2BShop = () => {
   const createOrderMut = useCreateOrder();
   const registerAgentMut = useRegisterAgent();
   const { verify, isLoading: agentsLoading } = useVerifyAgentCode();
+  const { products: allB2BProducts, isLoading: countsLoading } = useB2BProducts();
   const [view, setView] = useState<View>({ step: "subs" });
   const [sizeQty, setSizeQty] = useState<Record<Size, number>>({
     ...EMPTY_SIZES,
   });
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [printSel, setPrintSel] = useState<PrintSelection>(emptyPrint());
   // Verification restored from sessionStorage on mount if a valid, unexpired
   // session exists; otherwise it starts fresh (agent must re-verify).
@@ -120,6 +125,15 @@ const B2BShop = () => {
   const [sampleOpen, setSampleOpen] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
+  const [showCoupon, setShowCoupon] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: "fixed" | "percent";
+    discountValue: number;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const [successOrder, setSuccessOrder] = useState<{
     id: string;
@@ -256,27 +270,81 @@ const B2BShop = () => {
     refetch: refetchB2B,
     isFetching: refreshingB2B,
   } = useB2BProducts(activeSub?.name);
+  const countForSub = (subName: string) =>
+  allB2BProducts.filter(
+    (p) =>
+      p.subSlug === slugify(subName)
+  ).length;
   const products = view.step !== "subs" ? b2bProductsForSub : [];
   const product: CatalogProduct | undefined =
     view.step === "detail"
       ? products.find((p) => p.id === view.productId)
       : undefined;
+  useEffect(() => {
+  if (!product) {
+    setSelectedImage(null);
+    return;
+  }
+
+  const firstImage =
+    product.gallery?.filter(Boolean)?.[0] || product.image;
+
+  setSelectedImage(firstImage);
+}, [product?.id]);
   const canPrint = product ? supportsPrint(product.categorySlug) : false;
 
-  const total = useMemo(
+  // const total = useMemo(
+  //   () => Object.values(sizeQty).reduce((a, b) => a + b, 0),
+  //   [sizeQty],
+  // );
+  // const unitPrice = product ? priceValue(product) : 0;
+  // const perPcPrint = canPrint ? printPricePerPc(printSel) : 0;
+  // const printCharge = perPcPrint * total;
+  // const printText = canPrint ? printLabel(printSel) : "N/A";
+  // const subtotal = unitPrice * total + printCharge;
+  // const discountAmt = Math.round((subtotal * BULK_DISCOUNT_PCT) / 100);
+  // const afterDiscount = Math.max(0, subtotal - discountAmt);
+  // const courier = 0;
+  // const gst = Math.round((afterDiscount + courier) * 0.05);
+  // const grandTotal = afterDiscount + courier + gst;
+
+    const total = useMemo(
     () => Object.values(sizeQty).reduce((a, b) => a + b, 0),
     [sizeQty],
   );
-  const unitPrice = product ? priceValue(product) : 0;
+
+  const baseUnitPrice = product ? priceValue(product) : 0;
+
+  let couponOffPerUnit = 0;
+  if (appliedCoupon && baseUnitPrice > 0) {
+    if (appliedCoupon.discountType === "fixed") {
+      couponOffPerUnit = Math.min(appliedCoupon.discountValue, baseUnitPrice);
+    } else {
+      couponOffPerUnit = Math.round(
+        (baseUnitPrice * appliedCoupon.discountValue) / 100,
+      );
+    }
+  }
+
+  const unitPrice = Math.max(0, baseUnitPrice - couponOffPerUnit);
+  const couponLineDiscount = couponOffPerUnit * total;
+
   const perPcPrint = canPrint ? printPricePerPc(printSel) : 0;
   const printCharge = perPcPrint * total;
   const printText = canPrint ? printLabel(printSel) : "N/A";
-  const subtotal = unitPrice * total + printCharge;
-  const discountAmt = Math.round((subtotal * BULK_DISCOUNT_PCT) / 100);
-  const afterDiscount = Math.max(0, subtotal - discountAmt);
+
+  const productLineTotal = unitPrice * total;
+  const subtotal = productLineTotal + printCharge;
+
+  // Existing B2B % discount (after unit coupon)
+  const b2bDiscountAmt = Math.round((subtotal * BULK_DISCOUNT_PCT) / 100);
+  const discountAmt = b2bDiscountAmt + couponLineDiscount;
+
+  const afterDiscount = Math.max(0, subtotal - b2bDiscountAmt);
   const courier = 0;
   const gst = Math.round((afterDiscount + courier) * 0.05);
   const grandTotal = afterDiscount + courier + gst;
+
 
   const bumpSize = (s: Size, d: number) =>
     setSizeQty((q) => ({ ...q, [s]: Math.max(0, (q[s] || 0) + d * B2B_STEP) }));
@@ -284,6 +352,10 @@ const B2BShop = () => {
   const resetSelections = () => {
     setSizeQty({ ...EMPTY_SIZES });
     setPrintSel(emptyPrint());
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+    setShowCoupon(false);
   };
 
   const openProduct = (id: string) => {
@@ -331,6 +403,48 @@ const B2BShop = () => {
     return lines.join("\n");
   };
 
+
+    const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    if (!product || total <= 0) {
+      setCouponError("Select sizes / quantity first");
+      return;
+    }
+
+    const cartForValidate = baseUnitPrice * total;
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await validateCoupon(couponCode.trim(), cartForValidate);
+      if (!res.valid || !res.coupon) {
+        setAppliedCoupon(null);
+        setCouponError(res.message || "Invalid coupon");
+        return;
+      }
+      setAppliedCoupon({
+        code: res.coupon.code,
+        discountType: res.coupon.discountType,
+        discountValue: res.coupon.discountValue,
+      });
+      setCouponError("");
+      toast({
+        title: "Coupon applied",
+        description:
+          res.coupon.discountType === "fixed"
+            ? `₹${res.coupon.discountValue} off product price per piece`
+            : `${res.coupon.discountValue}% off product price`,
+      });
+    } catch {
+      setAppliedCoupon(null);
+      setCouponError("Could not validate coupon. Try again.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
   const handlePay = () => {
     if (!product || !agent || isPaying) return;
     if (total < B2B_MOQ) return;
@@ -363,10 +477,14 @@ const B2BShop = () => {
             printType: printText,
             sizes: sizeQty,
             qty: total,
-            unitPrice,
+            unitPrice: baseUnitPrice,
             printingPrice: printCharge,
             gstPct: 5,
             shipping: courier,
+            discountPct: BULK_DISCOUNT_PCT,
+            discountAmt,
+            couponCode: appliedCoupon?.code ?? null,
+            couponDiscount: couponLineDiscount,
             total: grandTotal,
             paid: grandTotal,
             paymentMode: "full",
@@ -715,8 +833,10 @@ const B2BShop = () => {
                       {s.name.toUpperCase()}
                     </div>
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
-                      {getB2BProducts(s.slug).length} products
-                    </div>
+  {countsLoading
+    ? "…"
+    : `${countForSub(s.name)} ${countForSub(s.name) === 1 ? "product" : "products"}`}
+</div>
                   </div>
                 </button>
               ))}
@@ -779,7 +899,7 @@ const B2BShop = () => {
               <ChevronLeft className="h-3.5 w-3.5" /> Back to {activeSub?.name}
             </button>
             <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8">
-              <div className="tilt-card">
+              {/* <div className="tilt-card">
                 <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
                   <img
                     src={product.image}
@@ -787,7 +907,46 @@ const B2BShop = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-              </div>
+              </div> */}
+
+              <div className="grid grid-cols-[80px_1fr] gap-3">
+  {/* Image thumbnails */}
+  <div className="flex flex-col gap-2">
+    {(product.gallery?.filter(Boolean).length
+      ? product.gallery.filter(Boolean)
+      : [product.image]
+    ).map((img, index) => (
+      <button
+        key={`${img}-${index}`}
+        type="button"
+        onClick={() => setSelectedImage(img)}
+        className={`aspect-square overflow-hidden border-2 bg-secondary transition ${
+          selectedImage === img
+            ? "border-ink"
+            : "border-border hover:border-ink/50"
+        }`}
+      >
+        <img
+          src={img}
+          alt={`${product.name} ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+      </button>
+    ))}
+  </div>
+
+  {/* Main image */}
+  <div className="tilt-card">
+    <div className="tilt-card-inner bg-secondary aspect-square overflow-hidden">
+      <img
+        src={selectedImage || product.image}
+        alt={product.name}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  </div>
+</div>
+
 
               <div>
                 <span className="inline-block bg-ink text-cream text-[10px] uppercase tracking-widest px-2 py-1">
@@ -870,7 +1029,7 @@ const B2BShop = () => {
                   </div>
                 </div>
 
-                <div className="mt-5 border border-border bg-secondary">
+                {/* <div className="mt-5 border border-border bg-secondary">
                   <Row label="Unit Price" value={`₹${unitPrice}`} />
                   <Row label="Quantity" value={`${total} pcs`} />
                   {printCharge > 0 && (
@@ -887,6 +1046,286 @@ const B2BShop = () => {
                     label={`B2B Discount ${BULK_DISCOUNT_PCT}%`}
                     value={`−₹${discountAmt.toLocaleString("en-IN")}`}
                   />
+                  <Row label="Courier" value="FREE" />
+                  <Row
+                    label="GST 5%"
+                    value={`₹${gst.toLocaleString("en-IN")}`}
+                  />
+                  <div className="shine-sweep flex justify-between px-4 py-3 bg-ink text-cream">
+                    <span className="text-xs uppercase tracking-widest font-bold">
+                      Total
+                    </span>
+                    <span className="font-display text-2xl">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div> */}
+
+                                <div className="mt-5 border border-border bg-secondary">
+                  <Row
+                    label="Product Price"
+                    value={
+                      appliedCoupon && couponOffPerUnit > 0
+                        ? `₹${baseUnitPrice} → ₹${unitPrice} / pc`
+                        : `₹${baseUnitPrice} / pc`
+                    }
+                  />
+
+                  {/* Coupon box inside price section */}
+                  {/* <div className="px-4 py-3 border-t border-border space-y-2">
+                    {!showCoupon ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowCoupon(true)}
+                        className="text-xs uppercase tracking-widest border border-border px-3 py-1.5 hover:border-ink transition"
+                      >
+                        Apply Coupon Code
+                      </button>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          value={couponCode}
+                          onChange={(e) =>
+                            setCouponCode(e.target.value.toUpperCase())
+                          }
+                          placeholder="Enter coupon code"
+                          className="border border-border px-3 py-1.5 text-sm w-40 focus:outline-none focus:border-ink bg-background"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading}
+                          className="btn-bold text-xs px-3 py-1.5 disabled:opacity-50"
+                        >
+                          {couponLoading ? "Checking…" : "Apply"}
+                        </button>
+                        {appliedCoupon && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppliedCoupon(null);
+                              setCouponCode("");
+                              setCouponError("");
+                            }}
+                            className="text-xs text-destructive underline"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {couponError && (
+                      <p className="text-xs text-destructive">{couponError}</p>
+                    )}
+                    {appliedCoupon && couponOffPerUnit > 0 && (
+                      <p className="text-xs text-green-600">
+                        Coupon <strong>{appliedCoupon.code}</strong>: −₹
+                        {couponOffPerUnit}/pc → ₹{unitPrice} × {total} = ₹
+                        {productLineTotal.toLocaleString("en-IN")}
+                      </p>
+                    )}
+                  </div> */}
+
+                  {/* Premium Coupon Section */}
+<div className="border-t border-border">
+  {!showCoupon ? (
+    <button
+      type="button"
+      onClick={() => setShowCoupon(true)}
+      className="group w-full px-4 py-4 text-left transition-all hover:bg-background"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {/* Coupon Icon */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink bg-ink text-cream">
+            <span className="text-lg">%</span>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest">
+                Have a Coupon?
+              </span>
+
+              <span className="rounded-full bg-ink px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-cream">
+                Offer
+              </span>
+            </div>
+
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Apply your B2B promotional code and save more
+            </p>
+          </div>
+        </div>
+
+        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4 transition group-hover:text-primary">
+          Apply
+        </span>
+      </div>
+    </button>
+  ) : (
+    <div className="px-4 py-4">
+      {/* Coupon Header */}
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-cream">
+            <span className="text-sm font-bold">%</span>
+          </div>
+
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest">
+              Apply Coupon
+            </div>
+
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">
+              Unlock your B2B offer
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setShowCoupon(false);
+            setCouponError("");
+          }}
+          className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-destructive transition"
+        >
+          Close
+        </button>
+      </div>
+
+      {/* Coupon Input */}
+      {!appliedCoupon ? (
+        <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                value={couponCode}
+                onChange={(e) =>
+                  setCouponCode(e.target.value.toUpperCase())
+                }
+                placeholder="ENTER COUPON CODE"
+                className="h-11 w-full border border-border bg-background px-3 pr-3 text-xs font-semibold tracking-wider outline-none transition placeholder:text-muted-foreground/60 focus:border-ink focus:ring-1 focus:ring-ink"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              disabled={couponLoading}
+              className="h-11 shrink-0 bg-ink px-5 text-[10px] font-bold uppercase tracking-widest text-cream transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {couponLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Checking
+                </span>
+              ) : (
+                "Apply"
+              )}
+            </button>
+          </div>
+
+          {/* Small helper text */}
+          <div className="mt-2 flex items-center gap-1.5 text-[9px] text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Enter a valid promotional code to receive your discount.
+          </div>
+        </div>
+      ) : (
+        /* Applied Coupon */
+        <div className="border border-ink bg-background p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-cream">
+                <CheckCircle2 className="h-4 w-4" />
+              </div>
+
+              <div>
+                <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Coupon Applied
+                </div>
+
+                <div className="mt-0.5 flex items-center gap-2">
+                  <span className="font-mono text-sm font-bold tracking-wider">
+                    {appliedCoupon.code}
+                  </span>
+
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-green-600">
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAppliedCoupon(null);
+                setCouponCode("");
+                setCouponError("");
+              }}
+              className="text-[9px] font-semibold uppercase tracking-widest text-destructive underline underline-offset-2"
+            >
+              Remove
+            </button>
+          </div>
+
+          {/* Discount Message */}
+          <div className="mt-3 border-t border-border pt-2">
+            <p className="text-[10px] text-muted-foreground">
+              {appliedCoupon.discountType === "fixed"
+                ? `₹${appliedCoupon.discountValue} discount applied per piece`
+                : `${appliedCoupon.discountValue}% discount applied to product price`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Coupon Error */}
+      {couponError && (
+        <div className="mt-2 border border-destructive/30 bg-destructive/5 px-3 py-2">
+          <p className="text-[10px] font-medium text-destructive">
+            {couponError}
+          </p>
+        </div>
+      )}
+
+      {/* Existing Applied Coupon Calculation */}
+      {appliedCoupon && couponOffPerUnit > 0 && (
+        <div className="mt-3 flex items-center justify-between border border-border bg-secondary px-3 py-2">
+          <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
+            Your Price
+          </span>
+
+          <span className="text-xs font-bold">
+            ₹{unitPrice} × {total} = ₹
+            {productLineTotal.toLocaleString("en-IN")}
+          </span>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+                  <Row label="Quantity" value={`${total} pcs`} />
+                  {printCharge > 0 && (
+                    <Row
+                      label={`Print (${printText})`}
+                      value={`+₹${printCharge}`}
+                    />
+                  )}
+                  <Row
+                    label="Subtotal"
+                    value={`₹${subtotal.toLocaleString("en-IN")}`}
+                  />
+                  {b2bDiscountAmt > 0 && (
+                    <Row
+                      label={`B2B Discount ${BULK_DISCOUNT_PCT}%`}
+                      value={`−₹${b2bDiscountAmt.toLocaleString("en-IN")}`}
+                    />
+                  )}
                   <Row label="Courier" value="FREE" />
                   <Row
                     label="GST 5%"

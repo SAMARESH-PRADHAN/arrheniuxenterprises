@@ -330,6 +330,8 @@ notes?: string;
   total?: number;
   paid?: number;
   timeline?: Array<{ status: ApiOrderStatus; at: string }>;
+    couponCode?: string | null;
+  couponDiscount?: number;
 };
 
 export type CreatePaymentInput = {
@@ -542,4 +544,26 @@ export function fetchReviews(status?: string) {
 
 export function createReview(body: CreateReviewInput) {
   return request<ApiReview>("reviews", { method: "POST", body: JSON.stringify(body) });
+}
+
+// ── Coupons ───────────────────────────────────────────────────────────────
+
+export type CouponValidateResult = {
+  valid: boolean;
+  message?: string;
+  discountAmount?: number; // backend may return cart-level; we use coupon.discountValue for unit
+  coupon?: {
+    id: string;
+    code: string;
+    name: string;
+    discountType: "fixed" | "percent";
+    discountValue: number; // FIXED = ₹ off UNIT price
+  };
+};
+
+export function validateCoupon(code: string, cartTotal: number) {
+  return request<CouponValidateResult>("coupons/validate", {
+    method: "POST",
+    body: JSON.stringify({ code, cartTotal }),
+  });
 }
