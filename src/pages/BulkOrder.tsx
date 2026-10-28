@@ -62,6 +62,8 @@ import { BrandLoader } from "@/components/BrandLoader";
 import { useDiscountTiers } from "@/hooks/api";
 import { getDefaultAddress, formatAddress } from "@/lib/authStore";
 import bulkorderbanner from "@/assets/bulkorderbanner.avif";
+import { validateCoupon } from "@/lib/api";
+
 
 const SIZE_STEP = 1;
 
@@ -213,6 +215,16 @@ const BulkOrder = () => {
     null,
   );
   const [savingOrder, setSavingOrder] = useState(false);
+    const [showCoupon, setShowCoupon] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: "fixed" | "percent";
+    discountValue: number;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+
   useEffect(() => {
     if (!urlProduct) return;
     const urlQty = Number(params.get("qty")) || 0;
@@ -386,8 +398,53 @@ const BulkOrder = () => {
   const kitEnoughItems = kitItems.length >= WELCOME_KIT_MIN_ITEMS;
   const kitUnit = isKit ? kitUnitPrice(kitItems, kitDefs) : 0;
 
-  const total = isKit ? kitQty : isGarment ? kitSizeTotal : unitQty;
-  const unitPrice = isKit ? kitUnit : product ? priceValue(product) : 0;
+  // const total = isKit ? kitQty : isGarment ? kitSizeTotal : unitQty;
+  // const unitPrice = isKit ? kitUnit : product ? priceValue(product) : 0;
+  // const perPcPrint = canPrint
+  //   ? printPricePerPc(printSel, restrictedMethods)
+  //   : 0;
+  // const printCharge = perPcPrint * total;
+  // const printText = isKit
+  //   ? "Company Logo Printing — FREE"
+  //   : canPrint
+  //     ? printLabel(printSel, restrictedMethods)
+  //     : "N/A";
+  // const subtotal = unitPrice * total + printCharge;
+  //   const bulkPct = isKit
+  //   ? 0
+  //   : rule && !rule.discountEnabled
+  //     ? 0
+  //     : product
+  //       ? resolveBulkDiscountPct(product, discountOverrides, total)
+  //       : BULK_DISCOUNT_PCT;
+  // const discountAmt = Math.round((subtotal * bulkPct) / 100);
+  // const afterDiscount = Math.max(0, subtotal - discountAmt);
+  // const courierPc = product ? getCourierPerPc(product) : COURIER_PER_PC;
+  // const courier = total * courierPc;
+  // const gst = Math.round((afterDiscount + courier) * gstRate);
+  // const grandTotal = afterDiscount + courier + gst;
+
+    const total = isKit ? kitQty : isGarment ? kitSizeTotal : unitQty;
+
+  // Original product unit price (before coupon)
+  const baseUnitPrice = isKit ? kitUnit : product ? priceValue(product) : 0;
+
+  // Coupon reduces UNIT price (not whole bill)
+  // Example: 150 − 30 = 120, then 120 × qty
+  let couponOffPerUnit = 0;
+  if (appliedCoupon && baseUnitPrice > 0) {
+    if (appliedCoupon.discountType === "fixed") {
+      couponOffPerUnit = Math.min(appliedCoupon.discountValue, baseUnitPrice);
+    } else {
+      couponOffPerUnit = Math.round(
+        (baseUnitPrice * appliedCoupon.discountValue) / 100,
+      );
+    }
+  }
+
+  const unitPrice = Math.max(0, baseUnitPrice - couponOffPerUnit);
+  const couponLineDiscount = couponOffPerUnit * total;
+
   const perPcPrint = canPrint
     ? printPricePerPc(printSel, restrictedMethods)
     : 0;
@@ -397,16 +454,23 @@ const BulkOrder = () => {
     : canPrint
       ? printLabel(printSel, restrictedMethods)
       : "N/A";
-  const subtotal = unitPrice * total + printCharge;
-    const bulkPct = isKit
+
+  // Product total uses discounted unit price
+  const productLineTotal = unitPrice * total;
+  const subtotal = productLineTotal + printCharge;
+
+  // Existing bulk % discount (on subtotal after coupon)
+  const bulkPct = isKit
     ? 0
     : rule && !rule.discountEnabled
       ? 0
       : product
         ? resolveBulkDiscountPct(product, discountOverrides, total)
         : BULK_DISCOUNT_PCT;
-  const discountAmt = Math.round((subtotal * bulkPct) / 100);
-  const afterDiscount = Math.max(0, subtotal - discountAmt);
+  const bulkDiscountAmt = Math.round((subtotal * bulkPct) / 100);
+  const discountAmt = bulkDiscountAmt + couponLineDiscount;
+
+  const afterDiscount = Math.max(0, subtotal - bulkDiscountAmt);
   const courierPc = product ? getCourierPerPc(product) : COURIER_PER_PC;
   const courier = total * courierPc;
   const gst = Math.round((afterDiscount + courier) * gstRate);
@@ -552,7 +616,7 @@ const BulkOrder = () => {
       printType: printText,
       sizes: isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
       qty: total,
-      unitPrice,
+      unitPrice: baseUnitPrice,
       printingPrice: printCharge,
       gstPct: gstPctLabel,
       shipping: courier,
@@ -561,8 +625,51 @@ const BulkOrder = () => {
       uploadedLogo: artwork[0]?.dataUrl ?? "",
       discountPct: bulkPct,
       discountAmt,
+      couponCode: appliedCoupon?.code ?? null,
+      couponDiscount: couponLineDiscount,
       paymentMode: mode,
     });
+  };
+
+    const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    if (!product || total <= 0) {
+      setCouponError("Select a product and quantity first");
+      return;
+    }
+
+    const cartForValidate = baseUnitPrice * total;
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await validateCoupon(couponCode.trim(), cartForValidate);
+      if (!res.valid || !res.coupon) {
+        setAppliedCoupon(null);
+        setCouponError(res.message || "Invalid coupon");
+        return;
+      }
+      setAppliedCoupon({
+        code: res.coupon.code,
+        discountType: res.coupon.discountType,
+        discountValue: res.coupon.discountValue,
+      });
+      setCouponError("");
+      toast({
+        title: "Coupon applied",
+        description:
+          res.coupon.discountType === "fixed"
+            ? `₹${res.coupon.discountValue} off product price per piece`
+            : `${res.coupon.discountValue}% off product price`,
+      });
+    } catch {
+      setAppliedCoupon(null);
+      setCouponError("Could not validate coupon. Try again.");
+    } finally {
+      setCouponLoading(false);
+    }
   };
 
   const handlePay = (mode: "full" | "advance-50") => {
@@ -1330,7 +1437,8 @@ ${
                   </div>
 
                   {/* Keep all your existing Row components here */}
-                  <Row label="Unit Price" value={`₹${unitPrice}`} />
+                  {/* <Row label="Unit Price" value={`₹${unitPrice}`} />
+
                   <Row label="Total Quantity" value={`${total} pcs`} />
                   {printCharge > 0 && (
                     <Row
@@ -1369,8 +1477,244 @@ ${
                     <span className="font-display text-3xl">
                       ₹{grandTotal.toLocaleString("en-IN")}
                     </span>
+                  </div> */}
+
+                                    {/* Product price section + coupon */}
+                  <Row
+                    label="Product Price"
+                    value={
+                      appliedCoupon && couponOffPerUnit > 0
+                        ? `₹${baseUnitPrice} → ₹${unitPrice} / pc`
+                        : `₹${baseUnitPrice} / pc`
+                    }
+                  />
+
+                 
+{/* ================= PREMIUM COUPON SECTION ================= */}
+<div className="border-t border-border bg-secondary/30">
+  <div className="px-4 py-4">
+    {!showCoupon && !appliedCoupon ? (
+      /* Collapsed coupon card */
+      <button
+        type="button"
+        onClick={() => {
+          setShowCoupon(true);
+          setCouponError("");
+        }}
+        className="group w-full flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-card p-4 text-left transition-all duration-300 hover:border-primary hover:shadow-md"
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+            <span className="text-2xl font-bold">%</span>
+          </div>
+
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+              Special Offer
+            </p>
+            <p className="mt-1 font-condensed text-lg tracking-wide text-ink">
+              HAVE A COUPON CODE?
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Apply your code and save on your order.
+            </p>
+          </div>
+        </div>
+
+        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-primary underline underline-offset-4 transition-colors group-hover:text-ink">
+          Apply
+        </span>
+      </button>
+    ) : (
+      /* Expanded coupon card */
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-4 py-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+            <span className="text-xl font-bold">%</span>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+              Special Offer
+            </p>
+            <h3 className="mt-0.5 font-condensed text-lg tracking-wide text-ink">
+              {appliedCoupon ? "COUPON APPLIED" : "APPLY COUPON CODE"}
+            </h3>
+          </div>
+
+          {!appliedCoupon && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowCoupon(false);
+                setCouponError("");
+              }}
+              className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground transition hover:text-ink"
+            >
+              Close
+            </button>
+          )}
+        </div>
+
+        <div className="p-4">
+          {!appliedCoupon ? (
+            <>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Enter your promotional code below to get a discount on your
+                product price.
+              </p>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    if (couponError) setCouponError("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleApplyCoupon();
+                    }
+                  }}
+                  placeholder="ENTER COUPON CODE"
+                  aria-label="Coupon code"
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium uppercase tracking-wider outline-none transition-all placeholder:text-muted-foreground/50 hover:border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {couponLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    "Apply Code"
+                  )}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-lg border border-green-600/20 bg-green-600/5 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-600/10 text-green-700">
+                    <span className="text-lg font-bold">✓</span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-green-700">
+                      Discount Successfully Applied
+                    </p>
+                    <p className="mt-1 break-all text-sm font-bold text-ink">
+                      {appliedCoupon.code}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      You save ₹
+                      {couponOffPerUnit.toLocaleString("en-IN")} per piece
+                      on the product price.
+                    </p>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    setCouponCode("");
+                    setCouponError("");
+                    setShowCoupon(false);
+                  }}
+                  className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-destructive underline underline-offset-4 transition hover:no-underline"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-green-600/10 pt-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Discounted Unit Price
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    ₹{baseUnitPrice.toLocaleString("en-IN")} → ₹
+                    {unitPrice.toLocaleString("en-IN")}
+                  </p>
+                </div>
+
+                <p className="font-display text-xl text-green-700">
+                  −₹
+                  {couponLineDiscount.toLocaleString("en-IN")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {couponError && (
+            <div
+              role="alert"
+              className="mt-3 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5"
+            >
+              <p className="text-xs text-destructive">{couponError}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+{/* ================= END COUPON SECTION ================= */}
+
+
+
+                  <Row label="Total Quantity" value={`${total} pcs`} />
+                  {printCharge > 0 && (
+                    <Row
+                      label={`Print (${printText})`}
+                      value={`+₹${printCharge}`}
+                    />
+                  )}
+                  <Row
+                    label="Subtotal"
+                    value={`₹${subtotal.toLocaleString("en-IN")}`}
+                  />
+                  {bulkDiscountAmt > 0 && (
+                    <Row
+                      label={`Bulk Discount ${bulkPct}%`}
+                      value={`−₹${bulkDiscountAmt.toLocaleString("en-IN")}`}
+                    />
+                  )}
+                  <Row
+                    label={
+                      courierPc > 0
+                        ? `Courier (₹${courierPc}×${total})`
+                        : "Courier"
+                    }
+                    value={
+                      courierPc > 0
+                        ? `₹${courier.toLocaleString("en-IN")}`
+                        : "FREE"
+                    }
+                  />
+                  <Row
+                    label={`GST ${gstPctLabel}%`}
+                    value={`₹${gst.toLocaleString("en-IN")}`}
+                  />
+                  <div className="shine-sweep flex items-center justify-between px-5 py-5 bg-primary text-white">
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold opacity-90">
+                      Grand Total
+                    </span>
+                    <span className="font-display text-3xl">
+                      ₹{grandTotal.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div>
+
                 <p className="text-[11px] text-muted-foreground mt-2">
                   Pay 100% or 50% advance. After payment, WhatsApp opens
                   automatically with your order — attach logo / artwork /
