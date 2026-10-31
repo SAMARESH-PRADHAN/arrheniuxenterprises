@@ -432,6 +432,9 @@ const deliveryDateValue = isDelivered && order.deliveredAt
   if (order.category) detailLines.push(`Category: ${order.category}${order.subCategory ? ` — ${order.subCategory}` : ""}`);
   if (order.material) detailLines.push(`Material: ${order.material}`);
   if (order.printType && order.printType !== "N/A") detailLines.push(`Print: ${order.printType}`);
+  if (order.notes){
+    detailLines.push(`Notes: ${order.notes}`)
+  }
   if (sizesLine) detailLines.push(`Sizes: ${sizesLine}`);
   
 
