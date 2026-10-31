@@ -317,6 +317,23 @@ const ProductDetailView = ({
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
 
+  type DraftCustomer = {
+    company: string;
+    gst: string;
+    notes: string;
+  };
+
+  const EMPTY_CUSTOMER: DraftCustomer = {
+    company: "",
+    gst: "",
+    notes: "",
+  };
+
+  const [customer, setCustomer] = useState<DraftCustomer>(EMPTY_CUSTOMER);
+  const [payingMode, setPayingMode] = useState<"full" | "advance-50" | null>(
+    null,
+  );
+
   // Consume the saved draft exactly once. It's only ever written to storage
   // right before redirecting to /auth or /my-addresses (see handlePay below),
   // so this restores it after that specific round-trip — then wipes it so
@@ -382,6 +399,9 @@ const ProductDetailView = ({
 
   // Keep these — still used for MOQ, GST, colors, reviews, ARRHENIUX rules, etc.
   const isArr = isArrheniuxCategory(product.categorySlug);
+  // Show Company / GST / Notes + 50% pay only for normal category products
+  // (exclude Arrheniux T-shirts and Arrheniux Top Wear / new-collection)
+  const showBizFields = !isArr && !isNewCollection;
   const rule = getAccessoryRules(product.subSlug);
   const moq = isKit ? WELCOME_KIT_MIN : resolveMOQ(product, moqOverrides);
   const maxQty = isKit
@@ -660,179 +680,195 @@ const ProductDetailView = ({
     }
   };
 
-  const handlePay = useCallback(() => {
-    if (isBulk) {
-      try {
-        localStorage.setItem(
-          BULK_REDIRECT_DRAFT_KEY,
-          JSON.stringify({
-            productId: product.id,
-            sizeQty,
-            unitQty,
-            printSel,
-            artwork,
-            kitItems,
-            kitQtyManual,
-            namedColor,
-            printColor,
-          }),
-        );
-      } catch {
-        // storage full/unavailable — URL params still cover the basics
-      }
-      navigate(bulkRedirectHref());
-      return;
-    }
-    if (!canOrder || isPaying) return;
-    setIsPaying(true); // ← add
-    const user = getSession();
-    if (!user) {
-      savePdpDraft({
-        productId: product.id,
-        sizeQty,
-        unitQty,
-        printSel,
-        kitItems,
-        kitQtyManual,
-        namedColor,
-        printColor,
-        artwork,
-      });
-
-      setIsPaying(false);
-
-      navigate(`/auth?next=${encodeURIComponent(location.pathname)}`);
-
-      return;
-    }
-
-    // Require a saved address before checkout — no manual typing needed after first time.
-    const defaultAddr = getDefaultAddress(user.id);
-    if (!defaultAddr) {
-      savePdpDraft({
-        productId: product.id,
-        sizeQty,
-        unitQty,
-        printSel,
-        kitItems,
-        kitQtyManual,
-        namedColor,
-        printColor,
-        artwork,
-      });
-
-      setIsPaying(false);
-      toast({
-        title: "Add a delivery address",
-        description: "Please save an address before placing your order.",
-      });
-      navigate(`/my-addresses?next=${encodeURIComponent(location.pathname)}`);
-      return;
-    }
-
-    openRazorpay({
-      amountInr: grandTotal,
-      name: "Arrheniux",
-      description: `${product.name} × ${total} pcs`,
-      prefill: {
-        name: user.name,
-        email: user.email,
-        contact: defaultAddr.mobile || user.phone,
-      },
-      onSuccess: async (paymentId) => {
-        setSavingOrder(true);
+  const handlePay = useCallback(
+    (mode: "full" | "advance-50" = "full") => {
+      if (isBulk) {
         try {
-          const o = await createOrderMut.mutateAsync({
-            kind: "retail",
-            customerId: user.id,
-            customerName: user.name,
-            phone: defaultAddr.mobile || user.phone || "",
-            email: user.email,
-            address: formatAddress(defaultAddr),
-            productId: product.id,
-            productCode: code,
-            productName: product.name,
-            category: cat?.name ?? "",
-            productType:
-              product.tier === "premium"
-                ? "Premium"
-                : product.tier === "regular"
-                  ? "Regular"
-                  : "",
-            subCategory: subcat?.name ?? "",
-            material: product.material,
-            description: isKit
-              ? `Kit Items: ${kitItems
-                  .map((id) => {
-                    const it = kitDefs.find((d) => d.id === id);
-                    return it ? `${it.label} (₹${it.price})` : id;
-                  })
-                  .join(", ")}`
-              : product.description,
-            printType: printTypeText,
-            sizes:
-              isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
-            qty: total,
-            unitPrice,
-            printingPrice: printCharge,
-            gstPct: gstPctLabel,
-            shipping: courier,
-            total: grandTotal,
-            paid: grandTotal,
-            uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
-            discountPct,
-            discountAmt,
-            couponCode: appliedCoupon?.code ?? null,
-            couponDiscount: couponLineDiscount,
-            paymentMode: "full",
-          });
-          toast({
-            title: "Payment successful",
-            description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
-          });
-          // window.open(waLink(orderMessage()), "_blank", "noreferrer");
-          setSuccessOrder({ id: o.id, amount: grandTotal });
-          clearPdpDraft(product.id);
-          // setSuccessOrder({ id: o.id, amount: grandTotal });
+          localStorage.setItem(
+            BULK_REDIRECT_DRAFT_KEY,
+            JSON.stringify({
+              productId: product.id,
+              sizeQty,
+              unitQty,
+              printSel,
+              artwork,
+              kitItems,
+              kitQtyManual,
+              namedColor,
+              printColor,
+            }),
+          );
         } catch {
-          toast({
-            title: "Order failed",
-            description:
-              "Payment received but order could not be saved. Contact support.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsPaying(false); // ← add
-          setSavingOrder(false);
+          // storage full/unavailable — URL params still cover the basics
         }
-      },
-      onDismiss: () => setIsPaying(false), // ← add this option (see razorpay.ts note below)
-    });
-  }, [
-    isBulk,
-    canOrder,
-    grandTotal,
-    product,
-    total,
-    code,
-    unitPrice,
-    subtotal,
-    discountPct,
-    discountAmt,
-    printTypeText,
-    printCharge,
-    courier,
-    gst,
-    isGarment,
-    sizeQty,
-    navigate,
-    location.pathname,
-    cat,
-    subcat,
-    createOrderMut,
-    gstPctLabel,
-    isPaying,
-  ]);
+        navigate(bulkRedirectHref());
+        return;
+      }
+      if (!canOrder || payingMode) return;
+      setIsPaying(true); // ← add
+      const user = getSession();
+      if (!user) {
+        savePdpDraft({
+          productId: product.id,
+          sizeQty,
+          unitQty,
+          printSel,
+          kitItems,
+          kitQtyManual,
+          namedColor,
+          printColor,
+          artwork,
+        });
+
+        setIsPaying(false);
+
+        navigate(`/auth?next=${encodeURIComponent(location.pathname)}`);
+
+        return;
+      }
+
+      // Require a saved address before checkout — no manual typing needed after first time.
+      const defaultAddr = getDefaultAddress(user.id);
+      if (!defaultAddr) {
+        savePdpDraft({
+          productId: product.id,
+          sizeQty,
+          unitQty,
+          printSel,
+          kitItems,
+          kitQtyManual,
+          namedColor,
+          printColor,
+          artwork,
+        });
+
+        setIsPaying(false);
+        toast({
+          title: "Add a delivery address",
+          description: "Please save an address before placing your order.",
+        });
+        navigate(`/my-addresses?next=${encodeURIComponent(location.pathname)}`);
+        return;
+      }
+
+      const amount = mode === "full" ? grandTotal : Math.round(grandTotal / 2);
+      openRazorpay({
+        amountInr: amount,
+        name: "Arrheniux",
+        description: `${product.name} × ${total} pcs (${
+          mode === "full" ? "Full" : "50% Advance"
+        })`,
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: defaultAddr.mobile || user.phone,
+        },
+        onSuccess: async (paymentId) => {
+          setSavingOrder(true);
+          try {
+            const o = await createOrderMut.mutateAsync({
+              kind: "retail",
+              customerId: user.id,
+              customerName: user.name,
+              phone: defaultAddr.mobile || user.phone || "",
+              email: user.email,
+              address: formatAddress(defaultAddr),
+              productId: product.id,
+              productCode: code,
+              productName: product.name,
+              category: cat?.name ?? "",
+              productType:
+                product.tier === "premium"
+                  ? "Premium"
+                  : product.tier === "regular"
+                    ? "Regular"
+                    : "",
+              subCategory: subcat?.name ?? "",
+              material: product.material,
+              description: isKit
+                ? `Kit Items: ${kitItems
+                    .map((id) => {
+                      const it = kitDefs.find((d) => d.id === id);
+                      return it ? `${it.label} (₹${it.price})` : id;
+                    })
+                    .join(", ")}`
+                : product.description,
+              printType: printTypeText,
+              sizes:
+                isGarment || (isKit && kitIncludesTshirt) ? sizeQty : undefined,
+              qty: total,
+              unitPrice,
+              printingPrice: printCharge,
+              gstPct: gstPctLabel,
+              shipping: courier,
+              total: grandTotal,
+              paid: amount,
+              uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
+              discountPct,
+              discountAmt,
+              couponCode: appliedCoupon?.code ?? null,
+              couponDiscount: couponLineDiscount,
+              paymentMode: mode,
+              companyName: showBizFields
+                ? customer.company || undefined
+                : undefined,
+              gstNumber: showBizFields ? customer.gst || undefined : undefined,
+              notes: showBizFields ? customer.notes || undefined : undefined,
+            });
+            toast({
+              title: "Payment successful",
+              description: `Order #${o.id.slice(0, 8).toUpperCase()} placed.`,
+            });
+            // window.open(waLink(orderMessage()), "_blank", "noreferrer");
+            setSuccessOrder({ id: o.id, amount });
+            clearPdpDraft(product.id);
+            // setSuccessOrder({ id: o.id, amount: grandTotal });
+          } catch {
+            toast({
+              title: "Order failed",
+              description:
+                "Payment received but order could not be saved. Contact support.",
+              variant: "destructive",
+            });
+          } finally {
+            setPayingMode(null);
+            setSavingOrder(false);
+          }
+        },
+        onDismiss: () => {
+          setPayingMode(null);
+        }, // ← add this option (see razorpay.ts note below)
+      });
+    },
+    [
+      isBulk,
+      canOrder,
+      grandTotal,
+      product,
+      total,
+      code,
+      unitPrice,
+      subtotal,
+      discountPct,
+      discountAmt,
+      printTypeText,
+      printCharge,
+      courier,
+      gst,
+      isGarment,
+      sizeQty,
+      navigate,
+      location.pathname,
+      cat,
+      subcat,
+      createOrderMut,
+      gstPctLabel,
+      isPaying,
+      customer,
+      showBizFields,
+      payingMode,
+    ],
+  );
 
   const handleSample = useCallback(() => setSampleOpen(true), []);
 
@@ -1068,6 +1104,57 @@ const ProductDetailView = ({
                       </span>{" "}
                       section.
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+           {!isBulk && showBizFields && (
+  <div className="mt-6 hidden lg:block rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+                <h2 className="font-condensed text-xl tracking-wide">
+                  CUSTOMER INFORMATION
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5 mb-4">
+                  Optional billing and order details (shown on invoice)
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.company}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, company: e.target.value })
+                      }
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      GST Number
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.gst}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, gst: e.target.value })
+                      }
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      Additional Notes
+                    </label>
+                    <textarea
+                      value={customer.notes}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, notes: e.target.value })
+                      }
+                      rows={3}
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
                   </div>
                 </div>
               </div>
@@ -1553,190 +1640,191 @@ const ProductDetailView = ({
                   </p>
                 )}
 
-               
-{/* ================= PREMIUM COUPON SECTION ================= */}
-<div className="border-t border-border bg-secondary/30">
-  <div className="py-4">
-    {!showCoupon && !appliedCoupon ? (
-      /* Collapsed coupon card */
-      <button
-        type="button"
-        onClick={() => {
-          setShowCoupon(true);
-          setCouponError("");
-        }}
-        className="group w-full flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-card p-4 text-left transition-all duration-300 hover:border-primary hover:shadow-md"
-      >
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-            <span className="text-2xl font-bold">%</span>
-          </div>
+                {/* ================= PREMIUM COUPON SECTION ================= */}
+                <div className="border-t border-border bg-secondary/30">
+                  <div className="py-4">
+                    {!showCoupon && !appliedCoupon ? (
+                      /* Collapsed coupon card */
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCoupon(true);
+                          setCouponError("");
+                        }}
+                        className="group w-full flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-card p-4 text-left transition-all duration-300 hover:border-primary hover:shadow-md"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                            <span className="text-2xl font-bold">%</span>
+                          </div>
 
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-              Special Offer
-            </p>
-            <p className="mt-1 font-condensed text-lg tracking-wide text-ink">
-              HAVE A COUPON CODE?
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Apply your code and save on your order.
-            </p>
-          </div>
-        </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                              Special Offer
+                            </p>
+                            <p className="mt-1 font-condensed text-lg tracking-wide text-ink">
+                              HAVE A COUPON CODE?
+                            </p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              Apply your code and save on your order.
+                            </p>
+                          </div>
+                        </div>
 
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-primary underline underline-offset-4 transition-colors group-hover:text-ink">
-          Apply
-        </span>
-      </button>
-    ) : (
-      /* Expanded coupon card */
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-4 py-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
-            <span className="text-xl font-bold">%</span>
-          </div>
+                        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-primary underline underline-offset-4 transition-colors group-hover:text-ink">
+                          Apply
+                        </span>
+                      </button>
+                    ) : (
+                      /* Expanded coupon card */
+                      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                        <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-4 py-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+                            <span className="text-xl font-bold">%</span>
+                          </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-              Special Offer
-            </p>
-            <h3 className="mt-0.5 font-condensed text-lg tracking-wide text-ink">
-              {appliedCoupon ? "COUPON APPLIED" : "APPLY COUPON CODE"}
-            </h3>
-          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                              Special Offer
+                            </p>
+                            <h3 className="mt-0.5 font-condensed text-lg tracking-wide text-ink">
+                              {appliedCoupon
+                                ? "COUPON APPLIED"
+                                : "APPLY COUPON CODE"}
+                            </h3>
+                          </div>
 
-          {!appliedCoupon && (
-            <button
-              type="button"
-              onClick={() => {
-                setShowCoupon(false);
-                setCouponError("");
-              }}
-              className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground transition hover:text-ink"
-            >
-              Close
-            </button>
-          )}
-        </div>
+                          {!appliedCoupon && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowCoupon(false);
+                                setCouponError("");
+                              }}
+                              className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground transition hover:text-ink"
+                            >
+                              Close
+                            </button>
+                          )}
+                        </div>
 
-        <div className="p-4">
-          {!appliedCoupon ? (
-            <>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Enter your promotional code below to get a discount on your
-                product price.
-              </p>
+                        <div className="p-4">
+                          {!appliedCoupon ? (
+                            <>
+                              <p className="mb-3 text-xs text-muted-foreground">
+                                Enter your promotional code below to get a
+                                discount on your product price.
+                              </p>
 
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    if (couponError) setCouponError("");
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleApplyCoupon();
-                    }
-                  }}
-                  placeholder="ENTER COUPON CODE"
-                  aria-label="Coupon code"
-                  className="min-w-0 flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium uppercase tracking-wider outline-none transition-all placeholder:text-muted-foreground/50 hover:border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
-                />
+                              <div className="flex flex-col gap-2 sm:flex-row">
+                                <input
+                                  value={couponCode}
+                                  onChange={(e) => {
+                                    setCouponCode(e.target.value.toUpperCase());
+                                    if (couponError) setCouponError("");
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handleApplyCoupon();
+                                    }
+                                  }}
+                                  placeholder="ENTER COUPON CODE"
+                                  aria-label="Coupon code"
+                                  className="min-w-0 flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium uppercase tracking-wider outline-none transition-all placeholder:text-muted-foreground/50 hover:border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                />
 
-                <button
-                  type="button"
-                  onClick={handleApplyCoupon}
-                  disabled={couponLoading}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {couponLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Checking...
-                    </>
-                  ) : (
-                    "Apply Code"
-                  )}
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="rounded-lg border border-green-600/20 bg-green-600/5 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-600/10 text-green-700">
-                    <span className="text-lg font-bold">✓</span>
-                  </div>
+                                <button
+                                  type="button"
+                                  onClick={handleApplyCoupon}
+                                  disabled={couponLoading}
+                                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {couponLoading ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      Checking...
+                                    </>
+                                  ) : (
+                                    "Apply Code"
+                                  )}
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="rounded-lg border border-green-600/20 bg-green-600/5 p-3">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex min-w-0 items-start gap-3">
+                                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-600/10 text-green-700">
+                                    <span className="text-lg font-bold">✓</span>
+                                  </div>
 
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-green-700">
-                      Discount Successfully Applied
-                    </p>
+                                  <div className="min-w-0">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-green-700">
+                                      Discount Successfully Applied
+                                    </p>
 
-                    <p className="mt-1 break-all text-sm font-bold text-ink">
-                      {appliedCoupon.code}
-                    </p>
+                                    <p className="mt-1 break-all text-sm font-bold text-ink">
+                                      {appliedCoupon.code}
+                                    </p>
 
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                      You save ₹
-                      {couponOffPerUnit.toLocaleString("en-IN")} per piece
-                      on the product price.
-                    </p>
+                                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                      You save ₹
+                                      {couponOffPerUnit.toLocaleString("en-IN")}{" "}
+                                      per piece on the product price.
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAppliedCoupon(null);
+                                    setCouponCode("");
+                                    setCouponError("");
+                                    setShowCoupon(false);
+                                  }}
+                                  className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-destructive underline underline-offset-4 transition hover:no-underline"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+
+                              <div className="mt-3 flex items-center justify-between gap-3 border-t border-green-600/10 pt-3">
+                                <div>
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                                    Discounted Unit Price
+                                  </p>
+
+                                  <p className="mt-1 text-xs text-muted-foreground">
+                                    ₹{baseUnitPrice.toLocaleString("en-IN")} → ₹
+                                    {unitPrice.toLocaleString("en-IN")}
+                                  </p>
+                                </div>
+
+                                <p className="font-display text-xl text-green-700">
+                                  −₹{couponLineDiscount.toLocaleString("en-IN")}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {couponError && (
+                            <div
+                              role="alert"
+                              className="mt-3 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5"
+                            >
+                              <p className="text-xs text-destructive">
+                                {couponError}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAppliedCoupon(null);
-                    setCouponCode("");
-                    setCouponError("");
-                    setShowCoupon(false);
-                  }}
-                  className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-destructive underline underline-offset-4 transition hover:no-underline"
-                >
-                  Remove
-                </button>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between gap-3 border-t border-green-600/10 pt-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Discounted Unit Price
-                  </p>
-
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    ₹{baseUnitPrice.toLocaleString("en-IN")} → ₹
-                    {unitPrice.toLocaleString("en-IN")}
-                  </p>
-                </div>
-
-                <p className="font-display text-xl text-green-700">
-                  −₹{couponLineDiscount.toLocaleString("en-IN")}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {couponError && (
-            <div
-              role="alert"
-              className="mt-3 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5"
-            >
-              <p className="text-xs text-destructive">{couponError}</p>
-            </div>
-          )}
-        </div>
-      </div>
-    )}
-  </div>
-</div>
-{/* ================= END COUPON SECTION ================= */}
-
-
+                {/* ================= END COUPON SECTION ================= */}
               </div>
               <Row label="Quantity" value={`${total} pcs`} />
               {printCharge > 0 && (
@@ -1780,8 +1868,61 @@ const ProductDetailView = ({
                 per order.
               </p>
             )}
+            
 
-            {isBulk ? (
+                        {/* Customer information — mobile only, above pay buttons */}
+            {!isBulk && showBizFields && (
+              <div className="mt-6 lg:hidden rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+                <h2 className="font-condensed text-xl tracking-wide">
+                  CUSTOMER INFORMATION
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5 mb-4">
+                  Optional billing and order details (shown on invoice)
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.company}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, company: e.target.value })
+                      }
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      GST Number
+                    </label>
+                    <input
+                      type="text"
+                      value={customer.gst}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, gst: e.target.value })
+                      }
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      Additional Notes
+                    </label>
+                    <textarea
+                      value={customer.notes}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, notes: e.target.value })
+                      }
+                      rows={3}
+                      className="mt-2 w-full rounded-xl border border-border/70 bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* {isBulk ? (
               <button
                 onClick={handlePay}
                 className="btn-bold mt-6 w-full justify-center text-base !py-4"
@@ -1796,6 +1937,77 @@ const ProductDetailView = ({
                 className={`btn-bold btn-magnetic mt-6 w-full justify-center text-sm !py-3.5 ${!canOrder || isPaying ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 {isPaying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4" /> Pay Now (Razorpay)
+                  </>
+                )}
+              </button>
+            )} */}
+
+            {isBulk ? (
+              <button
+                onClick={() => handlePay("full")}
+                className="btn-bold mt-6 w-full justify-center text-base !py-4"
+              >
+                <PackageOpen className="h-5 w-5" /> Continue on Bulk Order page
+                ({maxQty}+ pcs)
+              </button>
+            ) : showBizFields ? (
+              <>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handlePay("advance-50")}
+                    disabled={!canOrder || !!payingMode}
+                    className="group relative overflow-hidden flex items-center justify-center gap-2 rounded-xl border-2 border-primary bg-white px-5 py-4 text-sm font-bold text-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {payingMode === "advance-50" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4" /> Pay 50% Advance
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePay("full")}
+                    disabled={!canOrder || !!payingMode}
+                    className="group relative overflow-hidden flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-4 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {payingMode === "full" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4" /> Pay in Full
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Pay 100% or 50% advance. Company / GST / notes are optional
+                  and appear on the invoice.
+                </p>
+              </>
+            ) : (
+              <button
+                onClick={() => handlePay("full")}
+                disabled={!canOrder || !!payingMode}
+                className={`btn-bold btn-magnetic mt-6 w-full justify-center text-sm !py-3.5 ${
+                  !canOrder || !!payingMode
+                    ? "opacity-40 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {payingMode ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" /> Processing…
                   </>
