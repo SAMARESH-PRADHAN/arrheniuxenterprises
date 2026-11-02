@@ -86,6 +86,7 @@ import { Layout } from "@/components/Layout";
 import { BrandLoader } from "@/components/BrandLoader";
 import { useProducts } from "@/hooks/api";
 import { mapApiProductToCatalog } from "@/lib/productMappers";
+import allProductsHero from "@/assets/all-products-hero.avif";
 import {
   catalog,
   findCategory,
@@ -270,7 +271,7 @@ function AllProducts() {
      <section className="relative overflow-hidden min-h-[280px] md:min-h-[380px] lg:min-h-[420px] text-cream">
   {/* Background collage image */}
   <img
-    src="src/assets/all-products-hero.avif"
+    src={allProductsHero}
     alt=""
     className="absolute inset-0 h-full w-full object-cover object-center scale-105"
     loading="eager"
