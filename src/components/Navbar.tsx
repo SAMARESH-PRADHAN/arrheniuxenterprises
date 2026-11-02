@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { MegaMenu } from "./MegaMenu";
-import { BulkMegaMenu } from "./BulkMegaMenu";
+// import { BulkMegaMenu } from "./BulkMegaMenu";
 import { UserMenu } from "./UserMenu";
 import { catalog } from "@/data/catalog";
 import { getSession, clearSession } from "@/lib/session";
@@ -30,7 +30,7 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
-  const [mobileBulkOpen, setMobileBulkOpen] = useState(false);
+  // const [mobileBulkOpen, setMobileBulkOpen] = useState(false);
   const [user, setUser] = useState(getSession());
   const location = useLocation();
   const navigate = useNavigate();
@@ -101,7 +101,12 @@ export const Navbar = () => {
           >
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />ARRHENIUX TOP WEAR
           </a>
-          <BulkMegaMenu />
+          {/* <BulkMegaMenu /> */}
+          <NavLink to="/all-products" className={navLinkClass}>
+  <span className="inline-flex items-center gap-1.5">
+    <Package className="h-3.5 w-3.5" aria-hidden="true" /> All Custom Products
+  </span>
+</NavLink>
           <B2BMegaMenu />
           <a
             href="#about-us"
@@ -222,7 +227,7 @@ export const Navbar = () => {
             >
               <span className="inline-flex items-center gap-1.5">
                 <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />{" "}
-                Categories
+All Custom Products
               </span>{" "}
               <ChevronDown
                 className={`h-4 w-4 transition ${mobileCatOpen ? "rotate-180" : ""}`}
@@ -249,7 +254,14 @@ export const Navbar = () => {
             >
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> ARRHENIUX TOP WEAR
             </a>
-            <button
+            <Link
+  to="/all-products"
+  onClick={() => setOpen(false)}
+  className="py-2 uppercase text-sm tracking-wide font-medium inline-flex items-center gap-1.5"
+>
+  <Package className="h-3.5 w-3.5" aria-hidden="true" /> All Custom Products
+</Link>
+            {/* <button
               onClick={() => setMobileBulkOpen((v) => !v)}
               className="py-2 font-medium uppercase text-sm tracking-wide flex items-center justify-between"
             >
@@ -260,8 +272,8 @@ export const Navbar = () => {
               <ChevronDown
                 className={`h-4 w-4 transition ${mobileBulkOpen ? "rotate-180" : ""}`}
               />
-            </button>
-            {mobileBulkOpen && (
+            </button> */}
+            {/* {mobileBulkOpen && (
               <div className="pl-3 border-l border-border flex flex-col gap-1 mb-2">
                 <Link
                   to="/bulk-order"
@@ -283,7 +295,7 @@ export const Navbar = () => {
                     </Link>
                   ))}
               </div>
-            )}
+            )} */}
             <Link
               to="/b2b-shop"
               onClick={() => setOpen(false)}

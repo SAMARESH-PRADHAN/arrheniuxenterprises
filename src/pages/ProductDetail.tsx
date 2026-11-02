@@ -82,7 +82,7 @@ import {
 import { validateCoupon } from "@/lib/api";
 
 const PDP_DRAFT_KEY = (id: string) => `arr_pdp_draft_${id}`;
-const BULK_REDIRECT_DRAFT_KEY = "arr_bulk_redirect_draft"; //
+// const BULK_REDIRECT_DRAFT_KEY = "arr_bulk_redirect_draft"; //
 type ProductDraft = {
   productId: string;
   sizeQty: Record<string, number>;
@@ -226,8 +226,8 @@ const ProductDetailView = ({
   // }, [product, discountOverrides]);
 
   const displayTiers = useMemo(() => {
-    const rule = getAccessoryRules(product.subSlug);
-    if (rule && !rule.discountEnabled) return null;
+    // const rule = getAccessoryRules(product.subSlug);
+    // if (rule && !rule.discountEnabled) return null;
 
     const catName = findCategory(product.categorySlug)?.name;
     const fallback = [
@@ -409,7 +409,7 @@ const ProductDetailView = ({
     : isArr || isNewCollection
       ? ARR_SIZE_MAX
       : getMaxQty(product);
-  const bulkThreshold = maxQty + 1;
+  // const bulkThreshold = maxQty + 1;
   const code = productCode(product);
   const gstRate = getGstPct(product);
   const gstPctLabel = Math.round(gstRate * 100);
@@ -513,9 +513,11 @@ const ProductDetailView = ({
   const gst = Math.round((afterDiscount + courier) * gstRate);
   const grandTotal = afterDiscount + courier + gst;
 
-  const isBulk = !isArr && !isNewCollection && total > maxQty;
+  // const isBulk = !isArr && !isNewCollection && total > maxQty;
+  const isBulk = false;
   const meetsMoq = total >= moq;
-  const canOrder = meetsMoq && total <= maxQty && (!isKit || kitEnoughItems);
+  // const canOrder = meetsMoq && total <= maxQty && (!isKit || kitEnoughItems);
+  const canOrder = meetsMoq && (!isKit || kitEnoughItems);
   const samplePriceValue = (() => {
     const u = product.samplePrice; // ← use actual samplePrice, not priceValue()
     // const u = priceValue(product);
@@ -620,24 +622,24 @@ const ProductDetailView = ({
   };
 
   // Build ?...=... payload for Bulk Order with full state preserved
-  const bulkRedirectHref = () => {
-    const p = new URLSearchParams();
-    p.set("product", product.id);
-    p.set("cat", product.categorySlug);
-    if (product.tier) p.set("tier", product.tier);
-    p.set("sub", product.subSlug);
-    p.set("qty", String(total));
-    if (selectedColor) p.set("color", selectedColor);
-    if (isGarment) {
-      const sz = SIZES.filter((s) => sizeQty[s] > 0)
-        .map((s) => `${s}:${sizeQty[s]}`)
-        .join(",");
-      if (sz) p.set("sizes", sz);
-    }
-    const pr = encodePrint(printSel);
-    if (pr) p.set("print", pr);
-    return `/bulk-order?${p.toString()}`;
-  };
+  // const bulkRedirectHref = () => {
+  //   const p = new URLSearchParams();
+  //   p.set("product", product.id);
+  //   p.set("cat", product.categorySlug);
+  //   if (product.tier) p.set("tier", product.tier);
+  //   p.set("sub", product.subSlug);
+  //   p.set("qty", String(total));
+  //   if (selectedColor) p.set("color", selectedColor);
+  //   if (isGarment) {
+  //     const sz = SIZES.filter((s) => sizeQty[s] > 0)
+  //       .map((s) => `${s}:${sizeQty[s]}`)
+  //       .join(",");
+  //     if (sz) p.set("sizes", sz);
+  //   }
+  //   const pr = encodePrint(printSel);
+  //   if (pr) p.set("print", pr);
+  //   return `/bulk-order?${p.toString()}`;
+  // };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -680,30 +682,32 @@ const ProductDetailView = ({
     }
   };
 
+  // const handlePay = useCallback(
+  //   (mode: "full" | "advance-50" = "full") => {
+  //     if (isBulk) {
+  //       try {
+  //         localStorage.setItem(
+  //           BULK_REDIRECT_DRAFT_KEY,
+  //           JSON.stringify({
+  //             productId: product.id,
+  //             sizeQty,
+  //             unitQty,
+  //             printSel,
+  //             artwork,
+  //             kitItems,
+  //             kitQtyManual,
+  //             namedColor,
+  //             printColor,
+  //           }),
+  //         );
+  //       } catch {
+  //         // storage full/unavailable — URL params still cover the basics
+  //       }
+  //       navigate(bulkRedirectHref());
+  //       return;
+  //     }
   const handlePay = useCallback(
-    (mode: "full" | "advance-50" = "full") => {
-      if (isBulk) {
-        try {
-          localStorage.setItem(
-            BULK_REDIRECT_DRAFT_KEY,
-            JSON.stringify({
-              productId: product.id,
-              sizeQty,
-              unitQty,
-              printSel,
-              artwork,
-              kitItems,
-              kitQtyManual,
-              namedColor,
-              printColor,
-            }),
-          );
-        } catch {
-          // storage full/unavailable — URL params still cover the basics
-        }
-        navigate(bulkRedirectHref());
-        return;
-      }
+  (mode: "full" | "advance-50" = "full") => {
       if (!canOrder || payingMode) return;
       setIsPaying(true); // ← add
       const user = getSession();

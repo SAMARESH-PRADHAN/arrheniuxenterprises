@@ -864,6 +864,7 @@ export const getDiscountPct = (
     const rule = getAccessoryRules(p.subSlug);
     if (rule && !rule.discountEnabled) return 0;
   }
+   if (qty > BULK_THRESHOLD) return BULK_DISCOUNT_PCT;
   if (qty >= 50) return 30;
   if (qty >= 25) return 20;
   if (qty >= 10) return 10;
@@ -880,35 +881,35 @@ export type DiscountOverrideTier = {
 
 const normalizeName = (s: string) => s.trim().toLowerCase();
 
+
 // export const resolveDiscountPct = (
 //   qty: number,
 //   p: Pick<CatalogProduct, "categorySlug" | "subSlug" | "tier">,
 //   overrides?: DiscountOverrideTier[] | null,
 // ): number => {
 //   const catName = findCategory(p.categorySlug)?.name;
-//   if (!catName) return getDiscountPct(qty, p); // fallback, unchanged
+//   if (!catName) return getDiscountPct(qty, p);
 
 //   const rule = getAccessoryRules(p.subSlug);
 //   if (rule && !rule.discountEnabled) return 0;
 
 //   if (overrides?.length) {
 //     const subName = subCategoryNameFor(p);
-//     const bucket = overrides.filter((o) => {
-//       const catMatches = normalizeName(o.category) === normalizeName(catName);
-//       if (!catMatches) return false;
-//       // exact sub-category tiers take priority over category-wide tiers
-//       const hasSubTiers = overrides.some(
-//         (x) =>
-//           normalizeName(x.category) === normalizeName(catName) && x.subCategory,
-//       );
-//       if (hasSubTiers && subName) {
-//         return (
-//           o.subCategory &&
-//           normalizeName(o.subCategory) === normalizeName(subName)
-//         );
+
+//     let bucket = overrides.filter((o) => {
+//       if (normalizeName(o.category) !== normalizeName(catName)) return false;
+//       if (subName && o.subCategory) {
+//         return normalizeName(o.subCategory) === normalizeName(subName);
 //       }
 //       return !o.subCategory;
 //     });
+
+//     if (!bucket.length && subName) {
+//       bucket = overrides.filter(
+//         (o) =>
+//           normalizeName(o.category) === normalizeName(catName) && !o.subCategory,
+//       );
+//     }
 
 //     if (bucket.length) {
 //       const match = bucket.find(
@@ -918,9 +919,8 @@ const normalizeName = (s: string) => s.trim().toLowerCase();
 //     }
 //   }
 
-//   return getDiscountPct(qty, p); // no admin tiers set for this category — hardcoded fallback
+//   return getDiscountPct(qty, p);
 // };
-
 
 export const resolveDiscountPct = (
   qty: number,
@@ -931,34 +931,53 @@ export const resolveDiscountPct = (
   if (!catName) return getDiscountPct(qty, p);
 
   const rule = getAccessoryRules(p.subSlug);
-  if (rule && !rule.discountEnabled) return 0;
 
+  // 1) Admin tiers always win (including accessories subcategory rows)
   if (overrides?.length) {
     const subName = subCategoryNameFor(p);
 
+    // Prefer exact subcategory rows when this product has a sub
     let bucket = overrides.filter((o) => {
       if (normalizeName(o.category) !== normalizeName(catName)) return false;
       if (subName && o.subCategory) {
         return normalizeName(o.subCategory) === normalizeName(subName);
       }
-      return !o.subCategory;
+      return !o.subCategory; // category-wide rows
     });
 
+    // If no subcategory-specific rows, fall back to category-wide
     if (!bucket.length && subName) {
       bucket = overrides.filter(
         (o) =>
-          normalizeName(o.category) === normalizeName(catName) && !o.subCategory,
+          normalizeName(o.category) === normalizeName(catName) &&
+          !o.subCategory,
       );
     }
 
     if (bucket.length) {
-      const match = bucket.find(
-        (t) => qty >= t.minQty && (t.maxQty == null || qty <= t.maxQty),
-      );
-      if (match) return match.discountPct;
+      // Highest minQty that still matches qty (so 81+ beats 50–80)
+      const matches = bucket
+        .filter(
+          (t) => qty >= t.minQty && (t.maxQty == null || qty <= t.maxQty),
+        )
+        .sort((a, b) => b.minQty - a.minQty);
+
+      if (matches.length) return matches[0].discountPct;
+
+      // Qty above all closed ranges but admin has open-ended / isBulk (80+)
+      // const openOrBulk = bucket
+      //   .filter((t) => t.maxQty == null || t.isBulk)
+      //   .sort((a, b) => b.minQty - a.minQty);
+      // if (openOrBulk.length && qty >= openOrBulk[0].minQty) {
+      //   return openOrBulk[0].discountPct;
+      // }
     }
   }
 
+  // 2) Only if NO admin match: respect hardcoded accessory "no discount"
+  if (rule && !rule.discountEnabled) return 0;
+
+  // 3) Hardcoded fallback (garments etc.)
   return getDiscountPct(qty, p);
 };
 
