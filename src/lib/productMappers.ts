@@ -4,11 +4,11 @@ import {
   type CatalogProduct,
   type Tier,
 } from "@/data/catalog";
+import { BASE } from "@/lib/api";
 import type {
   ApiB2BProduct,
   ApiNewCollectionProduct,
   ApiProduct,
-  BASE,
 } from "@/lib/api";
 
 function resolveImage(url: string | undefined, fallback = ""): string {

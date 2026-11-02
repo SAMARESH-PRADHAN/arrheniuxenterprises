@@ -15,7 +15,9 @@ const CategoryTiers = lazy(() => import("./pages/CategoryTiers.tsx"));
 const SubcategoryList = lazy(() => import("./pages/SubcategoryList.tsx"));
 const ProductList = lazy(() => import("./pages/ProductList.tsx"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail.tsx"));
-const BulkOrder = lazy(() => import("./pages/BulkOrder.tsx"));
+// const BulkOrder = lazy(() => import("./pages/BulkOrder.tsx"));
+const AllProducts = lazy(() => import("./pages/AllProducts.tsx"));
+
 const B2BShop = lazy(() => import("./pages/B2BShop.tsx"));
 const MyOrders = lazy(() => import("./pages/MyOrders.tsx"));
 const MyAddresses = lazy(() => import("./pages/MyAddresses.tsx"));
@@ -54,7 +56,8 @@ const App = () => (
             <Route path="/category/:cat/:tier/:sub" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/arreheniux-top-wear" element={<ArreheniuxTopWear />} />
-            <Route path="/bulk-order" element={<BulkOrder />} />
+            {/* <Route path="/bulk-order" element={<BulkOrder />} /> */}
+            <Route path="/all-products" element={<AllProducts />} />
             <Route path="/b2b-shop" element={<B2BShop />} />
             <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/my-addresses" element={<MyAddresses />} />
