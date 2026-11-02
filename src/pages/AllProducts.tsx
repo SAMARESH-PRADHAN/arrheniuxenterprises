@@ -139,6 +139,7 @@ function showDiscountBadge(categorySlug: string) {
 function AllProducts() {
   const { data: apiProducts = [], isLoading } = useProducts({
     status: "Active",
+    limit: 500,
   });
 
   const products = useMemo(() => {
