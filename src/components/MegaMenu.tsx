@@ -36,7 +36,7 @@ export const MegaMenu = () => {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        <LayoutGrid className="h-3.5 w-3.5" /> All Custom Products <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        <LayoutGrid className="h-3.5 w-3.5" /> Custom bulk T-shirts <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (

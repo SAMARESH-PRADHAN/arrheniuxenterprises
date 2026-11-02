@@ -227,7 +227,7 @@ export const Navbar = () => {
             >
               <span className="inline-flex items-center gap-1.5">
                 <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />{" "}
-All Custom Products
+Custom bulk T-shirts
               </span>{" "}
               <ChevronDown
                 className={`h-4 w-4 transition ${mobileCatOpen ? "rotate-180" : ""}`}

@@ -50,7 +50,7 @@ export function useCatalogProducts(
 }
 
 export function useBulkCatalogProducts() {
-  const query = useProducts({ status: "Active" });
+  const query = useProducts({ status: "Active", limit: 500 });
   const products = filterBulkProducts(query.data ?? []);
   return { ...query, products };
 }
