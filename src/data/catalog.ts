@@ -484,7 +484,7 @@ export const catalog: CatalogCategory[] = [
     regular: makeSubs("corporate-wear", corporate, "regular", [
       { name: "Spun Collar Neck T-Shirts", image: newspuncollarnecktshirt, banner: bannerspuncollarnecktshirt},
       { name: "Cut & Sew Collar Neck T-Shirts", image: newcutandsewcollarnecktshirt, banner: bannercutandsewcollarnecktshirt},
-      { name: "Corporate Economy Collar Neck T-Shirt", image: newcorporateeconomycollarnecktshirt, banner: bannercorporateeconomycollarnecktshirt},
+      { name: "Corporate Economy Collar Neck T-Shirts", image: newcorporateeconomycollarnecktshirt, banner: bannercorporateeconomycollarnecktshirt},
       { name: "Construction Grey Collar Neck T-Shirts", image: newreunionscollarnecktshirts, banner: bannerreunionscollarnecktshirt},
       { name: "Marketing Collar Neck T-Shirts", image: newmarketingcollarnecktshirt, banner: bannermarketingcollarnecktshirt},
      { name: "Petrol Pump Collar Neck T-Shirts", image: newpetrolpumpcollarnecktshirt, banner: bannerpetrolpumpcollarnecktshirt},
