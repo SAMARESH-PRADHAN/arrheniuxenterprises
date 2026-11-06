@@ -120,8 +120,8 @@ function subLabel(p: CatalogProduct) {
 // Categories that do NOT show the 40% badge (same idea as ProductCard)
 const NO_DISCOUNT_CATEGORIES = [
   "arrheniux-t-shirts",
-  "custom-accessories",
-  "corporate-welcome-kit",
+  // "custom-accessories",
+  // "corporate-welcome-kit",
   "new-collection",
 ];
 
