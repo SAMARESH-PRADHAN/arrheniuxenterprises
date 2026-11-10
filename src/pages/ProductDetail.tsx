@@ -495,20 +495,51 @@ const ProductDetailView = ({
       ? printLabel(printSel, restrictedMethods)
       : "N/A";
 
-  // Product total uses discounted unit price
-  const productLineTotal = unitPrice * total;
-  const subtotal = productLineTotal + printCharge;
+  // // Product total uses discounted unit price
+  // const productLineTotal = unitPrice * total;
+  // const subtotal = productLineTotal + printCharge;
 
-  // Existing quantity-tier % discount (if any) on subtotal
+  // // Existing quantity-tier % discount (if any) on subtotal
+  // const discountPct =
+  //   isKit || isArr ? 0 : resolveDiscountPct(total, product, discountOverrides);
+  // const qtyDiscountAmt = Math.round((subtotal * discountPct) / 100);
+
+  // // Total money saved by coupon on the line (for order/invoice)
+  // const couponLineDiscount = couponOffPerUnit * total;
+  // const discountAmt = qtyDiscountAmt + couponLineDiscount;
+
+  // const afterDiscount = Math.max(0, subtotal - qtyDiscountAmt);
+  // const courier = total * courierPerPc;
+  // const gst = Math.round((afterDiscount + courier) * gstRate);
+  // const grandTotal = afterDiscount + courier + gst;
+
+
+    // Product total (coupon already baked into unitPrice)
+  const productLineTotal = unitPrice * total;
+
+  // Quantity-tier % discount ONLY on product (NOT on print)
   const discountPct =
     isKit || isArr ? 0 : resolveDiscountPct(total, product, discountOverrides);
-  const qtyDiscountAmt = Math.round((subtotal * discountPct) / 100);
+  const qtyDiscountAmt = Math.round((productLineTotal * discountPct) / 100);
 
-  // Total money saved by coupon on the line (for order/invoice)
+  const productAfterDiscount = Math.max(0, productLineTotal - qtyDiscountAmt);
+
+  // Print is full price, added AFTER product discount
+  const subtotalAfterDiscount = productAfterDiscount + printCharge;
+
+  // Effective price per piece after product discount + print (before courier/GST)
+  const effectivePerPc =
+    total > 0 ? Math.round(subtotalAfterDiscount / total) : 0;
+
+  // For display: "subtotal" can mean product+print before qty discount
+  const subtotal = productLineTotal + printCharge;
+
+  // Coupon savings (already applied to unitPrice; keep for reporting)
   const couponLineDiscount = couponOffPerUnit * total;
   const discountAmt = qtyDiscountAmt + couponLineDiscount;
 
-  const afterDiscount = Math.max(0, subtotal - qtyDiscountAmt);
+  // GST base = after product discount + print + courier
+  const afterDiscount = subtotalAfterDiscount;
   const courier = total * courierPerPc;
   const gst = Math.round((afterDiscount + courier) * gstRate);
   const grandTotal = afterDiscount + courier + gst;
@@ -1830,7 +1861,7 @@ const ProductDetailView = ({
                 </div>
                 {/* ================= END COUPON SECTION ================= */}
               </div>
-              <Row label="Quantity" value={`${total} pcs`} />
+              {/* <Row label="Quantity" value={`${total} pcs`} />
               {printCharge > 0 && (
                 <Row
                   label={`Print (${printTypeText})`}
@@ -1852,7 +1883,49 @@ const ProductDetailView = ({
                 }
                 value={courierPerPc > 0 ? `₹${courier}` : "FREE"}
               />
-              <Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} />
+              <Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} /> */}
+<Row label="Quantity" value={`${total} pcs`} />
+
+<Row
+  label={`Product total (${total}pcs X ${baseUnitPrice})`}
+  value={`₹${productLineTotal.toLocaleString("en-IN")}`}
+/>
+<Row
+  label="Discount"
+  value={
+    discountPct > 0
+      ? `${discountPct}% on product (−₹${qtyDiscountAmt.toLocaleString("en-IN")})`
+      : "—"
+  }
+/>
+{printCharge > 0 && (
+  <Row
+    label={`Print (${printTypeText})`}
+    value={`+₹${printCharge.toLocaleString("en-IN")}`}
+  />
+)}
+{printCharge > 0 && (
+  <Row
+    label="After discount + print"
+    value={`₹${subtotalAfterDiscount.toLocaleString("en-IN")}`}
+  />
+)}
+{total > 0 && (discountPct > 0 || printCharge > 0) && (
+  <Row
+    label="Effective price / pc"
+    value={`₹${effectivePerPc.toLocaleString("en-IN")}/pc`}
+  />
+)}
+<Row
+  label={
+    courierPerPc > 0
+      ? `Courier (₹${courierPerPc}×${total})`
+      : "Courier"
+  }
+  value={courierPerPc > 0 ? `₹${courier}` : "FREE"}
+/>
+<Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} />
+
               <div className="shine-sweep flex items-center justify-between px-4 py-3 bg-ink text-cream">
                 <span className="text-xs uppercase tracking-widest font-bold">
                   Final Total

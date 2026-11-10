@@ -137,12 +137,32 @@ export type StorefrontOrder = {
   material?: string;    
     description?: string;  
     invoiceNumber?: string;
+    effectivePerPc?: number;
 };
 
 export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrder {
-  const subtotal = o.unitPrice * o.qty;
-  const gst = Math.round((subtotal - o.discountAmt + o.shipping) * (o.gstPct / 100));
-  const total = o.totalAmount > 0 ? o.totalAmount : subtotal - o.discountAmt + o.shipping + gst;
+  // const subtotal = o.unitPrice * o.qty;
+  // const gst = Math.round((subtotal - o.discountAmt + o.shipping) * (o.gstPct / 100));
+  // const total = o.totalAmount > 0 ? o.totalAmount : subtotal - o.discountAmt + o.shipping + gst;
+  const productSubtotal = o.unitPrice * o.qty;
+  const printingPrice = o.printingPrice ?? 0;
+  const discountAmt = o.discountAmt ?? 0;
+  const discountPct = o.discountPct ?? 0;
+
+  // Discount is only on product; print stays full
+  // (discountAmt from API may include coupon + qty discount on product)
+  const productAfterDiscount = Math.max(0, productSubtotal - discountAmt);
+  const afterDiscount = productAfterDiscount + printingPrice;
+
+  const gstPct = o.gstPct ?? 5;
+  const gst = Math.round((afterDiscount + o.shipping) * (gstPct / 100));
+  const total =
+    o.totalAmount > 0
+      ? o.totalAmount
+      : afterDiscount + o.shipping + gst;
+
+  const effectivePerPc =
+    o.qty > 0 ? Math.round(afterDiscount / o.qty) : 0;
   const kind: StorefrontOrderKind =
     o.type === "Bulk" ? "bulk" : o.type === "B2B" ? "b2b" : "retail";
  const deliveredAt = o.timeline?.find((t) => t.status === "Delivered")?.at;
@@ -169,10 +189,11 @@ export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrd
     productCode: o.productCode,
     qty: o.qty,
     unitPrice: o.unitPrice,
-    printingPrice: o.printingPrice,
-    subtotal,
-    discountPct: o.discountPct ?? 0,
-    discountAmt: o.discountAmt ?? 0,
+    // printingPrice: o.printingPrice,
+    subtotal: productSubtotal,
+    printingPrice,
+    discountPct,
+    discountAmt,
     printType: o.printType,
     courier: o.shipping,
     gst,

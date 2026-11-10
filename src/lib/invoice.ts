@@ -494,19 +494,49 @@ const deliveryDateValue = isDelivered && order.deliveredAt
     doc.text(value, tableRight - 2, y, { align: "right" });
     y += opts.bold ? 6.5 : 5.5;
   };
-const subtotal = order.subtotal + order.printingPrice;
-const discountTotal = subtotal - order.discountAmt;
-  addRow("Subtotal", fmt(order.subtotal + order.printingPrice));
-  if (order.discountAmt > 0) addRow(`Discount (${order.discountPct}%)`, `- ${fmt(order.discountAmt)}`, { color: GREEN_OK });
-  addRow("Total", fmt(discountTotal), {
-  bold: true,
-});
-  addRow(order.courier > 0 ? "Courier Charges" : "Courier Charges", order.courier > 0 ? fmt(order.courier) : "FREE");
-  const gstRate = order.gstPct ?? 5;
-const gstAmount = (discountTotal * gstRate) / 100;
+// const subtotal = order.subtotal + order.printingPrice;
+// const discountTotal = subtotal - order.discountAmt;
+//   addRow("Subtotal", fmt(order.subtotal + order.printingPrice));
+//   if (order.discountAmt > 0) addRow(`Discount (${order.discountPct}%)`, `- ${fmt(order.discountAmt)}`, { color: GREEN_OK });
+//   addRow("Total", fmt(discountTotal), {
+//   bold: true,
+// });
+//   addRow(order.courier > 0 ? "Courier Charges" : "Courier Charges", order.courier > 0 ? fmt(order.courier) : "FREE");
+//   const gstRate = order.gstPct ?? 5;
+// const gstAmount = (discountTotal * gstRate) / 100;
 
+// addRow(`GST (${gstRate}%)`, fmt(gstAmount));
+
+const productSubtotal = order.subtotal; // unit × qty
+const printingPrice = order.printingPrice || 0;
+const productAfterDiscount = Math.max(0, productSubtotal - (order.discountAmt || 0));
+const afterDiscount = productAfterDiscount + printingPrice;
+const effectivePerPc =
+  order.qty > 0 ? Math.round(afterDiscount / order.qty) : 0;
+
+addRow("Product total", fmt(productSubtotal));
+// if (printingPrice > 0) {
+//   addRow("Printing", fmt(printingPrice));
+// }
+if (order.discountAmt > 0) {
+  addRow(
+    `Discount (${order.discountPct}% on product)`,
+    `- ${fmt(order.discountAmt)}`,
+    { color: GREEN_OK },
+  );
+}
+addRow("After discount + print", fmt(afterDiscount), { bold: true });
+// if (order.qty > 0 && (order.discountAmt > 0 || printingPrice > 0)) {
+//   addRow("Effective / pc", `Rs ${effectivePerPc}/pc`);
+// }
+addRow(
+  order.courier > 0 ? "Courier Charges" : "Courier Charges",
+  order.courier > 0 ? fmt(order.courier) : "FREE",
+);
+const gstRate = order.gstPct ?? 5;
+const gstAmount = Math.round(((afterDiscount + order.courier) * gstRate) / 100);
 addRow(`GST (${gstRate}%)`, fmt(gstAmount));
-
+// GRAND TOTAL still uses order.total (authoritative from checkout)
   y += 1.5;
   doc.setDrawColor(...INK);
   doc.setLineWidth(0.3);
