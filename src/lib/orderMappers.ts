@@ -11,8 +11,8 @@ export type PlaceOrderPayload = {
   email: string;
   address?: string;
   companyName?: string;
-gstNumber?: string;
-notes?: string;
+  gstNumber?: string;
+  notes?: string;
   productId?: string;
   productCode?: string;
   productName: string;
@@ -33,11 +33,15 @@ notes?: string;
   total: number;
   paid: number;
   paymentMode: "full" | "advance-50" | "cod";
-  discountPct?: number; 
+  discountPct?: number;
   discountAmt?: number;
   paymentRef?: string;
-    couponCode?: string | null;
+  couponCode?: string | null;
   couponDiscount?: number;
+  salesAgentId?: string | null;
+  shareToken?: string | null;
+  baseUnitPrice?: number;
+  agentUnitPrice?: number;
 };
 
 const KIND_TO_TYPE: Record<StorefrontOrderKind, CreateOrderInput["type"]> = {
@@ -46,27 +50,34 @@ const KIND_TO_TYPE: Record<StorefrontOrderKind, CreateOrderInput["type"]> = {
   b2b: "B2B",
 };
 
-function paymentMethodFromMode(mode: PlaceOrderPayload["paymentMode"]): ApiPaymentMethod {
+function paymentMethodFromMode(
+  mode: PlaceOrderPayload["paymentMode"],
+): ApiPaymentMethod {
   if (mode === "cod") return "COD";
   return "UPI";
 }
 
-function paymentStatus(paid: number, total: number): CreateOrderInput["paymentStatus"] {
+function paymentStatus(
+  paid: number,
+  total: number,
+): CreateOrderInput["paymentStatus"] {
   if (paid >= total) return "Paid";
   if (paid > 0) return "Partial";
   return "Pending";
 }
 
 export function toCreateOrderInput(payload: PlaceOrderPayload): CreateOrderInput {
+  const isAgent = !!(payload.salesAgentId || payload.shareToken);
+
   return {
-     customerId: payload.customerId ?? null,
+    customerId: payload.customerId ?? null,
     customer: payload.customerName,
     phone: payload.phone,
     email: payload.email,
     address: payload.address ?? "",
     companyName: payload.companyName ?? "",
-gstNumber:   payload.gstNumber ?? "",
-notes:       payload.notes ?? "",
+    gstNumber: payload.gstNumber ?? "",
+    notes: payload.notes ?? "",
     productId: payload.productId ?? null,
     productCode: payload.productCode ?? "",
     productName: payload.productName,
@@ -86,14 +97,20 @@ notes:       payload.notes ?? "",
     shipping: payload.shipping ?? 0,
     discountPct: payload.discountPct ?? 0,
     discountAmt: payload.discountAmt ?? 0,
-    
     total: payload.total,
     paid: payload.paid,
-    type: KIND_TO_TYPE[payload.kind],
+    // Prefer Sales Agent type when agent context present
+    type: isAgent ? "Sales Agent" : KIND_TO_TYPE[payload.kind],
     status: "Placed",
     paymentStatus: paymentStatus(payload.paid, payload.total),
     paymentMethod: paymentMethodFromMode(payload.paymentMode),
     date: new Date().toISOString().slice(0, 10),
+    couponCode: payload.couponCode ?? null,
+    couponDiscount: payload.couponDiscount,
+    salesAgentId: payload.salesAgentId ?? null,
+    shareToken: payload.shareToken ?? null,
+    baseUnitPrice: payload.baseUnitPrice,
+    agentUnitPrice: payload.agentUnitPrice,
   };
 }
 
@@ -113,7 +130,7 @@ export type StorefrontOrder = {
   printType?: string;
   courier: number;
   gst: number;
-    gstPct?: number;              // ← NEW
+  gstPct?: number; // ← NEW
   total: number;
   paid: number;
   paymentMode: "full" | "advance-50" | "cod";
@@ -122,25 +139,28 @@ export type StorefrontOrder = {
   createdAt: string;
   updatedAt: string;
   expectedDelivery?: string;
-  deliveredAt?: string;          
+  deliveredAt?: string;
   kind: StorefrontOrderKind;
   sizes?: Record<string, number>;
-  customerName?: string;        // ← NEW
-  phone?: string;                // ← NEW
-  email?: string;                // ← NEW
-  address?: string;             // ← NEW
-    companyName?: string;
+  customerName?: string; // ← NEW
+  phone?: string; // ← NEW
+  email?: string; // ← NEW
+  address?: string; // ← NEW
+  companyName?: string;
   gstNumber?: string;
   notes?: string;
-  category?: string;             // ← NEW
-  subCategory?: string;          // ← NEW
-  material?: string;    
-    description?: string;  
-    invoiceNumber?: string;
-    effectivePerPc?: number;
+  category?: string; // ← NEW
+  subCategory?: string; // ← NEW
+  material?: string;
+  description?: string;
+  invoiceNumber?: string;
+  effectivePerPc?: number;
 };
 
-export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrder {
+export function apiOrderToStorefront(
+  o: ApiOrder,
+  userId: string,
+): StorefrontOrder {
   // const subtotal = o.unitPrice * o.qty;
   // const gst = Math.round((subtotal - o.discountAmt + o.shipping) * (o.gstPct / 100));
   // const total = o.totalAmount > 0 ? o.totalAmount : subtotal - o.discountAmt + o.shipping + gst;
@@ -157,15 +177,12 @@ export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrd
   const gstPct = o.gstPct ?? 5;
   const gst = Math.round((afterDiscount + o.shipping) * (gstPct / 100));
   const total =
-    o.totalAmount > 0
-      ? o.totalAmount
-      : afterDiscount + o.shipping + gst;
+    o.totalAmount > 0 ? o.totalAmount : afterDiscount + o.shipping + gst;
 
-  const effectivePerPc =
-    o.qty > 0 ? Math.round(afterDiscount / o.qty) : 0;
+  const effectivePerPc = o.qty > 0 ? Math.round(afterDiscount / o.qty) : 0;
   const kind: StorefrontOrderKind =
     o.type === "Bulk" ? "bulk" : o.type === "B2B" ? "b2b" : "retail";
- const deliveredAt = o.timeline?.find((t) => t.status === "Delivered")?.at;
+  const deliveredAt = o.timeline?.find((t) => t.status === "Delivered")?.at;
   let paymentMode: StorefrontOrder["paymentMode"] = "full";
   if (o.paymentMethod === "COD") paymentMode = "cod";
   else if (o.paymentStatus === "Partial") paymentMode = "advance-50";
@@ -197,27 +214,29 @@ export function apiOrderToStorefront(o: ApiOrder, userId: string): StorefrontOrd
     printType: o.printType,
     courier: o.shipping,
     gst,
-    gstPct: o.gstPct,             // ← NEW
+    gstPct: o.gstPct, // ← NEW
     total,
     paid,
     paymentMode,
     status: o.status,
     createdAt: o.date,
     updatedAt: o.date,
-    expectedDelivery: new Date(Date.parse(o.date) + 10 * 86400000).toISOString(),
+    expectedDelivery: new Date(
+      Date.parse(o.date) + 10 * 86400000,
+    ).toISOString(),
     deliveredAt,
     kind,
     sizes: o.sizes,
-     customerName: o.customer,     // ← NEW
-    phone: o.phone,               // ← NEW
-    email: o.email,               // ← NEW
-    address: o.address,           // ← NEW
-        companyName: (o as any).companyName || "",
+    customerName: o.customer, // ← NEW
+    phone: o.phone, // ← NEW
+    email: o.email, // ← NEW
+    address: o.address, // ← NEW
+    companyName: (o as any).companyName || "",
     gstNumber: (o as any).gstNumber || "",
     notes: (o as any).notes || "",
-    category: o.category,         // ← NEW
-    subCategory: o.subCategory,   // ← NEW
-    material: o.material,  
+    category: o.category, // ← NEW
+    subCategory: o.subCategory, // ← NEW
+    material: o.material,
     description: o.description,
     invoiceNumber: (o as any).invoiceNumber || "",
   };

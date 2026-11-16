@@ -8,7 +8,11 @@ import ScrollToTop from "./components/ScrollToTop";
 import RouteLoader from "./components/RouteLoader";
 import { VisitTracker } from "./components/VisitTracker";
 import { BrandLoader } from "./components/BrandLoader";
+import { AgentStoreProvider } from "./sales-agent/context/AgentStoreContext";
 
+const AgentStoreEntry = lazy(
+  () => import("./sales-agent/pages/AgentStoreEntry"),
+);
 const Index = lazy(() => import("./pages/Index.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const CategoryTiers = lazy(() => import("./pages/CategoryTiers.tsx"));
@@ -26,6 +30,19 @@ const Auth = lazy(() => import("./pages/Auth"));
 const AdminApp = lazy(() => import("./admin/AdminApp"));
 const ArreheniuxTopWear = lazy(() => import("./pages/ArreheniuxTopWear.tsx"));
 
+const SalesAgentLogin = lazy(
+  () => import("./sales-agent/pages/SalesAgentLogin"),
+);
+const SalesAgentDashboard = lazy(
+  () => import("./sales-agent/pages/SalesAgentDashboard"),
+);
+const SalesAgentProducts = lazy(
+  () => import("./sales-agent/pages/SalesAgentProducts"),
+);
+const SalesAgentShare = lazy(
+  () => import("./sales-agent/pages/SalesAgentShare"),
+);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -41,6 +58,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+      <AgentStoreProvider>
         <ScrollToTop />
         <RouteLoader />
         <VisitTracker />
@@ -55,7 +73,10 @@ const App = () => (
             {/* /category/:cat/:tier/:sub → product listing */}
             <Route path="/category/:cat/:tier/:sub" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/arreheniux-top-wear" element={<ArreheniuxTopWear />} />
+            <Route
+              path="/arreheniux-top-wear"
+              element={<ArreheniuxTopWear />}
+            />
             {/* <Route path="/bulk-order" element={<BulkOrder />} /> */}
             <Route path="/all-products" element={<AllProducts />} />
             <Route path="/b2b-shop" element={<B2BShop />} />
@@ -63,9 +84,19 @@ const App = () => (
             <Route path="/my-addresses" element={<MyAddresses />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin/*" element={<AdminApp />} />
+
+            <Route path="/agent-panel/login" element={<SalesAgentLogin />} />
+            <Route path="/agent-panel" element={<SalesAgentDashboard />} />
+            <Route
+              path="/agent-panel/products"
+              element={<SalesAgentProducts />}
+            />
+            <Route path="/agent-panel/share" element={<SalesAgentShare />} />
+<Route path="/agent/:shareToken" element={<AgentStoreEntry />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </AgentStoreProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

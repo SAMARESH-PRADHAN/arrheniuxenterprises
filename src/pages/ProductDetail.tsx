@@ -80,6 +80,7 @@ import {
   useProducts,
 } from "@/hooks/api";
 import { validateCoupon } from "@/lib/api";
+import { loadAgentStoreSession } from "@/sales-agent/lib/agentStoreSession";
 
 const PDP_DRAFT_KEY = (id: string) => `arr_pdp_draft_${id}`;
 // const BULK_REDIRECT_DRAFT_KEY = "arr_bulk_redirect_draft"; //
@@ -801,6 +802,7 @@ const ProductDetailView = ({
         onSuccess: async (paymentId) => {
           setSavingOrder(true);
           try {
+            const agentSession = loadAgentStoreSession();
             const o = await createOrderMut.mutateAsync({
               kind: "retail",
               customerId: user.id,
@@ -838,6 +840,10 @@ const ProductDetailView = ({
               shipping: courier,
               total: grandTotal,
               paid: amount,
+              // NEW — agent context
+  salesAgentId: agentSession?.salesAgentId ?? null,
+  shareToken: agentSession?.shareToken ?? null,
+  agentUnitPrice: unitPrice,
               uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
               discountPct,
               discountAmt,
