@@ -4,6 +4,7 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { FloatingWhatsApp } from "./FloatingWhatsApp";
 import { AnnouncementBar } from "./AnnouncementBar";
+import { AgentStoreBanner } from "@/sales-agent/components/AgentStoreBanner";
 
 export const Layout = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
@@ -13,6 +14,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-ambient" />
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-grain opacity-[0.035]" />
       <AnnouncementBar />
+      {/* <AgentStoreBanner /> */}
       <Navbar />
       <main key={pathname} className="flex-1 page-enter">{children}</main>
       <Footer />

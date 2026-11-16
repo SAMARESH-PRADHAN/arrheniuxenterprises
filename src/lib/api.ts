@@ -186,7 +186,7 @@ export function fetchPrintSettings() {
 }
 
 export type ApiOrderStatus = "Placed" | "Confirmed" | "In Production" | "Shipped" | "Delivered";
-export type ApiOrderType = "Normal" | "Bulk" | "B2B" | "New Collection";
+export type ApiOrderType = "Normal" | "Bulk" | "B2B" | "New Collection" | "Sales Agent";
 export type ApiPaymentStatus = "Paid" | "Pending" | "Partial" | "Failed" | "Refunded";
 export type ApiPaymentMethod = "UPI" | "Credit Card" | "Net Banking" | "COD" | "Wallet";
 
@@ -226,6 +226,12 @@ export type ApiOrder = {
   paidAmount: number;
   timeline: Array<{ status: ApiOrderStatus; at: string }>;
   invoiceNumber?: string;
+    salesAgentId?: string | null;
+  salesAgentCode?: string;
+  salesAgentName?: string;
+  baseUnitPrice?: number;
+  agentUnitPrice?: number;
+  agentEarning?: number;
 };
 
 export type ApiPayment = {
@@ -332,6 +338,11 @@ notes?: string;
   timeline?: Array<{ status: ApiOrderStatus; at: string }>;
     couponCode?: string | null;
   couponDiscount?: number;
+    // Sales Agent (optional — only when shopping via share link)
+  salesAgentId?: string | null;
+  shareToken?: string | null;
+  baseUnitPrice?: number;
+  agentUnitPrice?: number;
 };
 
 export type CreatePaymentInput = {
@@ -388,11 +399,33 @@ export type CreateAgentVisitInput = {
   notes?: string;
 };
 
+
+
+
+import { getAgentShareToken } from "@/sales-agent/lib/agentStoreSession";
+
+function agentPublicProductsPath(shareToken: string, filters: ProductFilters = {}) {
+  const params = new URLSearchParams();
+  if (filters.category) params.set("category", filters.category);
+  if (filters.type) params.set("type", filters.type);
+  if (filters.subCategory) params.set("subCategory", filters.subCategory);
+  if (filters.limit) params.set("limit", String(filters.limit));
+  else params.set("limit", "500");
+  const qs = params.toString();
+  return `sales-agents/public/${encodeURIComponent(shareToken)}/products${qs ? `?${qs}` : ""}`;
+}
 // ---------------------------------------------------------------------------
 // Products
 // ---------------------------------------------------------------------------
 
 export function fetchProducts(filters: ProductFilters = {}) {
+  const shareToken = getAgentShareToken();
+
+  // Agent store mode: prices come from public agent products API
+  if (shareToken) {
+    return request<ApiProduct[]>(agentPublicProductsPath(shareToken, filters));
+  }
+
   const params = new URLSearchParams();
   if (filters.status) params.set("status", filters.status);
   if (filters.category) params.set("category", filters.category);
@@ -404,6 +437,22 @@ export function fetchProducts(filters: ProductFilters = {}) {
 }
 
 export function fetchProduct(id: string) {
+  const shareToken = getAgentShareToken();
+
+  if (shareToken) {
+    // Public list endpoint returns agent-priced products; find one by id.
+    // (Keeps one backend route; fine for catalog size.)
+    return request<ApiProduct[]>(agentPublicProductsPath(shareToken, { limit: 500 })).then(
+      (list) => {
+        const found = list.find((p) => p.id === id);
+        if (!found) {
+          throw new ApiError("Product not found", 404);
+        }
+        return found;
+      },
+    );
+  }
+
   return request<ApiProduct>(`products/${id}`);
 }
 
