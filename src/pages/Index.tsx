@@ -11,6 +11,7 @@ import { FactorySection } from "@/components/sections/FactorySection";
 import { WhyWhatWho } from "@/components/sections/WhyWhatWho";
 import { StoreLocations } from "@/components/sections/StoreLocations";
 import { Reviews } from "@/components/sections/Reviews";
+import { SalesAgentRegistration } from "@/components/SalesAgentRegistration";
 
 const Index = () => {
   const { hash } = useLocation();
@@ -40,6 +41,7 @@ const Index = () => {
         <StoreLocations />
       </section>
       <Reviews />
+<SalesAgentRegistration />
     </Layout>
   );
 };
