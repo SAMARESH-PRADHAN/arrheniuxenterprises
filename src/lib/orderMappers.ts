@@ -32,7 +32,7 @@ export type PlaceOrderPayload = {
   shipping?: number;
   total: number;
   paid: number;
-  paymentMode: "full" | "advance-50" | "cod";
+  paymentMode: "full" | "advance-30" | "cod";
   discountPct?: number;
   discountAmt?: number;
   paymentRef?: string;
@@ -133,7 +133,7 @@ export type StorefrontOrder = {
   gstPct?: number; // ← NEW
   total: number;
   paid: number;
-  paymentMode: "full" | "advance-50" | "cod";
+  paymentMode?: "full" | "advance-30" | "advance-50" | "cod";
   paymentRef?: string;
   status: ApiOrder["status"];
   createdAt: string;
@@ -185,7 +185,7 @@ export function apiOrderToStorefront(
   const deliveredAt = o.timeline?.find((t) => t.status === "Delivered")?.at;
   let paymentMode: StorefrontOrder["paymentMode"] = "full";
   if (o.paymentMethod === "COD") paymentMode = "cod";
-  else if (o.paymentStatus === "Partial") paymentMode = "advance-50";
+  else if (o.paymentStatus === "Partial") paymentMode = "advance-30";
 
   // Prefer the stored paid_amount (set at checkout / payment time) over
   // deriving it from paymentStatus, which is lossy (Partial → guessed 50%).

@@ -331,10 +331,9 @@ const ProductDetailView = ({
   };
 
   const [customer, setCustomer] = useState<DraftCustomer>(EMPTY_CUSTOMER);
-  const [payingMode, setPayingMode] = useState<"full" | "advance-50" | null>(
+  const [payingMode, setPayingMode] = useState<"full" | "advance-30" | null>(
     null,
   );
-
   // Consume the saved draft exactly once. It's only ever written to storage
   // right before redirecting to /auth or /my-addresses (see handlePay below),
   // so this restores it after that specific round-trip — then wipes it so
@@ -514,8 +513,7 @@ const ProductDetailView = ({
   // const gst = Math.round((afterDiscount + courier) * gstRate);
   // const grandTotal = afterDiscount + courier + gst;
 
-
-    // Product total (coupon already baked into unitPrice)
+  // Product total (coupon already baked into unitPrice)
   const productLineTotal = unitPrice * total;
 
   // Quantity-tier % discount ONLY on product (NOT on print)
@@ -739,7 +737,7 @@ const ProductDetailView = ({
   //       return;
   //     }
   const handlePay = useCallback(
-  (mode: "full" | "advance-50" = "full") => {
+    (mode: "full" | "advance-30" = "full") => {
       if (!canOrder || payingMode) return;
       setIsPaying(true); // ← add
       const user = getSession();
@@ -787,12 +785,13 @@ const ProductDetailView = ({
         return;
       }
 
-      const amount = mode === "full" ? grandTotal : Math.round(grandTotal / 2);
+      const amount =
+        mode === "full" ? grandTotal : Math.round(grandTotal * 0.3);
       openRazorpay({
         amountInr: amount,
         name: "Arrheniux",
         description: `${product.name} × ${total} pcs (${
-          mode === "full" ? "Full" : "50% Advance"
+          mode === "full" ? "Full" : "30% Advance"
         })`,
         prefill: {
           name: user.name,
@@ -841,9 +840,9 @@ const ProductDetailView = ({
               total: grandTotal,
               paid: amount,
               // NEW — agent context
-  salesAgentId: agentSession?.salesAgentId ?? null,
-  shareToken: agentSession?.shareToken ?? null,
-  agentUnitPrice: unitPrice,
+              salesAgentId: agentSession?.salesAgentId ?? null,
+              shareToken: agentSession?.shareToken ?? null,
+              agentUnitPrice: unitPrice,
               uploadedLogo: !isArr ? (artwork[0]?.dataUrl ?? "") : "",
               discountPct,
               discountAmt,
@@ -1149,8 +1148,8 @@ const ProductDetailView = ({
                 </div>
               </div>
             )}
-           {!isBulk && showBizFields && (
-  <div className="mt-6 hidden lg:block rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+            {!isBulk && showBizFields && (
+              <div className="mt-6 hidden lg:block rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
                 <h2 className="font-condensed text-xl tracking-wide">
                   CUSTOMER INFORMATION
                 </h2>
@@ -1890,47 +1889,47 @@ const ProductDetailView = ({
                 value={courierPerPc > 0 ? `₹${courier}` : "FREE"}
               />
               <Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} /> */}
-<Row label="Quantity" value={`${total} pcs`} />
+              <Row label="Quantity" value={`${total} pcs`} />
 
-<Row
-  label={`Product total (${total}pcs X ${baseUnitPrice})`}
-  value={`₹${productLineTotal.toLocaleString("en-IN")}`}
-/>
-<Row
-  label="Discount"
-  value={
-    discountPct > 0
-      ? `${discountPct}% on product (−₹${qtyDiscountAmt.toLocaleString("en-IN")})`
-      : "—"
-  }
-/>
-{printCharge > 0 && (
-  <Row
-    label={`Print (${printTypeText})`}
-    value={`+₹${printCharge.toLocaleString("en-IN")}`}
-  />
-)}
-{printCharge > 0 && (
-  <Row
-    label="After discount + print"
-    value={`₹${subtotalAfterDiscount.toLocaleString("en-IN")}`}
-  />
-)}
-{total > 0 && (discountPct > 0 || printCharge > 0) && (
-  <Row
-    label="Effective price / pc"
-    value={`₹${effectivePerPc.toLocaleString("en-IN")}/pc`}
-  />
-)}
-<Row
-  label={
-    courierPerPc > 0
-      ? `Courier (₹${courierPerPc}×${total})`
-      : "Courier"
-  }
-  value={courierPerPc > 0 ? `₹${courier}` : "FREE"}
-/>
-<Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} />
+              <Row
+                label={`Product total (${total}pcs X ${baseUnitPrice})`}
+                value={`₹${productLineTotal.toLocaleString("en-IN")}`}
+              />
+              <Row
+                label="Discount"
+                value={
+                  discountPct > 0
+                    ? `${discountPct}% on product (−₹${qtyDiscountAmt.toLocaleString("en-IN")})`
+                    : "—"
+                }
+              />
+              {printCharge > 0 && (
+                <Row
+                  label={`Print (${printTypeText})`}
+                  value={`+₹${printCharge.toLocaleString("en-IN")}`}
+                />
+              )}
+              {printCharge > 0 && (
+                <Row
+                  label="After discount + print"
+                  value={`₹${subtotalAfterDiscount.toLocaleString("en-IN")}`}
+                />
+              )}
+              {total > 0 && (discountPct > 0 || printCharge > 0) && (
+                <Row
+                  label="Effective price / pc"
+                  value={`₹${effectivePerPc.toLocaleString("en-IN")}/pc`}
+                />
+              )}
+              <Row
+                label={
+                  courierPerPc > 0
+                    ? `Courier (₹${courierPerPc}×${total})`
+                    : "Courier"
+                }
+                value={courierPerPc > 0 ? `₹${courier}` : "FREE"}
+              />
+              <Row label={`GST ${gstPctLabel}%`} value={`₹${gst}`} />
 
               <div className="shine-sweep flex items-center justify-between px-4 py-3 bg-ink text-cream">
                 <span className="text-xs uppercase tracking-widest font-bold">
@@ -1951,9 +1950,8 @@ const ProductDetailView = ({
                 per order.
               </p>
             )}
-            
 
-                        {/* Customer information — mobile only, above pay buttons */}
+            {/* Customer information — mobile only, above pay buttons */}
             {!isBulk && showBizFields && (
               <div className="mt-6 lg:hidden rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
                 <h2 className="font-condensed text-xl tracking-wide">
@@ -2044,17 +2042,25 @@ const ProductDetailView = ({
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => handlePay("advance-50")}
+                    onClick={() => handlePay("advance-30")}
                     disabled={!canOrder || !!payingMode}
-                    className="group relative overflow-hidden flex items-center justify-center gap-2 rounded-xl border-2 border-primary bg-white px-5 py-4 text-sm font-bold text-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                    className="group relative overflow-hidden flex flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-primary bg-white px-5 py-3.5 text-sm font-bold text-primary shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {payingMode === "advance-50" ? (
+                    {payingMode === "advance-30" ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" /> Processing…
                       </>
                     ) : (
                       <>
-                        <CreditCard className="h-4 w-4" /> Pay 50% Advance
+                        <span className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          Pay 30% Advance — ₹
+                          {Math.round(grandTotal * 0.3).toLocaleString("en-IN")}
+                        </span>
+                        <span className="text-[11px] font-medium text-muted-foreground">
+                          Remaining later: ₹
+                          {Math.round(grandTotal * 0.7).toLocaleString("en-IN")}
+                        </span>
                       </>
                     )}
                   </button>
@@ -2076,8 +2082,8 @@ const ProductDetailView = ({
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Pay 100% or 50% advance. Company / GST / notes are optional
-                  and appear on the invoice.
+                  Pay 100% or 30% advance. Remaining balance is due later.
+                  Company / GST / notes are optional and appear on the invoice.
                 </p>
               </>
             ) : (
