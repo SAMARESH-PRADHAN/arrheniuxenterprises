@@ -389,7 +389,7 @@ const makeSubs = (
 export const catalog: CatalogCategory[] = [
   {
     slug: "oversized-t-shirts",
-    name: "Oversized T-Shirts",
+    name: "Custom Oversize T-Shirts",
     image: newoversizetshirt,
     banner: banneroversizehoodiescata,
     regularBanner: banneroversizestshirtregular,
@@ -406,7 +406,7 @@ export const catalog: CatalogCategory[] = [
   },
   {
     slug: "hoodies",
-    name: "Hoodies",
+    name: "Custom Hoodies",
     image: newhoodies,
     banner: bannerhoodiescata,
     regularBanner: bannerhoodiesregular,
@@ -422,7 +422,7 @@ export const catalog: CatalogCategory[] = [
   },
   {
     slug: "jersey",
-    name: "Jersey",
+    name: "Custom Jersey",
     image: newjersey,
     banner: bannerjerseycata,
     regularBanner: bannerjerseyregular,
@@ -466,7 +466,7 @@ export const catalog: CatalogCategory[] = [
       { name: "240 GSM Polycotton Polo T-Shirts", image: new240gsmpolycottonpolotshirt, banner: banner240gsmpolycottonpolotshirt},
       { name: "240 GSM CP Polo T-Shirts", image: new240gsmcppolotshirt, banner: banner240gsmcppolotshirt},
       { name: "240 GSM Spun Polo T-Shirts (Polyester)", image: new240gsmspunpolotshirt, banner: banner240gsmspunpolotshirt},
-      { name: "240 GSM Honeycomb Polo T-Shirts (Polyester)", image: new240gsmhoneycombopolotshirt, banner: banner240gsmhoneycombopolotshirt},
+      { name: "180 GSM Techno Matty Polo T-Shirts (Premium Polyster)", image: new240gsmhoneycombopolotshirt, banner: banner240gsmhoneycombopolotshirt},
       { name: "180 GSM SAP Matty Polo T-Shirts (Premium Polyester)", image: new180gsmsapmattypolotshirt, banner: banner180gsmsapmattypolotshirt},
       { name: "180 GSM Dotnet Polo T-Shirts (Polyester)", image: new180gsmdotnetpolotshirt, banner: banner180gsmdotnetpolotshirt},
       { name: "170 GSM Nirmal Net Polo T-Shirts (Polyester)", image: new170gsmnirmalnetpolotshirt, banner: banner170gsmnirmalnetpolotshirt},
@@ -559,12 +559,12 @@ export const catalog: CatalogCategory[] = [
         name: "SAP Matty White Round Neck T-Shirts",
         image: newsapmattywhiteroundnecktshirt, banner: bannersapmattywhiteroundnecktshirt
       },
-      { name: "Cotton Gym Round Neck T-Shirts", image: newcottongymroundnecktshirt, banner: bannercottongymroundnecktshirt },
+      { name: "Sublimation Round Neck T-Shirts", image: newcottongymroundnecktshirt, banner: bannercottongymroundnecktshirt },
     ]),
   },
   {
     slug: "aprons",
-    name: "Aprons",
+    name: "Custom Aprons",
     image: newaprons,
     banner: bannerapronscata,
     regularBanner: bannerapronsregular,
